@@ -455,7 +455,7 @@ export default function Index() {
             transformOrigin: 'right center'
           }}
         >
-            <h1 className="text-[120px] sm:text-[160px] md:text-[200px] lg:text-[240px] xl:text-[280px] 2xl:text-[349px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
+            <h1 className="text-[80px] sm:text-[100px] md:text-[120px] lg:text-[140px] xl:text-[160px] 2xl:text-[200px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
              RECRUIT
            </h1>
           </div>
@@ -524,7 +524,7 @@ export default function Index() {
             }}
           >
             <h2 
-              className="text-[100px] sm:text-[120px] md:text-[140px] lg:text-[160px] xl:text-[180px] 2xl:text-[240px] font-bold leading-[0.95] tracking-[0.05em] text-white"
+              className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[120px] xl:text-[140px] 2xl:text-[180px] font-bold leading-[0.95] tracking-[0.05em] text-white"
               style={{fontFamily: 'Milker'}}
             >
               WHAT WE DO
