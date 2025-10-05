@@ -934,7 +934,7 @@ export default function Index() {
         </div>
 
          {/* Section 04 - Data */}
-         <div className="relative h-[65vh]">
+         <div className="relative h-[300vh]">
              <div className="sticky top-0 z-30 rounded-[50px] bg-brand-blue p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer">
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
