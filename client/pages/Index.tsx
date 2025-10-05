@@ -378,9 +378,10 @@ export default function Index() {
           <div className="hero-corner br"></div>
           <div className="hero-inner h-full flex flex-col justify-center">
             <div className="container mx-auto px-2 lg:px-4">
-              {/* Video containers */}
-              <div className="flex justify-center gap-16">
-                <div className="rounded-[36px] overflow-hidden h-[900px] w-[500px] max-w-none bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+              {/* Video containers - responsive for MacBook */}
+              <div className="flex justify-center gap-8 lg:gap-16 flex-wrap lg:flex-nowrap">
+                {/* Left video - full height */}
+                <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px] bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
                   <video
                     className="w-full h-full object-cover"
                     muted
@@ -394,8 +395,9 @@ export default function Index() {
                   </video>
                 </div>
                 
-                <div className="flex flex-col gap-32 h-[900px] w-[500px]">
-                  <div className="rounded-[36px] overflow-hidden h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                {/* Center videos - stacked */}
+                <div className="flex flex-col gap-8 lg:gap-16 xl:gap-20 2xl:gap-32 h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px]">
+                  <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[180px] lg:h-[250px] xl:h-[300px] 2xl:h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
                     <video
                       className="w-full h-full object-cover"
                       muted
@@ -409,7 +411,7 @@ export default function Index() {
                     </video>
                   </div>
                   
-                  <div className="rounded-[36px] overflow-hidden h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                  <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[180px] lg:h-[250px] xl:h-[300px] 2xl:h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
                     <video
                       className="w-full h-full object-cover"
                       muted
@@ -421,12 +423,13 @@ export default function Index() {
                       <source src="/placeholder.mp4" type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
-            </div>
-          </div>
+                  </div>
+                </div>
 
-                <div className="rounded-[36px] overflow-hidden h-[900px] w-[500px] max-w-none bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                {/* Right video - full height */}
+                <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px] bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
                   <video
-              className="w-full h-full object-cover"
+                    className="w-full h-full object-cover"
                     muted
                     autoPlay
                     loop
@@ -437,7 +440,7 @@ export default function Index() {
                     Your browser does not support the video tag.
                   </video>
                 </div>
-          </div>
+              </div>
             </div>
           </div>
         </section>
@@ -452,7 +455,7 @@ export default function Index() {
             transformOrigin: 'right center'
           }}
         >
-            <h1 className="text-[210px] sm:text-[256px] md:text-[302px] lg:text-[349px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
+            <h1 className="text-[120px] sm:text-[160px] md:text-[200px] lg:text-[240px] xl:text-[280px] 2xl:text-[349px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
              RECRUIT
            </h1>
           </div>
@@ -521,7 +524,7 @@ export default function Index() {
             }}
           >
             <h2 
-              className="text-[180px] sm:text-[200px] md:text-[220px] lg:text-[240px] font-bold leading-[0.95] tracking-[0.05em] text-white"
+              className="text-[100px] sm:text-[120px] md:text-[140px] lg:text-[160px] xl:text-[180px] 2xl:text-[240px] font-bold leading-[0.95] tracking-[0.05em] text-white"
               style={{fontFamily: 'Milker'}}
             >
               WHAT WE DO
