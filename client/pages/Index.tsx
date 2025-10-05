@@ -378,10 +378,10 @@ export default function Index() {
           <div className="hero-corner br"></div>
           <div className="hero-inner h-full flex flex-col justify-center">
             <div className="container mx-auto px-2 lg:px-4">
-              {/* Video containers - responsive for MacBook */}
-              <div className="flex justify-center gap-8 lg:gap-16 flex-wrap lg:flex-nowrap">
+              {/* Video containers - optimized for MacBook */}
+              <div className="flex justify-center items-center gap-4 lg:gap-8 xl:gap-12 2xl:gap-16 max-w-full">
                 {/* Left video - full height */}
-                <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px] bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px] bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
                   <video
                     className="w-full h-full object-cover"
                     muted
@@ -396,8 +396,8 @@ export default function Index() {
                 </div>
                 
                 {/* Center videos - stacked */}
-                <div className="flex flex-col gap-8 lg:gap-16 xl:gap-20 2xl:gap-32 h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px]">
-                  <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[180px] lg:h-[250px] xl:h-[300px] 2xl:h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                <div className="flex flex-col gap-4 lg:gap-8 xl:gap-10 2xl:gap-16 h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px]">
+                  <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[140px] lg:h-[200px] xl:h-[240px] 2xl:h-[300px] w-full bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
                     <video
                       className="w-full h-full object-cover"
                       muted
@@ -411,7 +411,7 @@ export default function Index() {
                     </video>
                   </div>
                   
-                  <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[180px] lg:h-[250px] xl:h-[300px] 2xl:h-[388px] w-full bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                  <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[140px] lg:h-[200px] xl:h-[240px] 2xl:h-[300px] w-full bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
                     <video
                       className="w-full h-full object-cover"
                       muted
@@ -427,7 +427,7 @@ export default function Index() {
                 </div>
 
                 {/* Right video - full height */}
-                <div className="rounded-[24px] lg:rounded-[36px] overflow-hidden h-[400px] lg:h-[600px] xl:h-[700px] 2xl:h-[900px] w-[280px] lg:w-[350px] xl:w-[400px] 2xl:w-[500px] bg-gray-900 flex items-center justify-center relative border-4 border-brand-orange">
+                <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px] bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
                   <video
                     className="w-full h-full object-cover"
                     muted
