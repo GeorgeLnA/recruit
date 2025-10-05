@@ -1,0 +1,394 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Milker';
+  src: url('/Milker.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-white text-brand-dark font-sans;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Hide scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #2a2a2a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #FF914D;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ff3a34;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hero: sharp outside, rounded inside */
+  .hero-outline {
+    @apply border-t-[10px] border-r-[10px] border-b-[10px];
+    border-color: #FF914D;
+    border-radius: 0;
+    position: relative;
+    transform-origin: right bottom;
+    transition: transform 0.1s ease-out;
+    background: white;
+  }
+
+  .hero-outline.bouncing {
+    animation: heroBounce 4.65s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  }
+
+  @keyframes heroBounce {
+    0%, 22.6% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(2deg);
+    }
+    79.0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+  }
+
+  .hero-inner {
+    @apply rounded-[24px];
+    background-color: #2a2a2a;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Corner fillers to keep outside sharp while inside is rounded */
+  .hero-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .hero-corner.tl { top: 0; left: 0; }
+  .hero-corner.tr { top: 0; right: 0; }
+  .hero-corner.bl { bottom: 0; left: 0; }
+  .hero-corner.br { bottom: 0; right: 0; }
+
+  /* Header logo section: sharp outside, rounded inside */
+  .header-logo-outline {
+    @apply border-t-[10px] border-r-[10px] border-b-[5px] border-l-[10px];
+    border-color: #FF914D;
+    border-radius: 0;
+    position: relative;
+    background: white;
+  }
+
+  .header-logo-outline::before,
+  .header-logo-outline::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-logo-outline::before {
+    top: 0;
+    left: 0;
+  }
+
+  .header-logo-outline::after {
+    top: 0;
+    right: 0;
+  }
+
+  .header-logo-corner-bl,
+  .header-logo-corner-br {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-logo-corner-bl {
+    bottom: 0;
+    left: 0;
+  }
+
+  .header-logo-corner-br {
+    bottom: 0;
+    right: 0;
+  }
+
+  .header-logo-inner {
+    @apply rounded-[24px];
+    background-color: #2a2a2a;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Header CTA section: sharp outside, rounded inside */
+  .header-cta-outline {
+    @apply border-t-[5px] border-r-[10px] border-b-[10px] border-l-[10px];
+    border-color: #FF914D;
+    border-radius: 0;
+    position: relative;
+    background: white;
+  }
+
+  .header-cta-outline::before,
+  .header-cta-outline::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-cta-outline::before {
+    bottom: 0;
+    left: 0;
+  }
+
+  .header-cta-outline::after {
+    bottom: 0;
+    right: 0;
+  }
+
+  .header-cta-corner-tl,
+  .header-cta-corner-tr {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-cta-corner-tl {
+    top: 0;
+    left: 0;
+  }
+
+  .header-cta-corner-tr {
+    top: 0;
+    right: 0;
+  }
+
+  .header-cta-inner {
+    @apply rounded-[24px];
+    background-color: #2a2a2a;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Header navigation section: sharp outside, rounded inside */
+  .header-nav-outline {
+    @apply border-t-[5px] border-r-[10px] border-b-[5px] border-l-[10px];
+    border-color: #FF914D;
+    border-radius: 0;
+    position: relative;
+    background: white;
+  }
+
+  .header-nav-outline::before,
+  .header-nav-outline::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-nav-outline::before {
+    top: 0;
+    left: 0;
+  }
+
+  .header-nav-outline::after {
+    bottom: 0;
+    left: 0;
+  }
+
+  .header-nav-corner-tr,
+  .header-nav-corner-br {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #FF914D;
+    z-index: 0;
+  }
+
+  .header-nav-corner-tr {
+    top: 0;
+    right: 0;
+  }
+
+  .header-nav-corner-br {
+    bottom: 0;
+    right: 0;
+  }
+
+  .header-nav-inner {
+    @apply rounded-[24px];
+    background-color: #2a2a2a;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Morphing circle animation */
+  .morphing-circle {
+    animation: morphCircle 20s linear infinite;
+    will-change: transform, border-radius;
+  }
+
+  /* All black elements turn white when circle passes over */
+  .black-invert {
+    mix-blend-mode: difference;
+  }
+
+  /* Custom peach to red color transformation */
+  .peach-to-red {
+    filter: hue-rotate(0deg) saturate(1.5) contrast(1.2);
+  }
+
+  @keyframes morphCircle {
+    0%, 100% {
+      border-radius: 50%;
+      transform: scale(1) rotate(0deg);
+    }
+    8.33% {
+      border-radius: 45% 55% 45% 55%;
+      transform: scale(1.01) rotate(30deg);
+    }
+    16.67% {
+      border-radius: 40% 60% 40% 60%;
+      transform: scale(0.99) rotate(60deg);
+    }
+    25% {
+      border-radius: 55% 45% 55% 45%;
+      transform: scale(1.02) rotate(90deg);
+    }
+    33.33% {
+      border-radius: 35% 65% 35% 65%;
+      transform: scale(0.98) rotate(120deg);
+    }
+    41.67% {
+      border-radius: 60% 40% 60% 40%;
+      transform: scale(1.03) rotate(150deg);
+    }
+    50% {
+      border-radius: 30% 70% 30% 70%;
+      transform: scale(0.97) rotate(180deg);
+    }
+    58.33% {
+      border-radius: 65% 35% 65% 35%;
+      transform: scale(1.01) rotate(210deg);
+    }
+    66.67% {
+      border-radius: 42% 58% 42% 58%;
+      transform: scale(0.99) rotate(240deg);
+    }
+    75% {
+      border-radius: 58% 42% 58% 42%;
+      transform: scale(1.02) rotate(270deg);
+    }
+    83.33% {
+      border-radius: 38% 62% 38% 62%;
+      transform: scale(0.98) rotate(300deg);
+    }
+    91.67% {
+      border-radius: 52% 48% 52% 48%;
+      transform: scale(1.01) rotate(330deg);
+    }
+  }
+}
