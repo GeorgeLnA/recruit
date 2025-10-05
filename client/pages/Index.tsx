@@ -933,45 +933,6 @@ export default function Index() {
             </div>
         </div>
 
-         {/* Section 04 - Data */}
-         <div className="relative h-[300vh]">
-             <div className="sticky top-0 z-30 rounded-[50px] bg-brand-blue p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer">
-              <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
-            <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
-                Expertise
-              </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
-                Data
-              </h2>
-              <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-brand-dark font-semibold text-[18px] hover:opacity-90 transition-opacity">
-                  Meer over data
-                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
-                    <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:absolute lg:right-16 lg:top-16">
-              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-brand-blue-light">04</span>
-            </div>
-
-            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
-              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-brand-red p-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/b44516bf1376d623e1a6115ed8b1b98fe527d0e7?width=576"
-                  alt="Data insights"
-                  className="w-full h-full object-cover rounded-[24px]"
-                />
-              </div>
-              </div>
-            </div>
-        </div>
-          </div>
-        </div>
-        </div>
         </div>
       </section>
 
