@@ -8,42 +8,97 @@ export default function Index() {
   const heroRef = useRef<HTMLElement>(null);
   const videoSectionRef = useRef<HTMLElement>(null);
   const aboutSectionRef = useRef<HTMLElement>(null);
+  const expertiseSectionRef = useRef<HTMLElement>(null);
+  const expertiseCardRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
+  const lastScrollYRef = useRef(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
   const [aboutSectionProgress, setAboutSectionProgress] = useState(0);
+  const [expertiseSectionProgress, setExpertiseSectionProgress] = useState(0);
+  const [expertiseCardProgress, setExpertiseCardProgress] = useState<number[]>([0, 0, 0, 0]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [circlePosition, setCirclePosition] = useState({ x: 0, y: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
 
-      if (heroRef.current) {
-        const heroHeight = heroRef.current.offsetHeight;
-        // Calculate progress from 0 to 1 over the hero height
-        // Use a more gradual curve for the empty section effect
-        const progress = Math.min(Math.max(scrollY / (heroHeight * 1.5), 0), 1);
-        setScrollProgress(progress);
-      }
+          if (heroRef.current) {
+            const heroHeight = heroRef.current.offsetHeight;
+            // Calculate progress from 0 to 1 over the hero height
+            // Use a more gradual curve for the empty section effect
+            const progress = Math.min(Math.max(scrollY / (heroHeight * 1.5), 0), 1);
+            setScrollProgress(progress);
+          }
 
-      // Compute local progress for the video morphing section (0..1 within that section)
-      if (videoSectionRef.current) {
-        const sectionTop = videoSectionRef.current.offsetTop;
-        const sectionHeight = videoSectionRef.current.offsetHeight || 1;
-        const local = Math.min(Math.max((scrollY - sectionTop) / sectionHeight, 0), 1);
-        setVideoProgress(local);
-      }
+          // Compute local progress for the video morphing section (0..1 within that section)
+          if (videoSectionRef.current) {
+            const sectionTop = videoSectionRef.current.offsetTop;
+            const sectionHeight = videoSectionRef.current.offsetHeight || 1;
+            const local = Math.min(Math.max((scrollY - sectionTop) / sectionHeight, 0), 1);
+            setVideoProgress(local);
+          }
 
-      // Compute local progress for the about section (0..1 within that section)
-      if (aboutSectionRef.current) {
-        const sectionTop = aboutSectionRef.current.offsetTop;
-        const sectionHeight = aboutSectionRef.current.offsetHeight || 1;
-        // Start expansion 900px before reaching the section
-        const adjustedTop = sectionTop - 900;
-        const local = Math.min(Math.max((scrollY - adjustedTop) / sectionHeight, 0), 1);
-        setAboutSectionProgress(local);
+          // Compute local progress for the about section (0..1 within that section)
+          if (aboutSectionRef.current) {
+            const sectionTop = aboutSectionRef.current.offsetTop;
+            const sectionHeight = aboutSectionRef.current.offsetHeight || 1;
+            // Start expansion 900px before reaching the section
+            const adjustedTop = sectionTop - 900;
+            const local = Math.min(Math.max((scrollY - adjustedTop) / sectionHeight, 0), 1);
+            setAboutSectionProgress(local);
+          }
+
+          // Compute local progress for the expertise section (0..1 within that section)
+          if (expertiseSectionRef.current) {
+            const sectionTop = expertiseSectionRef.current.offsetTop;
+            const sectionHeight = expertiseSectionRef.current.offsetHeight || 1;
+            const local = Math.min(Math.max((scrollY - sectionTop) / sectionHeight, 0), 1);
+            setExpertiseSectionProgress(local);
+          }
+
+          // Compute continuous per-card progress (0..1) based on distance past viewport center
+          const windowHeight = window.innerHeight || 1;
+          const isScrollingUp = scrollY < lastScrollYRef.current;
+          const viewportCenter = windowHeight / 2;
+          const targetProgress: number[] = [0, 0, 0, 0];
+
+          expertiseCardRefs.current.forEach((cardRef, index) => {
+            if (!cardRef) return;
+            const rect = cardRef.getBoundingClientRect();
+            const cardCenter = rect.top + rect.height / 2;
+            // Positive when card center is above viewport center
+            let distance = viewportCenter - cardCenter;
+            // Return earlier when scrolling up (bias by ~25% viewport height)
+            const returnBiasPx = windowHeight * 0.25;
+            if (isScrollingUp) {
+              distance -= returnBiasPx;
+            }
+            // Map distance to 0..1; slightly tighter when scrolling up so it returns earlier
+            const mappingDenom = windowHeight * (isScrollingUp ? 0.45 : 0.5);
+            const raw = distance / mappingDenom;
+            const clamped = Math.min(Math.max(raw, 0), 1);
+            // Ease out for nicer start and end motion
+            const eased = clamped * (2 - clamped);
+            targetProgress[index] = eased;
+          });
+
+          // Smoothly approach target progress; much snappier when scrolling up
+          const approach = isScrollingUp ? 0.65 : 0.35;
+          setExpertiseCardProgress(prev => prev.map((p, i) => p + (targetProgress[i] - p) * approach));
+
+          // Update last scroll position
+          lastScrollYRef.current = scrollY;
+
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
@@ -51,7 +106,7 @@ export default function Index() {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
@@ -59,6 +114,8 @@ export default function Index() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  // Removed IntersectionObserver in favor of a simpler, stable rAF-based tracker
 
   useEffect(() => {
     const damping = 0.3; // 30% damping
@@ -302,6 +359,16 @@ export default function Index() {
 
     const pts = variantPoints(Math.min(Math.max(t, 0), 1), 72);
     return catmullRom2bezierPath(pts, 0.58);
+  }
+
+  // Transform helper for expertise cards (stable, progress-based)
+  function getCardTransform(direction: 'left' | 'right', progress: number) {
+    const dir = direction === 'left' ? -1 : 1;
+    const dx = dir * progress * 120; // vw
+    const dy = -80 * progress; // px
+    const rot = dir * 20 * progress; // deg
+    const scale = 1 - 0.4 * progress;
+    return `translateX(${dx}vw) translateY(${dy}px) rotate(${rot}deg) scale(${scale})`;
   }
 
   return (
@@ -819,11 +886,15 @@ export default function Index() {
       </section>
 
       {/* Expertise Sections */}
-      <section id="expertises" className="bg-brand-orange w-full relative -mt-80 z-10" style={{overflow: 'hidden'}}>
+      <section ref={expertiseSectionRef as any} id="expertises" className="bg-brand-orange w-full relative -mt-80 z-10" style={{overflow: 'hidden'}}>
         <div className="w-full pl-0 pr-2.5 space-y-0">
          {/* Section 01 - Social Strategy */}
          <div className="relative h-[65vh]">
-             <div className="sticky top-0 z-30 rounded-[50px] bg-brand-red p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer">
+            <div 
+              ref={(el) => { expertiseCardRefs.current[0] = el; }}
+              className={`sticky top-0 z-30 rounded-[50px] bg-brand-red p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
+              style={{ transform: getCardTransform('left', expertiseCardProgress[0] || 0) }}
+            >
           <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
               <span className="inline-block px-6 py-3 rounded-md bg-[#D8EADC] text-brand-dark text-[24px] mb-8">
@@ -861,7 +932,11 @@ export default function Index() {
 
          {/* Section 02 - Content Creation */}
          <div className="relative h-[300vh]">
-             <div className="sticky top-0 z-30 rounded-[50px] bg-brand-pink p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer">
+            <div 
+              ref={(el) => { expertiseCardRefs.current[1] = el; }}
+              className={`sticky top-0 z-30 rounded-[50px] bg-brand-pink p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
+              style={{ transform: getCardTransform('right', expertiseCardProgress[1] || 0) }}
+            >
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
               <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
@@ -898,7 +973,11 @@ export default function Index() {
 
          {/* Section 03 - Activation */}
          <div className="relative h-[300vh]">
-             <div className="sticky top-0 z-30 rounded-[50px] bg-brand-green p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer">
+            <div 
+              ref={(el) => { expertiseCardRefs.current[2] = el; }}
+              className={`sticky top-0 z-30 rounded-[50px] bg-brand-green p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
+              style={{ transform: getCardTransform('left', expertiseCardProgress[2] || 0) }}
+            >
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
               <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
@@ -933,6 +1012,49 @@ export default function Index() {
             </div>
         </div>
 
+         {/* Section 04 - Data */}
+         <div className="relative h-[300vh]">
+            <div 
+              ref={(el) => { expertiseCardRefs.current[3] = el; }}
+              className={`sticky top-0 z-30 rounded-[50px] bg-brand-blue p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
+              style={{ transform: getCardTransform('right', expertiseCardProgress[3] || 0) }}
+            >
+              <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
+            <div className="flex-1 w-full z-10">
+              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
+                Expertise
+              </span>
+              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
+                Data
+              </h2>
+              <div className="space-y-16">
+                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-brand-dark font-semibold text-[18px] hover:opacity-90 transition-opacity">
+                  Meer over data
+                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
+                    <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div className="lg:absolute lg:right-16 lg:top-16">
+              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-brand-blue-light">04</span>
+            </div>
+
+            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
+              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-brand-red p-3">
+                <img
+                  src="https://api.builder.io/api/v1/image/assets/TEMP/b44516bf1376d623e1a6115ed8b1b98fe527d0e7?width=576"
+                  alt="Data insights"
+                  className="w-full h-full object-cover rounded-[24px]"
+                />
+              </div>
+              </div>
+            </div>
+        </div>
+          </div>
+        </div>
+        </div>
         </div>
       </section>
 
