@@ -87,6 +87,11 @@
     overflow-x: hidden;
     overflow-y: auto;
     background-color: white;
+    /* Ensure consistent font rendering across platforms */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: normal;
   }
 
   /* Hide scrollbar completely */
@@ -200,6 +205,11 @@
     position: relative;
     z-index: 20;
     min-width: 140px;
+    /* Ensure consistent rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   /* CTA island with sharp bottom-right corner */
@@ -259,6 +269,11 @@
     height: 100%;
     display: flex;
     align-items: center;
+    /* Ensure consistent rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   /* Header logo section: sharp outside, rounded inside */

@@ -32,6 +32,7 @@ export default function Header({
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const expandBg1Ref = useRef<HTMLDivElement>(null);
@@ -59,6 +60,17 @@ export default function Header({
         clearTimeout(animationTimeoutRef.current);
       }
     };
+  }, []);
+
+  // Check if screen is MacBook-sized or smaller (1440px and below)
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth <= 1440);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
   // Helper function to handle dropdown with delay for smooth transitions
@@ -234,7 +246,77 @@ export default function Header({
     }
   }, [isAnimatingOut]);
 
+  // Set extended state (used for smaller screens on mount/resize)
+  const setExtendedState = () => {
+    if (!expandBg1Ref.current || !expandBg2Ref.current || !expandBg3Ref.current || 
+        !logoRef.current || !navRef.current || !ctaRef.current || !headerContainerRef.current) {
+      return;
+    }
+
+    const headerRect = headerContainerRef.current.getBoundingClientRect();
+    
+    // Get positions of all 3 islands
+    const logoRect = logoRef.current.getBoundingClientRect();
+    const navRect = navRef.current.getBoundingClientRect();
+    const ctaRect = ctaRef.current.getBoundingClientRect();
+
+    const logo = {
+      left: logoRect.left - headerRect.left,
+      top: logoRect.top - headerRect.top,
+      width: logoRect.width,
+      height: logoRect.height
+    };
+    const nav = {
+      left: navRect.left - headerRect.left,
+      top: navRect.top - headerRect.top,
+      width: navRect.width,
+      height: navRect.height
+    };
+    const cta = {
+      left: ctaRect.left - headerRect.left,
+      top: ctaRect.top - headerRect.top,
+      width: ctaRect.width,
+      height: ctaRect.height
+    };
+
+    // Kill any ongoing animations
+    gsap.killTweensOf([expandBg1Ref.current, expandBg2Ref.current, expandBg3Ref.current]);
+
+    // Set extended state immediately (no animation)
+    if (expandBg1Ref.current && expandBg2Ref.current && expandBg3Ref.current) {
+      gsap.set(expandBg1Ref.current, {
+        left: 0,
+        top: logo.top + logo.height - window.innerHeight * 2,
+        width: '100%',
+        height: window.innerHeight * 2,
+        borderRadius: '0px',
+        opacity: 1
+      });
+      gsap.set(expandBg2Ref.current, {
+        left: 0,
+        top: nav.top + nav.height - window.innerHeight * 2,
+        width: '100%',
+        height: window.innerHeight * 2,
+        borderRadius: '0px',
+        opacity: 1
+      });
+      gsap.set(expandBg3Ref.current, {
+        left: 0,
+        top: cta.top + cta.height - window.innerHeight * 2,
+        width: '100%',
+        height: window.innerHeight * 2,
+        borderRadius: '0px',
+        opacity: 1
+      });
+    }
+  };
+
   const handleHeaderHover = () => {
+    // Skip hover animation on smaller screens - they're already extended
+    if (isSmallScreen) {
+      return;
+    }
+
     if (!expandBg1Ref.current || !expandBg2Ref.current || !expandBg3Ref.current || 
         !logoRef.current || !navRef.current || !ctaRef.current || !headerContainerRef.current) {
       return;
@@ -337,6 +419,11 @@ export default function Header({
   };
 
   const handleHeaderLeave = () => {
+    // Skip leave animation on smaller screens - keep them extended
+    if (isSmallScreen) {
+      return;
+    }
+
     if (!expandBg1Ref.current || !expandBg2Ref.current || !expandBg3Ref.current ||
         !logoRef.current || !navRef.current || !ctaRef.current || !headerContainerRef.current) {
       return;
@@ -423,6 +510,24 @@ export default function Header({
       });
   };
 
+  // Set extended state on mount/resize for smaller screens
+  useEffect(() => {
+    if (isSmallScreen) {
+      // Small delay to ensure refs are ready
+      const timeoutId = setTimeout(() => {
+        setExtendedState();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    } else {
+      // Reset to collapsed state on larger screens
+      if (expandBg1Ref.current && expandBg2Ref.current && expandBg3Ref.current) {
+        gsap.set([expandBg1Ref.current, expandBg2Ref.current, expandBg3Ref.current], {
+          opacity: 0
+        });
+      }
+    }
+  }, [isSmallScreen]);
+
   return (
     <>
       {/* Simple square with circular cutout - positioned just under logo island top left */}
@@ -439,7 +544,11 @@ export default function Header({
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
           WebkitClipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
         }}
       />
       
@@ -457,7 +566,11 @@ export default function Header({
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
           WebkitClipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
         }}
       />
       
@@ -567,18 +680,19 @@ export default function Header({
         
         <div 
           ref={headerContainerRef}
-          className="flex items-center justify-between w-full px-6 pt-2 pb-5 relative z-10 pointer-events-auto"
+          className="flex items-center justify-between w-full relative z-10 pointer-events-auto"
+          style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '8px', paddingBottom: '20px' }}
         >
           
           {/* Island 1: Logo */}
           <div 
             ref={logoRef as React.RefObject<HTMLDivElement>}
-            className="glass-island glass-island-logo h-[65px] transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px' }}
+            className="glass-island glass-island-logo transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
           >
-            <div className="glass-island-inner p-4 flex items-center h-full">
+            <div className="glass-island-inner flex items-center h-full" style={{ padding: '16px' }}>
               <a href="/" className="flex items-center">
-                <div className="text-gray-900 whitespace-nowrap flex items-center" style={{fontFamily: 'Milker', fontSize: '1.75rem'}}>
+                <div className="text-gray-900 whitespace-nowrap flex items-center" style={{fontFamily: 'Milker', fontSize: '28px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>
                   CDC
                 </div>
               </a>
@@ -588,11 +702,11 @@ export default function Header({
           {/* Island 2: Navigation */}
           <nav 
             ref={navRef}
-            className="glass-island h-[65px] hidden md:flex items-center transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px' }}
+            className="glass-island hidden md:flex items-center transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
           >
-            <div className="glass-island-inner p-4 h-full flex items-center">
-              <div className="flex items-center space-x-5">
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px' }}>
+              <div className="flex items-center" style={{ gap: '20px' }}>
                 {items.map((item, index) => (
                   item.submenu ? (
                     <div
@@ -617,7 +731,8 @@ export default function Header({
                         ref={(el) => {
                           if (el) buttonRefs.current.set(item.label, el);
                         }}
-                        className="flex items-center gap-2 px-4 py-2.5 text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                        className="flex items-center text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                        style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px' }}
                         onClick={() => {
                           if (item.label === 'Work With Us') {
                             window.location.href = '/work-with-us#client';
@@ -625,9 +740,9 @@ export default function Header({
                         }}
                       >
                         <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#ff3a34'}}></div>
-                        <div className="relative z-10 flex items-center gap-2">
-                          <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker'}}>{item.label}</span>
-                          <ChevronDown className="w-4 h-4 text-gray-900 group-hover/nav:text-white transition-all duration-300" />
+                        <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
+                          <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
+                          <ChevronDown className="w-4 h-4 text-gray-900 group-hover/nav:text-white transition-all duration-300" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                         </div>
                       </button>
                       {item.label !== 'Work With Us' && activeDropdown === item.label && (
@@ -641,8 +756,8 @@ export default function Header({
                             <a
                               key={subIndex}
                               href={subItem.href}
-                              className="block px-6 py-3 text-base font-bold text-gray-900 hover:bg-[#ff3a34] hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
-                              style={{fontFamily: 'Milker'}}
+                              className="block text-base font-bold text-gray-900 hover:bg-[#ff3a34] hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
+                              style={{fontFamily: 'Milker', paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
                             >
                               {subItem.label}
                             </a>
@@ -654,12 +769,13 @@ export default function Header({
                     <a
                       key={index}
                       href={item.href}
-                      className="group/nav flex items-center gap-2 px-4 py-2.5 text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                      className="group/nav flex items-center text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                      style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px' }}
                     >
                       <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#ff3a34'}}></div>
-                      <div className="relative z-10 flex items-center gap-2">
-                        <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker'}}>{item.label}</span>
-                        <ArrowRight className="w-4 h-4 text-white opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" />
+                      <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
+                        <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
+                        <ArrowRight className="w-4 h-4 text-white opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                       </div>
                     </a>
                   )
@@ -671,16 +787,16 @@ export default function Header({
           {/* Island 3: CTA */}
           <div 
             ref={ctaRef as React.RefObject<HTMLDivElement>}
-            className="glass-island glass-island-cta h-[65px] transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px' }}
+            className="glass-island glass-island-cta transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
           >
-            <div className="glass-island-inner p-4 h-full flex items-center">
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px' }}>
               <a
                 href={cta?.href || "#contact"}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-white font-bold text-base transition-all duration-300 w-full h-full relative overflow-hidden"
-                style={{backgroundColor: '#ff3a34', fontFamily: 'Milker', marginLeft: '8px'}}
+                className="inline-flex items-center justify-center rounded-lg text-white font-bold text-base transition-all duration-300 w-full h-full relative overflow-hidden"
+                style={{backgroundColor: '#ff3a34', fontFamily: 'Milker', marginLeft: '8px', gap: '8px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px'}}
               >
-                <span className="text-center relative z-10 transition-colors duration-300">
+                <span className="text-center relative z-10 transition-colors duration-300" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>
                   {cta?.label || "JOIN"}
                 </span>
               </a>
@@ -689,11 +805,12 @@ export default function Header({
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200 ml-4"
+            className="md:hidden text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
+            style={{ padding: '8px', marginLeft: '16px' }}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-6 h-6" style={{ width: '24px', height: '24px', flexShrink: 0 }} /> : <Menu className="w-6 h-6" style={{ width: '24px', height: '24px', flexShrink: 0 }} />}
           </button>
         </div>
 
@@ -720,23 +837,25 @@ export default function Header({
             <div className="grid grid-cols-1 md:grid-cols-2">
               <a
                 href="/work-with-us#client"
-                className="group p-8 md:p-10 flex items-center justify-between gap-6 hover:bg-[#ff3a34] transition-colors"
+                className="group flex items-center justify-between hover:bg-[#ff3a34] transition-colors"
+                style={{ padding: '32px', gap: '24px' }}
               >
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker' }}>Solve my hiring headaches</div>
-                  <div className="mt-2 text-gray-600 group-hover:text-white/90">For companies hiring leadership and specialists</div>
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker', lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Solve my hiring headaches</div>
+                  <div className="mt-2 text-gray-600 group-hover:text-white/90" style={{ lineHeight: '1.5', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>For companies hiring leadership and specialists</div>
                 </div>
-                <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" style={{ width: '28px', height: '28px', flexShrink: 0 }} />
               </a>
               <a
                 href="/work-with-us#candidate"
-                className="group p-8 md:p-10 flex items-center justify-between gap-6 hover:bg-[#ff3a34] transition-colors border-t md:border-t-0 md:border-l border-gray-200"
+                className="group flex items-center justify-between hover:bg-[#ff3a34] transition-colors border-t md:border-t-0 md:border-l border-gray-200"
+                style={{ padding: '32px', gap: '24px' }}
               >
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker' }}>Find my dream role</div>
-                  <div className="mt-2 text-gray-600 group-hover:text-white/90">For candidates exploring their next move</div>
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker', lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Find my dream role</div>
+                  <div className="mt-2 text-gray-600 group-hover:text-white/90" style={{ lineHeight: '1.5', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>For candidates exploring their next move</div>
                 </div>
-                <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" style={{ width: '28px', height: '28px', flexShrink: 0 }} />
               </a>
             </div>
           </div>
@@ -747,28 +866,28 @@ export default function Header({
       {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-brand-orange border-t border-white/20 md:hidden">
-            <nav className="flex flex-col space-y-2 p-4">
+            <nav className="flex flex-col" style={{ gap: '8px', padding: '16px' }}>
               {items.map((item, index) => (
                 <div key={index}>
                   {item.submenu ? (
                     <div>
                       <button
-                        className="w-full flex items-center justify-between px-4 py-3 text-lg font-bold text-white relative overflow-hidden rounded-xl transition-all duration-500"
+                        className="w-full flex items-center justify-between text-lg font-bold text-white relative overflow-hidden rounded-xl transition-all duration-500"
                         onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}
-                        style={{fontFamily: 'Milker'}}
+                        style={{fontFamily: 'Milker', paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
                       >
                         {item.label}
-                        <ChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === item.label ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === item.label ? 'rotate-180' : ''}`} style={{ width: '20px', height: '20px', flexShrink: 0 }} />
                       </button>
                       {activeDropdown === item.label && (
-                        <div className="pl-4 mt-2 space-y-1">
+                        <div className="pl-4 mt-2" style={{ paddingLeft: '16px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {item.submenu.map((subItem, subIndex) => (
                             <a
                               key={subIndex}
                               href={subItem.href}
-                              className="block px-4 py-2 text-base font-bold text-white hover:bg-white/10 rounded-lg transition-colors"
+                              className="block text-base font-bold text-white hover:bg-white/10 rounded-lg transition-colors"
                               onClick={() => setIsMenuOpen(false)}
-                              style={{fontFamily: 'Milker'}}
+                              style={{fontFamily: 'Milker', paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
                             >
                               {subItem.label}
                             </a>
@@ -779,13 +898,14 @@ export default function Header({
                   ) : (
                     <a
                       href={item.href}
-                      className="group/nav flex items-center gap-2 px-4 py-3 text-lg font-bold text-white relative overflow-hidden rounded-xl transition-all duration-500 hover:scale-105"
+                      className="group/nav flex items-center text-lg font-bold text-white relative overflow-hidden rounded-xl transition-all duration-500 hover:scale-105"
                       onClick={() => setIsMenuOpen(false)}
+                      style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
                     >
                       <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-xl" style={{backgroundColor: '#ff3a34'}}></div>
-                      <div className="relative z-10 flex items-center gap-2">
-                        <span className="text-lg font-bold" style={{fontFamily: 'Milker'}}>{item.label}</span>
-                        <ArrowRight className="w-4 h-4 opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" />
+                      <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
+                        <span className="text-lg font-bold" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
+                        <ArrowRight className="w-4 h-4 opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                       </div>
                     </a>
                   )}
