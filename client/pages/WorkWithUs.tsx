@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Footer from "@/components/Footer";
 import AnimatedSwitch from "@/components/AnimatedSwitch";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -15,6 +15,23 @@ export default function WorkWithUs() {
   const candidatePanelRef = useRef<HTMLDivElement>(null);
   const panelContainerRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
+  const clientCardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const candidateCardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const lastScrollYRef = useRef(0);
+  const lastCandidateScrollYRef = useRef(0);
+  const [clientCardProgress, setClientCardProgress] = useState<number[]>([0, 0, 0, 0]);
+  const [candidateCardProgress, setCandidateCardProgress] = useState<number[]>([0, 0, 0, 0]);
+  const [enableTransforms, setEnableTransforms] = useState(true);
+
+  // Disable heavy transforms on small screens for stability
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(min-width: 768px)');
+    const update = () => setEnableTransforms(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const showClient = !checked;
@@ -59,22 +76,121 @@ export default function WorkWithUs() {
     });
   }, [checked]);
 
-  // Tilt handlers for bullet cards
-  const handleTilt = (e: MouseEvent<HTMLLIElement>) => {
-    const el = e.currentTarget as HTMLLIElement;
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / (rect.width / 2); // -1..1
-    const dy = (e.clientY - cy) / (rect.height / 2);
-    const rotateY = dx * 6;
-    const rotateX = -dy * 6;
-    gsap.to(el, { rotateX, rotateY, transformPerspective: 600, transformOrigin: 'center', duration: 0.2, ease: 'power2.out' });
-  };
+  // Transform helper for client cards (stable, progress-based)
+  function getCardTransform(direction: 'left' | 'right', progress: number) {
+    const dir = direction === 'left' ? -1 : 1;
+    const dx = dir * progress * 120; // vw
+    const dy = -80 * progress; // px
+    const rot = dir * 20 * progress; // deg
+    const scale = 1 - 0.4 * progress;
+    return `translateX(${dx}vw) translateY(${dy}px) rotate(${rot}deg) scale(${scale})`;
+  }
 
-  const resetTilt = (e: MouseEvent<HTMLLIElement>) => {
-    gsap.to(e.currentTarget, { rotateX: 0, rotateY: 0, duration: 0.3, ease: 'power2.out' });
-  };
+  // Scroll handler for client cards fly-away effect
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight || 1;
+          const isScrollingUp = scrollY < lastScrollYRef.current;
+          const viewportCenter = windowHeight / 2;
+          const targetProgress: number[] = [0, 0, 0, 0];
+
+          clientCardRefs.current.forEach((cardRef, index) => {
+            if (!cardRef) return;
+            const rect = cardRef.getBoundingClientRect();
+            const cardCenter = rect.top + rect.height / 2;
+            // Positive when card center is above viewport center
+            let distance = viewportCenter - cardCenter;
+            // Return earlier when scrolling up (bias by ~25% viewport height)
+            const returnBiasPx = windowHeight * 0.25;
+            if (isScrollingUp) {
+              distance -= returnBiasPx;
+            }
+            // Map distance to 0..1; slightly tighter when scrolling up so it returns earlier
+            const mappingDenom = windowHeight * (isScrollingUp ? 0.45 : 0.5);
+            const raw = distance / mappingDenom;
+            const clamped = Math.min(Math.max(raw, 0), 1);
+            // Ease out for nicer start and end motion
+            const eased = clamped * (2 - clamped);
+            targetProgress[index] = eased;
+          });
+
+          // Smoothly approach target progress; much snappier when scrolling up
+          const approach = isScrollingUp ? 0.65 : 0.35;
+          setClientCardProgress(prev => prev.map((p, i) => p + (targetProgress[i] - p) * approach));
+
+          // Update last scroll position
+          lastScrollYRef.current = scrollY;
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Scroll handler for candidate cards fly-away effect
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight || 1;
+          const isScrollingUp = scrollY < lastCandidateScrollYRef.current;
+          const viewportCenter = windowHeight / 2;
+          const targetProgress: number[] = [0, 0, 0, 0];
+
+          candidateCardRefs.current.forEach((cardRef, index) => {
+            if (!cardRef) return;
+            const rect = cardRef.getBoundingClientRect();
+            const cardCenter = rect.top + rect.height / 2;
+            // Positive when card center is above viewport center
+            let distance = viewportCenter - cardCenter;
+            // Return earlier when scrolling up (bias by ~25% viewport height)
+            const returnBiasPx = windowHeight * 0.25;
+            if (isScrollingUp) {
+              distance -= returnBiasPx;
+            }
+            // Map distance to 0..1; slightly tighter when scrolling up so it returns earlier
+            const mappingDenom = windowHeight * (isScrollingUp ? 0.45 : 0.5);
+            const raw = distance / mappingDenom;
+            const clamped = Math.min(Math.max(raw, 0), 1);
+            // Ease out for nicer start and end motion
+            const eased = clamped * (2 - clamped);
+            targetProgress[index] = eased;
+          });
+
+          // Smoothly approach target progress; much snappier when scrolling up
+          const approach = isScrollingUp ? 0.65 : 0.35;
+          setCandidateCardProgress(prev => prev.map((p, i) => p + (targetProgress[i] - p) * approach));
+
+          // Update last scroll position
+          lastCandidateScrollYRef.current = scrollY;
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // Client panel scroll animations
   useGSAP(() => {
@@ -248,12 +364,21 @@ export default function WorkWithUs() {
           Work With Us
         </h1>
         
-        <div className="mb-24 flex items-center justify-center">
+        {/* Video Section */}
+        <div className="mb-32 max-w-4xl mx-auto">
+          <VideoPlayer
+            src="/placeholder.mp4"
+            title="Work With Us Introduction"
+            className="w-full"
+          />
+        </div>
+        
+        <div className="mt-56 mb-64 flex items-center justify-center">
           <AnimatedSwitch
             checked={checked}
             onCheckedChange={(next) => setChecked(next)}
-            leftLabel="As a client"
-            rightLabel="As a candidate"
+            leftLabel={<>Solve my<br />hiring<br />headaches</>}
+            rightLabel={<>Find my<br />dream role</>}
             leftActive={true}
           />
         </div>
@@ -262,119 +387,317 @@ export default function WorkWithUs() {
         <div ref={panelContainerRef} className="relative w-full pb-16">
           {/* Client Panel */}
           <div ref={clientPanelRef} className="overflow-visible">
-            <div className="grid md:grid-cols-2 gap-16">
-              <div className="group">
-                <h2 className="client-head text-4xl font-bold mb-8" style={{ fontFamily: 'Milker' }}>Solve my hiring headaches</h2>
-                <ul className="client-bullets space-y-6 text-gray-900 text-lg">
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>1. Deep Industry Expertise</strong><br />
+            <div className="space-y-0">
+              {/* Card 01 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { clientCardRefs.current[0] = el; }}
+                className="client-card-01 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('left', clientCardProgress[0] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Deep Industry Expertise
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>01</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
                     We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>2. Global Network, Personal Approach</strong><br />
+                </p>
+              </div>
+              </div>
+
+              {/* Card 02 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { clientCardRefs.current[1] = el; }}
+                className="client-card-02 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('right', clientCardProgress[1] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Global Network, Personal Approach
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>02</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
                     With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>3. Precision Recruitment</strong><br />
-                    We don’t just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>4. Speed, Transparency & Trust</strong><br />
-                    We move fast without cutting corners. You’ll always know where your search stands, with honest communication and consistent delivery you can rely on.
-                  </li>
-                </ul>
+                </p>
+              </div>
+              </div>
 
-                <h2 className="text-3xl font-bold mb-8 mt-12" style={{ fontFamily: 'Milker' }}>Positions we recruit for</h2>
-                <p className="text-gray-800 mb-8">Executive and senior leadership through functional heads and managers:</p>
-                <ul className="client-positions grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-900">
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">CEO, COO, CSO, CFO, CCO, CTO</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">VP Commercial, VP Operations, VP Quality</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Head of Regulatory Affairs</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Head of Quality/QA/QMS</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Director of Manufacturing/Tech Ops</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Sales Directors & Regional Leaders</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Marketing Directors & Product Leaders</li>
-                  <li className="bg-white/70 border border-white/60 rounded-lg px-4 py-3 hover:-translate-y-0.5 hover:shadow transition will-change-transform">Clinical & Laboratory Leadership</li>
-                </ul>
+              {/* Card 03 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { clientCardRefs.current[2] = el; }}
+                className="client-card-03 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('left', clientCardProgress[2] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Precision Recruitment
+                    </h2>
+                  </div>
 
-                <h2 className="text-3xl font-bold mt-16 mb-8" style={{ fontFamily: 'Milker' }}>Search solutions</h2>
-                <ul className="client-solutions space-y-6 text-gray-900">
-                  <li className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm"> <strong>Executive search:</strong> discreet, curated shortlists for critical hires</li>
-                  <li className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm"> <strong>Volume search:</strong> scalable hiring for multi-role or multi-region growth</li>
-                  <li className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm"> <strong>Marketing support:</strong> brand and talent marketing to accelerate outcomes</li>
-                </ul>
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>03</span>
+                  </div>
 
-                <h3 className="text-2xl font-bold mt-16 mb-6" style={{ fontFamily: 'Milker' }}>Cost‑effective marketing to grow your business</h3>
-                <div className="client-tags flex flex-wrap gap-3 text-sm">
-                  {['strategy','social media','training','copywriting','lead generation','website design'].map((tag) => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-white/80 text-gray-900 border border-white/60">{tag}</span>
-                  ))}
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                  We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
+                </p>
                 </div>
               </div>
-              <div className="client-video">
-                <VideoPlayer
+
+              {/* Card 04 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { clientCardRefs.current[3] = el; }}
+                className="client-card-04 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('right', clientCardProgress[3] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Speed, Transparency & Trust
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>04</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
                   src="/placeholder.mp4"
-                  poster="/placeholder.svg"
-                  title="What we offer to clients"
-                  className="w-full"
-                />
-                <p className="text-sm text-gray-700 mt-4">Short explainer from Harriet and Adam. Click Play to start.</p>
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                  We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
+                </p>
+              </div>
               </div>
             </div>
           </div>
 
           {/* Candidate Panel */}
           <div ref={candidatePanelRef} className="overflow-visible">
-            <div className="grid md:grid-cols-2 gap-16">
-              <div>
-                <h2 className="candidate-head text-4xl font-bold mb-8" style={{ fontFamily: 'Milker' }}>Find my dream role</h2>
-                <ul className="candidate-bullets space-y-6 text-gray-900 text-lg">
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>1. Industry Insiders, Not Generalists</strong><br />
-                    We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You’ll work with recruiters who truly understand your world, your skill set, and where you can go next.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>2. Real Opportunities, Not Random Roles</strong><br />
+            <div className="space-y-0">
+              {/* Card 01 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { candidateCardRefs.current[0] = el; }}
+                className="candidate-card-01 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('left', candidateCardProgress[0] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Industry Insiders, Not Generalists
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>01</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                  We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
+                </p>
+              </div>
+              </div>
+
+              {/* Card 02 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { candidateCardRefs.current[1] = el; }}
+                className="candidate-card-02 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Real Opportunities, Not Random Roles
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>02</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
                     We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>3. Guidance That Adds Value</strong><br />
-                    From CV advice to interview prep and market insight, we’ll help you navigate your next move with clarity and confidence.
-                  </li>
-                  <li onMouseMove={handleTilt} onMouseLeave={resetTilt} className="bg-white/80 border border-white/60 rounded-xl p-5 shadow-sm transition-transform will-change-transform hover:-translate-y-1 hover:shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <strong>4. Confidentiality & Honesty Always</strong><br />
-                    Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
-                  </li>
-                </ul>
-                <div className="candidate-cta mt-16">
-                  <a
-                    href="https://www.linkedin.com/company/" target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-6 py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition text-gray-900 font-bold"
-                    style={{ fontFamily: 'Milker' }}
-                  >
-                    View open roles on LinkedIn
-                  </a>
+                </p>
+              </div>
+              </div>
+
+              {/* Card 03 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { candidateCardRefs.current[2] = el; }}
+                className="candidate-card-03 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('left', candidateCardProgress[2] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Guidance That Adds Value
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>03</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
+                        src="/placeholder.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                  From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
+                </p>
                 </div>
               </div>
-              <div className="candidate-video">
-                <VideoPlayer
+
+              {/* Card 04 */}
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
+              <div 
+                ref={(el) => { candidateCardRefs.current[3] = el; }}
+                className="candidate-card-04 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
+                style={{ transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined }}
+              >
+                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
+                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-8 md:mb-16 lg:mb-20" style={{ fontFamily: 'Milker' }}>
+                      Confidentiality & Honesty Always
+                    </h2>
+                  </div>
+
+                  <div className="lg:absolute lg:left-8 lg:-top-8">
+                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-semibold leading-none text-white/20" style={{ fontFamily: 'Milker' }}>04</span>
+                  </div>
+
+                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                      <video
                   src="/placeholder.mp4"
-                  poster="/placeholder.svg"
-                  title="What we offer to candidates"
-                  className="w-full"
-                />
-                <p className="text-sm text-gray-700 mt-4">Short explainer from Harriet and Adam. Click Play to start.</p>
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                  Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
+                </p>
+              </div>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Extra spacing before footer */}
-        <div className="h-32"></div>
+        {/* Extra spacing before footer removed to tighten space under 4th card */}
       </div>
     </div>
     <Footer />
     </>
   );
 }
+
 

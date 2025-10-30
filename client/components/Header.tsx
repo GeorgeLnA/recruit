@@ -425,33 +425,50 @@ export default function Header({
 
   return (
     <>
-      {/* Test: Artificial inside rounded corner in center of screen */}
-      <svg 
+      {/* Simple square with circular cutout - positioned just under logo island top left */}
+      <div 
         style={{ 
           position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          top: '63px',
+          left: '12px',
           zIndex: 2147483649,
-          width: '100px',
-          height: '100px',
+          width: '40px',
+          height: '40px',
+          backgroundColor: 'rgba(255, 255, 255, 1)',
+          mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
+          WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
+          clipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
+          WebkitClipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
           pointerEvents: 'none'
         }}
-      >
-        <path 
-          d="M 0 0 L 100 0 L 100 100 L 0 100 L 0 76 A 24 24 0 0 1 24 100 Z" 
-          fill="rgba(255, 255, 255, 1)" 
-        />
-      </svg>
+      />
+      
+      {/* Mirrored square with circular cutout - positioned just under CTA island top right */}
+      <div 
+        style={{ 
+          position: 'fixed',
+          top: '63px',
+          right: '12px',
+          zIndex: 2147483649,
+          width: '40px',
+          height: '40px',
+          backgroundColor: 'rgba(255, 255, 255, 1)',
+          mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
+          WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
+          clipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
+          WebkitClipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
+          pointerEvents: 'none'
+        }}
+      />
       
       {/* Frame stuck to viewport with rounded corners */}
       <div 
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 2147483647,
-          borderLeft: '12px solid rgba(255, 255, 255, 1)',
-          borderRight: '12px solid rgba(255, 255, 255, 1)',
-          borderBottom: '12px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid rgba(255, 255, 255, 1)',
+          borderRight: '13px solid rgba(255, 255, 255, 1)',
+          borderBottom: '13px solid rgba(255, 255, 255, 1)',
           borderTop: 'none',
           borderRadius: '24px'
         }}
@@ -463,10 +480,10 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '12px solid rgba(255, 255, 255, 1)',
-          borderLeft: '12px solid rgba(255, 255, 255, 1)',
-          borderRight: '12px solid transparent',
-          borderBottom: '12px solid transparent'
+          borderTop: '13px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid rgba(255, 255, 255, 1)',
+          borderRight: '13px solid transparent',
+          borderBottom: '13px solid transparent'
         }}
       />
       <div 
@@ -475,10 +492,10 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '12px solid rgba(255, 255, 255, 1)',
-          borderRight: '12px solid rgba(255, 255, 255, 1)',
-          borderLeft: '12px solid transparent',
-          borderBottom: '12px solid transparent'
+          borderTop: '13px solid rgba(255, 255, 255, 1)',
+          borderRight: '13px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid transparent',
+          borderBottom: '13px solid transparent'
         }}
       />
       <div 
@@ -487,10 +504,10 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '12px solid rgba(255, 255, 255, 1)',
-          borderLeft: '12px solid rgba(255, 255, 255, 1)',
-          borderRight: '12px solid transparent',
-          borderTop: '12px solid transparent'
+          borderBottom: '13px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid rgba(255, 255, 255, 1)',
+          borderRight: '13px solid transparent',
+          borderTop: '13px solid transparent'
         }}
       />
       <div 
@@ -499,10 +516,10 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '12px solid rgba(255, 255, 255, 1)',
-          borderRight: '12px solid rgba(255, 255, 255, 1)',
-          borderLeft: '12px solid transparent',
-          borderTop: '12px solid transparent'
+          borderBottom: '13px solid rgba(255, 255, 255, 1)',
+          borderRight: '13px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid transparent',
+          borderTop: '13px solid transparent'
         }}
       />
       
@@ -661,7 +678,7 @@ export default function Header({
               <a
                 href={cta?.href || "#contact"}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-white font-bold text-base transition-all duration-300 w-full h-full relative overflow-hidden"
-                style={{backgroundColor: '#ff3a34', fontFamily: 'Milker'}}
+                style={{backgroundColor: '#ff3a34', fontFamily: 'Milker', marginLeft: '8px'}}
               >
                 <span className="text-center relative z-10 transition-colors duration-300">
                   {cta?.label || "JOIN"}
@@ -685,7 +702,7 @@ export default function Header({
         <>
           {/* Invisible bridge to catch mouse in gap */}
           <div
-            className="absolute left-0 right-0 top-full h-3"
+            className="absolute left-0 right-0 top-full h-1"
             onMouseEnter={() => handleDropdownEnter('Work With Us')}
             onMouseLeave={() => handleDropdownLeave('Work With Us')}
             style={{ pointerEvents: 'auto', zIndex: 49 }}
@@ -694,7 +711,8 @@ export default function Header({
             ref={(el) => {
               if (el) dropdownRefs.current.set('Work With Us', el);
             }}
-            className="absolute left-0 right-0 top-full pt-3 z-50"
+            className="absolute left-0 right-0 top-full z-50"
+            style={{ paddingTop: '0px' }}
             onMouseEnter={() => handleDropdownEnter('Work With Us')}
             onMouseLeave={() => handleDropdownLeave('Work With Us')}
           >
