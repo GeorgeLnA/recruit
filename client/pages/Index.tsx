@@ -1,5 +1,4 @@
 import { ArrowRight, Mail } from "lucide-react";
-import Header from "@/components/Header";
 import LoadingScreen from "@/components/LoadingScreen";
 import MobileMessage from "@/components/MobileMessage";
 import { useEffect, useRef, useState } from "react";
@@ -49,9 +48,7 @@ export default function Index() {
           if (aboutSectionRef.current) {
             const sectionTop = aboutSectionRef.current.offsetTop;
             const sectionHeight = aboutSectionRef.current.offsetHeight || 1;
-            // Start expansion 900px before reaching the section
-            const adjustedTop = sectionTop - 900;
-            const local = Math.min(Math.max((scrollY - adjustedTop) / sectionHeight, 0), 1);
+            const local = Math.min(Math.max((scrollY - sectionTop) / sectionHeight, 0), 1);
             setAboutSectionProgress(local);
           }
 
@@ -149,6 +146,11 @@ export default function Index() {
     ? cloudStageProgress / 0.5
     : 1 - (cloudStageProgress - 0.5) / 0.5;
   const cloudOpacityC = cloudStageProgress < 0.5 ? 0 : (cloudStageProgress - 0.5) / 0.5;
+
+  // Smoothly raise the fixed video container up near the end of the section (avoid jump)
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+  const raiseUpProgress = Math.min(Math.max((videoProgress - 0.8) / 0.2, 0), 1); // starts at 80%, ends at 100%
+  const raiseUpY = raiseUpProgress * viewportHeight; // move up to one full viewport height
 
   // Text morphing based on video progress (3 different messages)
   const getMorphingText = (progress: number) => {
@@ -372,7 +374,7 @@ export default function Index() {
   }
 
   return (
-    <div className="overflow-x-hidden" style={{backgroundColor: '#2a2a2a'}}>
+    <div className="overflow-x-hidden bg-white">
       {/* Mobile message - shows on mobile devices */}
       <MobileMessage onMobileDetected={() => setIsMobile(true)} />
       
@@ -384,34 +386,10 @@ export default function Index() {
             <LoadingScreen onComplete={() => setIsLoading(false)} />
           )}
           
-          {/* Header appears after loading completes */}
-          {!isLoading && <Header />}
-        </>
-      )}
-
-      {/* Main content area with left margin for sidebar - only on desktop */}
-      {!isMobile && (
-        <div className="ml-20 peer-hover:ml-80 transition-all duration-300">
-      {/* Orange background layer behind hero */}
-        <div 
-          className="w-full bg-brand-orange absolute top-0 left-0 z-0"
-          style={{
-            height: '100vh',
-          }}
-        />
+          {/* Main content area - only on desktop */}
+          <div>
 
       {/* Hero Section */}
-        {/* SCROLL text always visible */}
-        <div 
-          className="absolute bottom-4 text-brand-orange text-2xl font-bold z-10"
-          style={{
-            left: `calc(20rem - 13rem - ${scrollProgress * 400}px)`,
-            transform: 'none'
-          }}
-        >
-          SCROLL TO EXPLORE
-        </div>
-
         {/* Mouse-following circle */}
         <div
           className="fixed pointer-events-none morphing-circle peach-to-red"
@@ -439,128 +417,51 @@ export default function Index() {
             transformOrigin: 'right bottom'
           }}
         >
-          <div className="hero-corner tl"></div>
-          <div className="hero-corner tr"></div>
           <div className="hero-corner bl"></div>
           <div className="hero-corner br"></div>
-          <div className="hero-inner h-full flex flex-col justify-center">
-            <div className="container mx-auto px-2 lg:px-4">
-              {/* Video containers - optimized for MacBook */}
-              <div className="flex justify-center items-center gap-4 lg:gap-8 xl:gap-12 2xl:gap-16 max-w-full">
-                {/* Left video - full height */}
-                <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px] bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
-                  <video
-                    className="w-full h-full object-cover"
-                    muted
-                    autoPlay
-                    loop
-                    playsInline
-                    style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
-                  >
-                    <source src="/placeholder.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-                
-                {/* Center videos - stacked */}
-                <div className="flex flex-col gap-4 lg:gap-8 xl:gap-10 2xl:gap-16 h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px]">
-                  <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[140px] lg:h-[200px] xl:h-[240px] 2xl:h-[300px] w-full bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                  
-                  <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[140px] lg:h-[200px] xl:h-[240px] 2xl:h-[300px] w-full bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                </div>
-
-                {/* Right video - full height */}
-                <div className="rounded-[20px] lg:rounded-[28px] xl:rounded-[36px] overflow-hidden h-[300px] lg:h-[450px] xl:h-[550px] 2xl:h-[700px] w-[200px] lg:w-[280px] xl:w-[320px] 2xl:w-[400px] bg-gray-900 flex items-center justify-center relative border-3 lg:border-4 border-brand-orange">
-                  <video
-                    className="w-full h-full object-cover"
-                    muted
-                    autoPlay
-                    loop
-                    playsInline
-                    style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
-                  >
-                    <source src="/placeholder.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              </div>
-            </div>
+          <div className="hero-inner h-full flex flex-col justify-center relative overflow-hidden">
+            {/* Video background */}
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
+            >
+              <source src="/placeholder.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </section>
 
         {/* Company name overlay - separate layer for blend effect */}
         <div 
-          className="absolute top-1/2 pointer-events-none z-50" 
+          className="absolute top-1/2 left-1/2 pointer-events-none z-50" 
           style={{
             mixBlendMode: 'difference',
-            left: 'calc(50% + 3rem)',
-            transform: `translate(-50%, -50%) translateY(${-scrollProgress * 200 - 25}px) rotate(${scrollProgress * 90}deg)`,
-            transformOrigin: 'right center'
+            transform: 'translate(-50%, -50%)',
           }}
         >
             <h1 className="text-[80px] sm:text-[100px] md:text-[120px] lg:text-[140px] xl:text-[160px] 2xl:text-[200px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
-             RECRUIT
+             CDC
            </h1>
           </div>
-
-        {/* Orange background layer behind circle expansion */}
-        <div 
-          className="w-full bg-brand-orange absolute z-0"
-          style={{
-            height: '150vh',
-            top: '100vh',
-            left: 0,
-            opacity: scrollProgress > 0.2 ? 1 : 1
-          }}
-        />
-
-        {/* Extra orange layer behind circle expansion */}
-        <div 
-          className="w-full bg-brand-orange absolute z-[-1]"
-          style={{
-            height: '150vh',
-            top: '100vh',
-            left: 0,
-            opacity: scrollProgress > 0.2 ? 1 : 1
-          }}
-        />
 
         {/* Circle Expansion Section */}
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: '150vh',
+            height: '200vh',
             opacity: scrollProgress > 0.2 ? 1 : 1
           }}
         >
-          {/* Expanding grey shape - positioned within section */}
+          {/* Expanding shape - positioned within section */}
           <div 
             className="absolute rounded-full"
             style={{
+              backgroundColor: '#FF914D', // Brand orange/peach
               width: scrollProgress < 0.75 
                 ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
                 : scrollProgress < 0.85
@@ -571,7 +472,6 @@ export default function Index() {
                 : scrollProgress < 0.85
                 ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
                 : '100%', // Full rectangle at the very end
-               backgroundColor: '#2a2a2a', // Grey
               opacity: 1, // Always visible
               transition: 'width 0.3s ease-out, height 0.3s ease-out, border-radius 0.3s ease-out',
               top: '2%', // Position at 2%
@@ -650,17 +550,16 @@ export default function Index() {
         </svg>
 
         {/* Video Morphing Section - separate from circle expansion */}
-          <section ref={videoSectionRef as any} className="w-full relative" style={{backgroundColor: '#2a2a2a', height: '500vh', overflow: 'hidden'}}>
-          <div className={`${videoProgress > 0.812 ? 'absolute bottom-32 inset-x-0' : 'fixed inset-0'} flex items-center justify-center z-50`} style={{opacity: videoProgress > 0.02 ? 1 : 0, transition: 'opacity 0.3s ease-out', transform: videoProgress > 0.812 ? 'translateX(-40px)' : 'translateX(0px)'}}>
+          <section ref={videoSectionRef as any} className="w-full relative" style={{height: '500vh', overflow: 'hidden', backgroundColor: '#FF914D'}}>
+          <div className={`fixed inset-0 flex items-center justify-center z-50`} style={{opacity: videoProgress > 0.02 ? 1 : 0, transition: 'opacity 0.3s ease-out', transform: `translateY(${-raiseUpY}px)`}}>
             <div className="container mx-auto px-6 lg:px-8 flex items-center gap-16">
               {/* Video with morphing shape - single morphing cloud clip-path */}
               <div className="flex-1">
                 <div 
-                  className="overflow-hidden flex items-center justify-center relative"
+                  className="overflow-hidden flex items-center justify-center relative bg-white"
                   style={{
                     width: '110%',
                     height: '660px',
-                    backgroundColor: '#2a2a2a',
                     borderRadius: '0px',
                     transition: 'opacity 0.3s ease-out'
                   }}
@@ -874,7 +773,7 @@ export default function Index() {
                       <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-[1.3] tracking-tight text-white mb-8">
                From concept to execution, we deliver content that drives engagement and delivers measurable results for your brand.
               </p>
-                    <button className="inline-flex items-center gap-3 px-4 py-3 rounded-[11.25px] border border-white bg-brand-light text-brand-dark font-semibold text-[15px] hover:bg-brand-dark hover:text-brand-light transition-colors">
+                    <button className="inline-flex items-center gap-3 px-4 py-3 rounded-[11.25px] border border-white bg-brand-light text-white font-semibold text-[15px] hover:bg-brand-dark hover:text-brand-light transition-colors">
               Get to know us
               <span className="flex items-center justify-center w-[34px] h-[34px] rounded-[9.38px] bg-brand-dark">
                 <ArrowRight className="w-[14px] h-[14px] text-brand-light" />
@@ -897,17 +796,17 @@ export default function Index() {
             >
           <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-[#D8EADC] text-brand-dark text-[24px] mb-8">
+              <span className="inline-block px-6 py-3 rounded-md bg-[#D8EADC] text-white text-[24px] mb-8">
                 Expertise
               </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
+              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
                 Social
               </h2>
               <div className="space-y-16">
                 <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-[#FA5424] text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
                   Meer over social strategie
                   <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-red">
-                    <ArrowRight className="w-[20px] h-[20px] text-brand-dark" />
+                    <ArrowRight className="w-[20px] h-[20px] text-white" />
                   </span>
                 </button>
               </div>
@@ -939,14 +838,14 @@ export default function Index() {
             >
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
+              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
                 Expertise
               </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
+              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
                 Content
               </h2>
               <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-brand-dark font-semibold text-[18px] hover:opacity-90 transition-opacity">
+                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
                   Meer over content creatie
                   <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
                     <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
@@ -980,14 +879,14 @@ export default function Index() {
             >
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
+              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
                 Expertise
               </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
+              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
                 Activation
               </h2>
               <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-brand-dark font-semibold text-[18px] hover:opacity-90 transition-opacity">
+                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
                   Meer over activatie
                   <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
                     <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
@@ -1021,14 +920,14 @@ export default function Index() {
             >
               <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
             <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-brand-dark text-[24px] mb-8">
+              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
                 Expertise
               </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-brand-dark mb-20">
+              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
                 Data
               </h2>
               <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-brand-dark font-semibold text-[18px] hover:opacity-90 transition-opacity">
+                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
                   Meer over data
                   <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
                     <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
@@ -1064,21 +963,21 @@ export default function Index() {
       <section id="contact" className="bg-brand-orange w-full relative py-32">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center max-w-6xl mx-auto">
-            <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-brand-dark mb-16" style={{fontFamily: 'Milker'}}>
+            <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-white mb-16" style={{fontFamily: 'Milker'}}>
               Let's Work Together!
             </h2>
             
             <div className="flex flex-col lg:flex-row gap-8 justify-center items-center max-w-4xl mx-auto">
-              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] border-2 border-brand-dark bg-brand-light text-brand-dark font-bold text-[24px] hover:bg-brand-dark hover:text-brand-light transition-all duration-500 hover:scale-105 hover:shadow-2xl w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
+              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] border-2 border-brand-dark bg-brand-light text-white font-bold text-[24px] hover:bg-brand-dark hover:text-brand-light transition-all duration-500 hover:scale-105 hover:shadow-2xl w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
                 Mail ons direct
                 <span className="flex items-center justify-center w-[60px] h-[60px] rounded-[15px] bg-brand-dark group-hover:bg-brand-light transition-colors duration-500">
-                  <Mail className="w-6 h-6 text-brand-light group-hover:text-brand-dark transition-colors duration-500" />
+                  <Mail className="w-6 h-6 text-brand-light group-hover:text-white transition-colors duration-500" />
                 </span>
               </button>
-              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] bg-brand-red text-brand-dark font-bold text-[24px] hover:bg-brand-light hover:scale-105 hover:shadow-2xl transition-all duration-500 w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
+              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] bg-brand-red text-white font-bold text-[24px] hover:bg-brand-light hover:scale-105 hover:shadow-2xl transition-all duration-500 w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
                 Get Results
                 <span className="flex items-center justify-center w-[60px] h-[60px] rounded-[15px] bg-brand-dark group-hover:bg-brand-red transition-colors duration-500">
-                  <svg className="w-6 h-6 text-brand-light group-hover:text-brand-dark transition-colors duration-500" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-6 h-6 text-brand-light group-hover:text-white transition-colors duration-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
                   </svg>
                 </span>
@@ -1093,7 +992,7 @@ export default function Index() {
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-brand-light mb-8" style={{fontFamily: 'Milker'}}>
-              RECRUIT
+              CDC
             </h2>
             <p className="text-[24px] md:text-[28px] font-semibold text-brand-light/80" style={{fontFamily: 'Milker'}}>
               Let's create something amazing together
@@ -1148,7 +1047,8 @@ export default function Index() {
           </div>
         </div>
       </footer>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
