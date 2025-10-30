@@ -137,7 +137,7 @@ export default function CandidMoments() {
         }
       });
     }
-  }, {});
+  }, []);
 
   // Pin the cards section when it reaches the viewport and track scroll progress for card animations
   useGSAP(() => {
@@ -223,4 +223,3 @@ export default function CandidMoments() {
     </>
   );
 }
-

@@ -20,7 +20,7 @@ export default function ScrollTracker() {
   }, []);
 
   return (
-    <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 pointer-events-none">
+    <div className="fixed top-1/2 transform -translate-y-1/2 z-50 pointer-events-none" style={{ right: '56px' }}>
       <div className="flex flex-col items-center space-y-3">
         {/* Percentage display - matching loading screen style */}
         <div className="relative">
@@ -55,18 +55,15 @@ export default function ScrollTracker() {
         </div>
 
         {/* Scroll indicator line */}
-        <div className="w-1 h-24 bg-white/20 rounded-full overflow-hidden">
+        <div className="w-1 h-24 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 58, 52, 0.2)' }}>
           <div 
-            className="w-full bg-brand-orange transition-all duration-200 ease-out rounded-full"
+            className="w-full bg-brand-red transition-all duration-200 ease-out rounded-full"
             style={{
               height: `${scrollPercentage}%`,
               transform: 'translateY(0)'
             }}
           />
         </div>
-
-        {/* Bottom indicator */}
-        <div className="w-1.5 h-1.5 bg-brand-orange/60 rounded-full" />
       </div>
     </div>
   );

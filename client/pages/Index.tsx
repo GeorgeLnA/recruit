@@ -1,4 +1,4 @@
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Linkedin, Instagram, Youtube, Phone, MapPin } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import MobileMessage from "@/components/MobileMessage";
 import { useEffect, useRef, useState } from "react";
@@ -6,12 +6,14 @@ import { useEffect, useRef, useState } from "react";
 export default function Index() {
   const heroRef = useRef<HTMLElement>(null);
   const videoSectionRef = useRef<HTMLElement>(null);
+  const watchVideoSectionRef = useRef<HTMLElement>(null);
   const aboutSectionRef = useRef<HTMLElement>(null);
   const expertiseSectionRef = useRef<HTMLElement>(null);
   const expertiseCardRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
   const lastScrollYRef = useRef(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
+  const [watchVideoProgress, setWatchVideoProgress] = useState(0);
   const [aboutSectionProgress, setAboutSectionProgress] = useState(0);
   const [expertiseSectionProgress, setExpertiseSectionProgress] = useState(0);
   const [expertiseCardProgress, setExpertiseCardProgress] = useState<number[]>([0, 0, 0, 0]);
@@ -19,13 +21,17 @@ export default function Index() {
   const [circlePosition, setCirclePosition] = useState({ x: 0, y: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const marketInsightsVideoRef = useRef<HTMLVideoElement>(null);
+  const aboutUsRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const [revealedWordCount, setRevealedWordCount] = useState(0);
 
   useEffect(() => {
-    let ticking = false;
+    let rafId: number | null = null;
 
     const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
           const scrollY = window.scrollY;
 
           if (heroRef.current) {
@@ -42,6 +48,18 @@ export default function Index() {
             const sectionHeight = videoSectionRef.current.offsetHeight || 1;
             const local = Math.min(Math.max((scrollY - sectionTop) / sectionHeight, 0), 1);
             setVideoProgress(local);
+          }
+
+          // Compute local progress for the watch video section (0..1 within that section)
+          if (watchVideoSectionRef.current) {
+            const sectionTop = watchVideoSectionRef.current.offsetTop;
+            const sectionHeight = watchVideoSectionRef.current.offsetHeight || 1;
+            const windowHeight = window.innerHeight;
+            // Start animation much earlier - well before section enters viewport
+            const startOffset = windowHeight * 0.5; // Positive offset to start earlier
+            const scrollRange = sectionHeight * 0.4; // Animation happens quickly over 40% of section
+            const local = Math.min(Math.max((scrollY - sectionTop + startOffset) / scrollRange, 0), 1);
+            setWatchVideoProgress(local);
           }
 
           // Compute local progress for the about section (0..1 within that section)
@@ -93,9 +111,8 @@ export default function Index() {
           // Update last scroll position
           lastScrollYRef.current = scrollY;
 
-          ticking = false;
+          rafId = null; // Reset to allow next frame
         });
-        ticking = true;
       }
     };
 
@@ -155,9 +172,9 @@ export default function Index() {
   // Text morphing based on video progress (3 different messages)
   const getMorphingText = (progress: number) => {
     if (progress < 0.33) {
-      return "We work with recruitment companies to show what marketing can do.";
-    } else if (progress < 0.66) {
       return "We help recruitment firms transform their approach through strategic marketing.";
+    } else if (progress < 0.66) {
+      return "We turn recruitment challenges into marketing opportunities that deliver results.";
     } else {
       return "We turn recruitment challenges into marketing opportunities that deliver results.";
     }
@@ -373,8 +390,165 @@ export default function Index() {
     return `translateX(${dx}vw) translateY(${dy}px) rotate(${rot}deg) scale(${scale})`;
   }
 
+  // Scroll-reveal animations for the videos section
+  useEffect(() => {
+    const elements = document.querySelectorAll('[data-animate]');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            el.style.opacity = '1';
+            el.style.transform = 'translate(0, 0)';
+            if (!el.style.transition) {
+              el.style.transition = 'opacity 700ms ease, transform 700ms ease';
+            }
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -10% 0px' }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Footer unreveal animation
+  useEffect(() => {
+    if (!footerRef.current) return;
+
+    const footer = footerRef.current;
+    const columns = footer.querySelectorAll('[data-footer-col]');
+    const bottomBar = footer.querySelector('[data-footer-bottom]');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Animate columns with staggered delay
+            columns.forEach((col, index) => {
+              setTimeout(() => {
+                (col as HTMLElement).style.opacity = '1';
+                (col as HTMLElement).style.transform = 'translateY(0)';
+              }, index * 100);
+            });
+
+            // Animate bottom bar after columns
+            setTimeout(() => {
+              if (bottomBar) {
+                (bottomBar as HTMLElement).style.opacity = '1';
+                (bottomBar as HTMLElement).style.transform = 'translateY(0)';
+              }
+            }, columns.length * 100 + 200);
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  // Ensure Market Insights video plays when visible
+  useEffect(() => {
+    if (!marketInsightsVideoRef.current) return;
+
+    const video = marketInsightsVideoRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch((err) => {
+              console.log('Video autoplay prevented:', err);
+            });
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(video);
+    return () => observer.unobserve(video);
+  }, []);
+
+  // Scroll animation for About Us word reveal
+  useEffect(() => {
+    const storySegments = [
+      "At CDC Global Solutions Ltd, we're all about people – not just filling roles.",
+      "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
+    ];
+    const allWords = storySegments.flatMap(segment => segment.split(' '));
+    const totalWords = allWords.length;
+
+    let rafId: number | null = null;
+    let targetProgress = 0;
+    let currentProgress = 0;
+
+    const smoothScroll = () => {
+      const difference = targetProgress - currentProgress;
+      currentProgress += difference * 0.15; // Slower interpolation for smoother word-by-word reveal
+      
+      if (Math.abs(targetProgress - currentProgress) > 0.001) {
+        const wordsToReveal = Math.floor(currentProgress * totalWords);
+        setRevealedWordCount(wordsToReveal);
+        rafId = requestAnimationFrame(smoothScroll);
+      } else {
+        setRevealedWordCount(Math.floor(targetProgress * totalWords));
+      }
+    };
+
+    const handleScroll = () => {
+      if (!aboutUsRef.current) return;
+
+      const container = aboutUsRef.current;
+      const rect = container.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      const eyeLevel = windowHeight * 0.62;
+      
+      const animationStart = rect.top + window.scrollY - eyeLevel;
+      const animationEnd = rect.top + window.scrollY + rect.height - eyeLevel;
+      const scrollDistance = animationEnd - animationStart;
+      const currentScroll = window.scrollY;
+      
+      // Spread word reveal over more scroll distance for smoother word-by-word effect
+      let progress = (currentScroll - animationStart) / (scrollDistance * 0.8);
+      targetProgress = Math.max(0, Math.min(1, progress));
+      
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      
+      rafId = requestAnimationFrame(smoothScroll);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, []);
+
   return (
-    <div className="overflow-x-hidden bg-white">
+    <div className="overflow-x-hidden bg-white relative">
+      {/* Grain effect overlay for main background */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-[0.35]"
+        style={{
+          zIndex: 1,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '150px 150px',
+          mixBlendMode: 'overlay'
+        }}
+      ></div>
       {/* Mobile message - shows on mobile devices */}
       <MobileMessage onMobileDetected={() => setIsMobile(true)} />
       
@@ -390,24 +564,6 @@ export default function Index() {
           <div>
 
       {/* Hero Section */}
-        {/* Mouse-following circle */}
-        <div
-          className="fixed pointer-events-none morphing-circle peach-to-red"
-          style={{
-            zIndex: 2147483645,
-            left: circlePosition.x - 100,
-            top: circlePosition.y - 100,
-            width: 200,
-            height: 200,
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 58, 52, 0.7)',
-            mixBlendMode: 'exclusion',
-            transition: 'none',
-            maskImage: 'radial-gradient(circle, transparent 50px, black 50px)',
-            WebkitMaskImage: 'radial-gradient(circle, transparent 50px, black 50px)'
-          }}
-        />
-        
         <section 
           ref={heroRef} 
           id="home" 
@@ -428,40 +584,99 @@ export default function Index() {
               loop
               playsInline
               preload="metadata"
-              style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)'}}
             >
               <source src="/placeholder.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-          </div>
-        </section>
 
-        {/* Company name overlay - separate layer for blend effect */}
+            {/* Text with blend effect */}
         <div 
-          className="absolute top-1/2 left-1/2 pointer-events-none z-50" 
+              className="absolute top-1/2 left-1/2 z-40"
           style={{
             mixBlendMode: 'difference',
             transform: 'translate(-50%, -50%)',
-          }}
-        >
-            <h1 className="text-[80px] sm:text-[100px] md:text-[120px] lg:text-[140px] xl:text-[160px] 2xl:text-[200px] font-bold leading-[0.95] tracking-[0.05em]" style={{fontFamily: 'Milker', color: '#FFB366'}}>
-             CDC
-           </h1>
+                width: '90%',
+                maxWidth: '1400px'
+              }}
+            >
+              <div className="text-center space-y-4 w-full">
+                <div 
+                  className="font-bold leading-none tracking-wide pointer-events-none"
+                  style={{ 
+                    fontFamily: 'Milker', 
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(44px, 5.5vw, 108px)',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  Executive Search
+                </div>
+                <div 
+                  className="font-bold leading-none tracking-wide pointer-events-none"
+                  style={{ 
+                    fontFamily: 'Milker', 
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(44px, 5.5vw, 108px)',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  Market Insights
+                </div>
+                <div 
+                  className="font-bold leading-none tracking-wide pointer-events-none"
+                  style={{ 
+                    fontFamily: 'Milker', 
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(44px, 5.5vw, 108px)',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  Project Work
+                </div>
+              </div>
           </div>
+            
+            {/* CTA Button - separate container without blend effect */}
+            <div 
+              className="absolute top-1/2 left-1/2 z-40 pointer-events-auto"
+              style={{
+                transform: 'translate(-50%, calc(-50% + clamp(120px, 18vw, 260px)))',
+                width: '90%',
+                maxWidth: '1400px'
+              }}
+            >
+              <div className="text-center">
+                <a
+                  href="/work-with-us"
+                  className="inline-block px-8 py-4 font-bold tracking-wide transition-all duration-300 hover:scale-105"
+                  style={{
+                    fontFamily: 'Milker',
+                    backgroundColor: '#FF3A34',
+                    color: '#FFFFFF',
+                    fontSize: 'clamp(18px, 1.5vw, 24px)',
+                    borderRadius: '8px'
+                  }}
+                >
+                  WORK WITH US
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Circle Expansion Section */}
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: '200vh',
-            opacity: scrollProgress > 0.2 ? 1 : 1
+            height: scrollProgress >= 0.85 ? '100vh' : '200vh',
+            opacity: scrollProgress > 0.2 ? 1 : 1,
+            transition: scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none'
           }}
         >
           {/* Expanding shape - positioned within section */}
           <div 
-            className="absolute rounded-full"
+            className="absolute rounded-full relative bg-brand-orange"
             style={{
-              backgroundColor: '#FF914D', // Brand orange/peach
               width: scrollProgress < 0.75 
                 ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
                 : scrollProgress < 0.85
@@ -473,514 +688,414 @@ export default function Index() {
                 ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
                 : '100%', // Full rectangle at the very end
               opacity: 1, // Always visible
-              transition: 'width 0.3s ease-out, height 0.3s ease-out, border-radius 0.3s ease-out',
+              transition: 'border-radius 0.1s linear', // Only transition border-radius, much faster
               top: '2%', // Position at 2%
               left: '50%',
               transform: 'translateX(-50%)',
               borderRadius: scrollProgress < 0.85 ? '50%' : '0%', // Keep circle shape longer
-              zIndex: 10
-            }}
-          />
-          
-          {/* WHAT WE DO text at bottom of circle section */}
-          <div 
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 text-center"
-            style={{
-              opacity: scrollProgress > 0.85 ? 1 : 0,
-              transition: 'opacity 0.8s ease-out'
+              zIndex: 10,
+              willChange: 'width, height, border-radius' // Optimize for performance
             }}
           >
-            <h2 
-              className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[120px] xl:text-[140px] 2xl:text-[180px] font-bold leading-[0.95] tracking-[0.05em] text-white"
-              style={{fontFamily: 'Milker'}}
-            >
-              WHAT WE DO
-            </h2>
-          </div>
-        </div>
-
-        {/* SVG defs for complex shapes (cloud clips) */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <clipPath id="cloudClip" clipPathUnits="objectBoundingBox">
-              <circle cx="0.55" cy="0.40" r="0.28" />
-              <circle cx="0.30" cy="0.70" r="0.20" />
-              <circle cx="0.80" cy="0.70" r="0.18" />
-              <circle cx="0.55" cy="0.75" r="0.24" />
-              <circle cx="0.40" cy="0.25" r="0.16" />
-              <circle cx="0.70" cy="0.25" r="0.16" />
-              <circle cx="0.20" cy="0.50" r="0.12" />
-              <circle cx="0.90" cy="0.50" r="0.10" />
-              <circle cx="0.45" cy="0.45" r="0.14" />
-              <circle cx="0.65" cy="0.45" r="0.14" />
-              <circle cx="0.15" cy="0.65" r="0.10" />
-              <circle cx="0.85" cy="0.65" r="0.08" />
-            </clipPath>
-            {/* Variant B - slightly shifted and scaled blobs */}
-            <clipPath id="cloudClipB" clipPathUnits="objectBoundingBox">
-              <circle cx="0.57" cy="0.42" r="0.27" />
-              <circle cx="0.32" cy="0.70" r="0.19" />
-              <circle cx="0.78" cy="0.70" r="0.17" />
-              <circle cx="0.55" cy="0.77" r="0.23" />
-              <circle cx="0.42" cy="0.26" r="0.15" />
-              <circle cx="0.68" cy="0.26" r="0.15" />
-              <circle cx="0.22" cy="0.49" r="0.11" />
-              <circle cx="0.88" cy="0.49" r="0.09" />
-              <circle cx="0.46" cy="0.46" r="0.13" />
-              <circle cx="0.64" cy="0.46" r="0.13" />
-              <circle cx="0.17" cy="0.64" r="0.09" />
-              <circle cx="0.83" cy="0.64" r="0.07" />
-            </clipPath>
-            {/* Variant C - another subtle variation */}
-            <clipPath id="cloudClipC" clipPathUnits="objectBoundingBox">
-              <circle cx="0.53" cy="0.38" r="0.29" />
-              <circle cx="0.28" cy="0.69" r="0.20" />
-              <circle cx="0.82" cy="0.69" r="0.18" />
-              <circle cx="0.54" cy="0.73" r="0.22" />
-              <circle cx="0.39" cy="0.24" r="0.16" />
-              <circle cx="0.71" cy="0.24" r="0.16" />
-              <circle cx="0.19" cy="0.51" r="0.12" />
-              <circle cx="0.91" cy="0.51" r="0.10" />
-              <circle cx="0.44" cy="0.44" r="0.15" />
-              <circle cx="0.66" cy="0.44" r="0.15" />
-              <circle cx="0.13" cy="0.66" r="0.10" />
-              <circle cx="0.87" cy="0.66" r="0.08" />
-            </clipPath>
-          </defs>
-        </svg>
-
-        {/* Video Morphing Section - separate from circle expansion */}
-          <section ref={videoSectionRef as any} className="w-full relative" style={{height: '500vh', overflow: 'hidden', backgroundColor: '#FF914D'}}>
-          <div className={`fixed inset-0 flex items-center justify-center z-50`} style={{opacity: videoProgress > 0.02 ? 1 : 0, transition: 'opacity 0.3s ease-out', transform: `translateY(${-raiseUpY}px)`}}>
-            <div className="container mx-auto px-6 lg:px-8 flex items-center gap-16">
-              {/* Video with morphing shape - single morphing cloud clip-path */}
-              <div className="flex-1">
-                <div 
-                  className="overflow-hidden flex items-center justify-center relative bg-white"
-                  style={{
-                    width: '110%',
-                    height: '660px',
-                    borderRadius: '0px',
-                    transition: 'opacity 0.3s ease-out'
-                  }}
-                >
-                  {/* Inline SVG path clip that morphs with scroll */}
-                  <svg className="absolute w-0 h-0">
-                    <defs>
-                      <clipPath id="cloudMorph" clipPathUnits="objectBoundingBox">
-                        <path d={getCloudMorphPath(cloudStageProgress)} />
-                      </clipPath>
-                      {/* Unique bubble morphs */}
-                      <clipPath id="cloudMorphB1" clipPathUnits="objectBoundingBox">
-                        <path d={getCloudMorphPathSeeded(cloudStageProgress, 1)} />
-                      </clipPath>
-                      <clipPath id="cloudMorphB2" clipPathUnits="objectBoundingBox">
-                        <path d={getCloudMorphPathSeeded(cloudStageProgress, 2)} />
-                      </clipPath>
-                      <clipPath id="cloudMorphB3" clipPathUnits="objectBoundingBox">
-                        <path d={getCloudMorphPathSeeded(cloudStageProgress, 3)} />
-                      </clipPath>
-                      <clipPath id="cloudMorphB4" clipPathUnits="objectBoundingBox">
-                        <path d={getCloudMorphPathSeeded(cloudStageProgress, 4)} />
-                      </clipPath>
-                    </defs>
-                  </svg>
-
-                  <div className="absolute inset-0" style={{clipPath: 'url(#cloudMorph)', transform: 'scale(1.12)', transformOrigin: 'center'}}>
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)', transform: 'translateX(10px)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-
-                  {/* Detached bubble clouds (smaller, also morphing) */}
-                  <div
-                    className="absolute"
-                    style={{
-                      width: '180px',
-                      height: '180px',
-                      top: `calc(80px + ${bubble1OffsetY}px)`,
-                      left: `calc(30px + ${bubble1OffsetX}px)`,
-                      clipPath: 'url(#cloudMorphB1)'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)', transform: 'translateX(10px)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{
-                      width: '160px',
-                      height: '160px',
-                      bottom: `calc(80px + ${bubble2OffsetY}px)`,
-                      right: `calc(30px + ${bubble2OffsetX}px)`,
-                      clipPath: 'url(#cloudMorphB2)'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)', transform: 'translateX(10px)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-
-                  {/* Two more separate morphing bubbles with independent motion */}
-                  <div
-                    className="absolute"
-                    style={{
-                      width: '140px',
-                      height: '140px',
-                      top: `calc(120px + ${bubble3OffsetY}px)`,
-                      right: `calc(120px + ${bubble3OffsetX}px)`,
-                      clipPath: 'url(#cloudMorphB3)'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)', transform: 'translateX(10px)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{
-                      width: '120px',
-                      height: '120px',
-                      bottom: `calc(140px + ${bubble4OffsetY}px)`,
-                      left: `calc(140px + ${bubble4OffsetX}px)`,
-                      clipPath: 'url(#cloudMorphB4)'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      style={{filter: 'sepia(100%) saturate(250%) hue-rotate(350deg) brightness(0.8)', transform: 'translateX(10px)'}}
-                    >
-                      <source src="/placeholder.mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-
-                  {/* No circle layer per request */}
-                </div>
-              </div>
-              
-              {/* Text content */}
-              <div className="flex-1">
-                <div className="text-center max-w-4xl">
-                  <div className="space-y-8 text-left" style={{marginLeft: '40px'}}>
-                    <div className="relative h-[350px] sm:h-[400px] md:h-[450px] overflow-hidden">
-                      <p 
-                        className="absolute text-[42px] sm:text-[56px] md:text-[70px] font-semibold leading-[1] tracking-tight text-white mb-8 transition-all duration-700 ease-in-out"
-                        style={{
-                          transform: `translateY(${videoProgress < 0.33 ? '0%' : videoProgress < 0.66 ? '-100%' : '-200%'})`,
-                          opacity: videoProgress < 0.33 ? 1 : videoProgress < 0.66 ? 0 : 1
-                        }}
-                      >
-                        We work with recruitment companies to show what marketing can do.
-                      </p>
-                      <p 
-                        className="absolute text-[42px] sm:text-[56px] md:text-[70px] font-semibold leading-[1] tracking-tight text-white mb-8 transition-all duration-700 ease-in-out"
-                        style={{
-                          transform: `translateY(${videoProgress < 0.33 ? '100%' : videoProgress < 0.66 ? '0%' : '-100%'})`,
-                          opacity: videoProgress < 0.33 ? 0 : videoProgress < 0.66 ? 1 : 0
-                        }}
-                      >
-                        We help recruitment firms transform their approach through strategic marketing.
-                      </p>
-                      <p 
-                        className="absolute text-[42px] sm:text-[56px] md:text-[70px] font-semibold leading-[1] tracking-tight text-white mb-8 transition-all duration-700 ease-in-out"
-                        style={{
-                          transform: `translateY(${videoProgress < 0.66 ? '200%' : videoProgress < 1 ? '0%' : '0%'})`,
-                          opacity: videoProgress < 0.66 ? 0 : 1
-                        }}
-                      >
-                        We turn recruitment challenges into marketing opportunities that deliver results.
-                      </p>
-                    </div>
-            </div>
-          </div>
-              </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-          <section 
-            ref={aboutSectionRef as any}
-            id="about" 
-            className="bg-brand-orange rounded-t-3xl relative"
-            style={{
-              height: '100vh',
-              zIndex: 999,
-              width: `${85 + Math.min(aboutSectionProgress * 30, 15)}%`, 
-              margin: '0 auto',
-              transform: `translateY(-${aboutSectionProgress * 200}px)`,
-              transition: 'width 0.3s ease-out, transform 0.3s ease-out',
-              overflow: 'hidden'
-            }}
-          >
-        <div className="container mx-auto px-6 lg:px-8 h-screen flex items-center">
-        <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start w-full">
-          <div className="lg:w-[230px] flex-shrink-0">
-            <img
-              src="https://api.builder.io/api/v1/image/assets/TEMP/c886bf151e8f3d134b02ed15b82ac21a9eb10d80?width=460"
-              alt="Team member"
-              className="rounded-[15px] w-full h-auto max-w-[230px] mx-auto lg:mx-0"
+            {/* Grain effect overlay for expanding circle */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-[0.25]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                backgroundSize: '150px 150px',
+                mixBlendMode: 'overlay',
+                borderRadius: 'inherit'
+              }}
             />
           </div>
+          
+        </div>
 
-          <div className="flex-1 max-w-4xl">
-                      <h2 className="text-[36px] sm:text-[48px] md:text-[60px] font-semibold leading-[1] tracking-tight text-white mb-8">
-               We create content that stands out. That sticks. That hits your target audience and gets your brand moving. Fast, powerful and energetic.
+      {/* Video Section under WHAT WE DO */}
+      <section 
+        ref={watchVideoSectionRef as any}
+        className="w-full relative bg-brand-orange flex flex-col items-center justify-center"
+            style={{
+          minHeight: '100vh',
+          paddingTop: 0,
+          paddingBottom: '160px',
+          marginTop: '-80px' // Move section higher, closer to section above
+        }}
+      >
+        {/* Grain effect overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+          style={{
+            zIndex: 1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply'
+          }}
+        />
+        <div className="container mx-auto px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center gap-12" style={{ paddingTop: 0 }}>
+          {/* Heading */}
+          <h2 
+            className="text-[48px] sm:text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-2"
+            style={{fontFamily: 'Milker', marginTop: 0, paddingTop: 0}}
+          >
+            Watch Our Story
             </h2>
-                      <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-[1.3] tracking-tight text-white mb-8">
-               We don't stop at beautiful pictures and fat visuals. We make it measurable. So you know exactly what works and what doesn't. Never again content without strategy. Never again content without result.
-              </p>
-                      <p className="text-lg sm:text-xl md:text-2xl font-semibold leading-[1.3] tracking-tight text-white mb-8">
-               From concept to execution, we deliver content that drives engagement and delivers measurable results for your brand.
-              </p>
-                    <button className="inline-flex items-center gap-3 px-4 py-3 rounded-[11.25px] border border-white bg-brand-light text-white font-semibold text-[15px] hover:bg-brand-dark hover:text-brand-light transition-colors">
-              Get to know us
-              <span className="flex items-center justify-center w-[34px] h-[34px] rounded-[9.38px] bg-brand-dark">
-                <ArrowRight className="w-[14px] h-[14px] text-brand-light" />
-              </span>
-            </button>
-          </div>
+          <div 
+            className="relative w-full max-w-7xl rounded-lg overflow-hidden shadow-2xl"
+                  style={{
+              height: watchVideoProgress > 0 
+                ? `${2 + watchVideoProgress * 650}px`
+                : '2px',
+              transition: 'none',
+              willChange: 'height'
+            }}
+          >
+                    <video
+              id="main-video"
+                      className="w-full h-full object-cover"
+              preload="metadata"
+              style={{ 
+                backgroundColor: '#000',
+                width: '100%',
+                height: '650px',
+                display: 'block'
+              }}
+                    >
+                      <source src="/placeholder.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+            {/* Play button overlay */}
+            <div 
+              id="play-button-overlay"
+              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black bg-opacity-30 hover:bg-opacity-20 transition-all duration-300"
+              style={{
+                opacity: watchVideoProgress > 0.5 ? 1 : watchVideoProgress * 2
+              }}
+              onClick={() => {
+                const video = document.getElementById('main-video') as HTMLVideoElement;
+                const overlay = document.getElementById('play-button-overlay');
+                if (video && overlay) {
+                  video.play();
+                  video.controls = true;
+                  overlay.style.display = 'none';
+                }
+              }}
+            >
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white bg-opacity-90 flex items-center justify-center hover:bg-opacity-100 transition-all duration-300 hover:scale-110">
+                <svg className="w-12 h-12 md:w-16 md:h-16 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                  </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Expertise Sections */}
-      <section ref={expertiseSectionRef as any} id="expertises" className="bg-brand-orange w-full relative -mt-80 z-10" style={{overflow: 'hidden'}}>
-        <div className="w-full pl-0 pr-2.5 space-y-0">
-         {/* Section 01 - Social Strategy */}
-         <div className="relative h-[65vh]">
-            <div 
-              ref={(el) => { expertiseCardRefs.current[0] = el; }}
-              className={`sticky top-0 z-30 rounded-[50px] bg-brand-red p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
-              style={{ transform: getCardTransform('left', expertiseCardProgress[0] || 0) }}
-            >
-          <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
-            <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-[#D8EADC] text-white text-[24px] mb-8">
-                Expertise
-              </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
-                Social
-              </h2>
-              <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-[#FA5424] text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
-                  Meer over social strategie
-                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-red">
-                    <ArrowRight className="w-[20px] h-[20px] text-white" />
-                  </span>
-                </button>
+      {/* Videos Section with Peach Background */}
+      <section 
+        className="w-full relative"
+        style={{
+          backgroundColor: '#FF914D',
+          paddingTop: '96px',
+          paddingBottom: '64px',
+          paddingLeft: '48px',
+          paddingRight: '48px',
+          minHeight: '100vh'
+        }}
+      >
+        {/* Grain effect overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+                    style={{
+            zIndex: 1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply'
+          }}
+        />
+        
+        <div className="container mx-auto relative z-10">
+          <div className="flex flex-col gap-12 lg:gap-16">
+            {/* Item 1 */}
+            <div className="relative flex flex-col lg:flex-row items-center gap-4 lg:gap-12 lg:mt-0">
+              <div 
+                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
+                data-animate
+                style={{
+                  aspectRatio: '9/16',
+                  backgroundColor: '#000',
+                  width: 'clamp(220px, 22vw, 360px)',
+                  maxWidth: '360px',
+                  opacity: 0,
+                  transform: 'translateX(-40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                    }}
+                  >
+                    <video
+                      className="w-full h-full object-cover"
+                      autoPlay
+                  muted
+                      loop
+                      playsInline
+                    >
+                      <source src="/placeholder.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                  <div
+                className="text-white space-y-4 max-w-2xl"
+                data-animate
+                    style={{
+                  opacity: 0,
+                  transform: 'translateX(40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                }}
+              >
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
+                  Executive Search Excellence
+                </h3>
               </div>
-            </div>
+                  </div>
 
-            <div className="lg:absolute lg:right-16 lg:top-16">
-              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-[#D8EADC]">01</span>
-            </div>
-
-            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
-              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-[#FA5424] p-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/81ff6d9ad8aa93fee38bcd719e2f2c8833902c79?width=576"
-                  alt="Social strategy"
-                  className="w-full h-full object-cover rounded-[24px]"
-                />
+            {/* Item 2 */}
+            <div className="relative flex flex-col lg:flex-row-reverse items-center gap-4 lg:gap-12 lg:mt-12">
+                  <div
+                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
+                data-animate
+                    style={{
+                  aspectRatio: '9/16',
+                  backgroundColor: '#000',
+                  width: 'clamp(220px, 22vw, 360px)',
+                  maxWidth: '360px',
+                  opacity: 0,
+                  transform: 'translateX(40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                    }}
+                  >
+                    <video
+                  ref={marketInsightsVideoRef}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                  muted
+                      loop
+                      playsInline
+                  preload="auto"
+                    >
+                  <source src="/video2.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
               </div>
-            </div>
-        </div>
+              <div
+                className="text-white space-y-4 max-w-2xl"
+                data-animate
+                style={{
+                  opacity: 0,
+                  transform: 'translateX(-40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                }}
+              >
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
+                  Market Insights That Matter
+                </h3>
+              </div>
+                  </div>
+
+            {/* Item 3 */}
+            <div className="relative flex flex-col lg:flex-row items-center gap-4 lg:gap-12 lg:mt-8">
+                  <div
+                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
+                data-animate
+                    style={{
+                  aspectRatio: '9/16',
+                  backgroundColor: '#000',
+                  width: 'clamp(220px, 22vw, 360px)',
+                  maxWidth: '360px',
+                  opacity: 0,
+                  transform: 'translateX(-40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                    }}
+                  >
+                    <video
+                      className="w-full h-full object-cover"
+                      autoPlay
+                  muted
+                      loop
+                      playsInline
+                    >
+                      <source src="/placeholder.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+              <div
+                className="text-white space-y-4 max-w-2xl"
+                data-animate
+                        style={{
+                  opacity: 0,
+                  transform: 'translateX(40px)',
+                  transition: 'opacity 700ms ease, transform 700ms ease'
+                }}
+              >
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
+                  Project Work Delivered
+                </h3>
+          </div>
+              </div>
           </div>
         </div>
+      </section>
 
-         {/* Section 02 - Content Creation */}
-         <div className="relative h-[300vh]">
-            <div 
-              ref={(el) => { expertiseCardRefs.current[1] = el; }}
-              className={`sticky top-0 z-30 rounded-[50px] bg-brand-pink p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
-              style={{ transform: getCardTransform('right', expertiseCardProgress[1] || 0) }}
-            >
-              <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
-            <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
-                Expertise
-              </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
-                Content
-              </h2>
+      {/* About Us */}
+          <section 
+        ref={aboutUsRef as any}
+        className="w-full relative bg-brand-orange"
+        style={{ minHeight: '150vh', paddingTop: '120px', paddingBottom: '120px' }}
+      >
+        {/* Grain effect overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+            style={{
+            zIndex: 1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply'
+          }}
+        />
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          <div className="max-w-5xl mx-auto space-y-16">
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center" style={{ fontFamily: 'Milker' }}>About Us</h2>
+            
+            {(() => {
+              const storySegments = [
+                "At CDC Global Solutions Ltd, we're all about people – not just filling roles.",
+                "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
+              ];
+
+              const allWords = storySegments.flatMap(segment => segment.split(' '));
+              let wordIndex = 0;
+
+              return (
               <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
-                  Meer over content creatie
-                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
-                    <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
-                  </span>
-                </button>
+                  {storySegments.map((segment, segmentIndex) => {
+                    const segmentWords = segment.split(' ');
+                    const segmentStartIndex = wordIndex;
+                    wordIndex += segmentWords.length;
+                    
+                    return (
+                      <p
+                        key={segmentIndex}
+                        className="text-4xl md:text-5xl lg:text-6xl leading-tight text-white"
+                        style={{
+                          fontFamily: 'Milker',
+                          fontWeight: 600,
+                          letterSpacing: '0.02em'
+                        }}
+                      >
+                        {segmentWords.map((word, i) => {
+                          const currentWordIndex = segmentStartIndex + i;
+                          const isRevealed = currentWordIndex < revealedWordCount;
+                          return (
+                            <span
+                              key={i}
+                              className={isRevealed ? 'text-white' : 'text-white/40'}
+                              style={{
+                                transition: 'all 0.3s ease-out',
+                                opacity: isRevealed ? 1 : 0.4
+                              }}
+                            >
+                              {word}{' '}
+              </span>
+                          );
+                        })}
+                      </p>
+                    );
+                  })}
               </div>
+              );
+            })()}
             </div>
-
-            <div className="lg:absolute lg:right-16 lg:top-16">
-              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-[#FDD0FE]">02</span>
             </div>
+      </section>
 
-            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
-              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-brand-red p-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/8ea5d10d5ab42503b6cd9dfbbe2d4749d4f9a9a2?width=576"
-                  alt="Content creation"
-                  className="w-full h-full object-cover rounded-[24px]"
+      {/* Meet Our Founders */}
+      <section className="w-full relative bg-brand-orange py-24">
+        {/* Grain effect overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+          style={{
+            zIndex: 1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply'
+          }}
+        />
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-16" style={{ fontFamily: 'Milker' }}>Meet Our Founders</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+              {/* Harriet */}
+              <div className="group relative cursor-pointer">
+                <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                  <div className="bg-white rounded-xl overflow-hidden">
+                    <img 
+                      src="/Harriet Headshot 8.jpg" 
+                      alt="Harriet" 
+                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
                 />
               </div>
               </div>
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Milker' }}>Harriet</h3>
+                  <p className="text-white/90 text-lg md:text-xl font-semibold">Strategy & Brand</p>
+                  <p className="text-white/80 text-base md:text-lg mt-3">Leads strategy and brand development, ensuring every campaign is built on insight and purpose.</p>
             </div>
         </div>
 
-         {/* Section 03 - Activation */}
-         <div className="relative h-[300vh]">
-            <div 
-              ref={(el) => { expertiseCardRefs.current[2] = el; }}
-              className={`sticky top-0 z-30 rounded-[50px] bg-brand-green p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
-              style={{ transform: getCardTransform('left', expertiseCardProgress[2] || 0) }}
-            >
-              <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
-            <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
-                Expertise
-              </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
-                Activation
-              </h2>
-              <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
-                  Meer over activatie
-                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
-                    <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:absolute lg:right-16 lg:top-16">
-              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-brand-green-light">03</span>
-            </div>
-
-            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
-              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-brand-red p-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/e2d492953bf3268c94e955201fb6e01200f77c1e?width=576"
-                  alt="Activation"
-                  className="w-full h-full object-cover rounded-[24px]"
+              {/* Adam */}
+              <div className="group relative cursor-pointer">
+                <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                  <div className="bg-white rounded-xl overflow-hidden">
+                    <img 
+                      src="/Adam Headshot 4.jpg" 
+                      alt="Adam" 
+                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
                 />
               </div>
               </div>
-            </div>
-        </div>
-
-         {/* Section 04 - Data */}
-         <div className="relative h-[300vh]">
-            <div 
-              ref={(el) => { expertiseCardRefs.current[3] = el; }}
-              className={`sticky top-0 z-30 rounded-[50px] bg-brand-blue p-12 md:p-16 lg:p-20 relative overflow-hidden h-[700px] w-[90%] max-w-6xl mx-auto mt-80 transition-all duration-500 ease-out hover:scale-105 hover:shadow-2xl cursor-pointer expertise-card`}
-              style={{ transform: getCardTransform('right', expertiseCardProgress[3] || 0) }}
-            >
-              <div className="flex flex-col lg:flex-row gap-24 lg:gap-40 h-full">
-            <div className="flex-1 w-full z-10">
-              <span className="inline-block px-6 py-3 rounded-md bg-brand-red text-white text-[24px] mb-8">
-                Expertise
-              </span>
-              <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-semibold leading-[0.95] tracking-[-0.05em] text-white mb-20">
-                Data
-              </h2>
-              <div className="space-y-16">
-                <button className="inline-flex items-center gap-4 px-8 py-4 rounded-[15px] bg-brand-red text-white font-semibold text-[18px] hover:opacity-90 transition-opacity">
-                  Meer over data
-                  <span className="flex items-center justify-center w-[48px] h-[48px] rounded-[12px] bg-brand-dark">
-                    <ArrowRight className="w-[20px] h-[20px] text-brand-red" />
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:absolute lg:right-16 lg:top-16">
-              <span className="text-[96px] md:text-[128px] lg:text-[150px] xl:text-[170px] font-semibold leading-none text-brand-blue-light">04</span>
-            </div>
-
-            <div className="lg:absolute lg:right-20 lg:bottom-20 transform lg:rotate-[2.5deg] self-center lg:self-auto">
-              <div className="w-full max-w-[800px] h-[350px] md:h-[400px] rounded-[36px] bg-brand-red p-3">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/TEMP/b44516bf1376d623e1a6115ed8b1b98fe527d0e7?width=576"
-                  alt="Data insights"
-                  className="w-full h-full object-cover rounded-[24px]"
-                />
-              </div>
-              </div>
-            </div>
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Milker' }}>Adam</h3>
+                  <p className="text-white/90 text-lg md:text-xl font-semibold">Creative & Production</p>
+                  <p className="text-white/80 text-base md:text-lg mt-3">Drives creative and production, turning strategy into bold, impactful work that moves brands forward.</p>
         </div>
           </div>
         </div>
         </div>
         </div>
       </section>
-
-
 
       {/* CTA Section */}
       <section id="contact" className="bg-brand-orange w-full relative py-32">
-        <div className="container mx-auto px-6 lg:px-8">
+        {/* Grain effect for contact section */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply',
+            zIndex: 1
+          }}
+        />
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
           <div className="text-center max-w-6xl mx-auto">
             <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-white mb-16" style={{fontFamily: 'Milker'}}>
               Let's Work Together!
             </h2>
             
-            <div className="flex flex-col lg:flex-row gap-8 justify-center items-center max-w-4xl mx-auto">
-              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] border-2 border-brand-dark bg-brand-light text-white font-bold text-[24px] hover:bg-brand-dark hover:text-brand-light transition-all duration-500 hover:scale-105 hover:shadow-2xl w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
-                Mail ons direct
-                <span className="flex items-center justify-center w-[60px] h-[60px] rounded-[15px] bg-brand-dark group-hover:bg-brand-light transition-colors duration-500">
-                  <Mail className="w-6 h-6 text-brand-light group-hover:text-white transition-colors duration-500" />
-                </span>
-              </button>
-              <button className="group flex items-center gap-6 px-12 py-6 rounded-[25px] bg-brand-red text-white font-bold text-[24px] hover:bg-brand-light hover:scale-105 hover:shadow-2xl transition-all duration-500 w-full lg:w-auto" style={{fontFamily: 'Milker'}}>
-                Get Results
-                <span className="flex items-center justify-center w-[60px] h-[60px] rounded-[15px] bg-brand-dark group-hover:bg-brand-red transition-colors duration-500">
-                  <svg className="w-6 h-6 text-brand-light group-hover:text-white transition-colors duration-500" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
-                  </svg>
-                </span>
+            <div className="flex justify-center items-center max-w-4xl mx-auto">
+              <button className="px-16 py-6 rounded-[25px] bg-brand-red text-white font-bold text-[32px] hover:opacity-90 hover:scale-105 hover:shadow-2xl transition-all duration-500" style={{fontFamily: 'Milker'}}>
+                YES!
               </button>
             </div>
           </div>
@@ -988,62 +1103,149 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-dark py-24">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-brand-light mb-8" style={{fontFamily: 'Milker'}}>
+      <footer ref={footerRef as any} className="bg-brand-dark py-20 lg:py-32 relative">
+        {/* Grain Effect */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.22]"
+          style={{
+            zIndex: 1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '150px 150px',
+            mixBlendMode: 'multiply'
+          }}
+        />
+        
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-16">
+            {/* Brand Column */}
+            <div 
+              data-footer-col
+              className="text-center md:text-left"
+              style={{
+                opacity: 0,
+                transform: 'translateY(40px)',
+                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
+              }}
+            >
+              <h2 className="text-[48px] md:text-[56px] lg:text-[64px] font-bold leading-[0.95] tracking-[0.02em] text-brand-light mb-4" style={{fontFamily: 'Milker'}}>
               CDC
             </h2>
-            <p className="text-[24px] md:text-[28px] font-semibold text-brand-light/80" style={{fontFamily: 'Milker'}}>
-              Let's create something amazing together
+              <p className="text-[18px] md:text-[20px] text-brand-light/70 mb-8" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>
+                Global Solutions Ltd
             </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            <div className="text-center md:text-left">
-              <h3 className="text-brand-light font-bold text-[24px] mb-6" style={{fontFamily: 'Milker'}}>Follow us</h3>
               <div className="flex gap-4 justify-center md:justify-start">
-                {['LinkedIn', 'TikTok', 'Instagram', 'YouTube'].map((social) => (
                   <a
-                    key={social}
                     href="#"
-                    className="w-16 h-16 rounded-full bg-brand-red flex items-center justify-center hover:bg-brand-light hover:scale-110 transition-all duration-300"
-                    aria-label={social}
-                  >
-                    <span className="sr-only">{social}</span>
-                    <div className="w-8 h-8 bg-brand-light rounded-full"></div>
-                  </a>
-                ))}
+                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="w-5 h-5 text-white" />
+                </a>
+                <a
+                  href="#"
+                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5 text-white" />
+                </a>
+                <a
+                  href="#"
+                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="w-5 h-5 text-white" />
+                </a>
               </div>
             </div>
 
-            <div className="text-center md:text-left">
-              <h3 className="text-brand-light font-bold text-[24px] mb-6" style={{fontFamily: 'Milker'}}>Contact</h3>
+            {/* Contact Column */}
+            <div 
+              data-footer-col
+              className="text-center md:text-left"
+              style={{
+                opacity: 0,
+                transform: 'translateY(40px)',
+                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
+              }}
+            >
+              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Contact</h3>
+              <div className="space-y-4">
+                <a href="mailto:info@cdcglobalsolutions.com" className="flex items-center gap-3 text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors group justify-center md:justify-start">
+                  <Mail className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                  <span>info@cdcglobalsolutions.com</span>
+                </a>
+                <a href="tel:+12345678900" className="flex items-center gap-3 text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors group justify-center md:justify-start">
+                  <Phone className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                  <span>+1 234 567 8900</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Address Column */}
+            <div 
+              data-footer-col
+              className="text-center md:text-left"
+              style={{
+                opacity: 0,
+                transform: 'translateY(40px)',
+                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
+              }}
+            >
+              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Location</h3>
+              <div className="flex items-start gap-3 text-[16px] md:text-[18px] text-brand-light/80 justify-center md:justify-start">
+                <MapPin className="w-5 h-5 flex-shrink-0 mt-1" />
+                <div>
+                  <p>123 Business Street</p>
+                  <p>City, State 12345</p>
+                  <p>United Kingdom</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation Column */}
+            <div 
+              data-footer-col
+              className="text-center md:text-left"
+              style={{
+                opacity: 0,
+                transform: 'translateY(40px)',
+                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
+              }}
+            >
+              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Quick Links</h3>
               <div className="space-y-3">
-                <p className="text-[18px] text-brand-light font-semibold">your-email@domain.com</p>
-                <p className="text-[18px] text-brand-light font-semibold">+1 234 567 8900</p>
+                <a href="#expertises" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Expertises</a>
+                <a href="#about" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>About</a>
+                <a href="/work-with-us" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Work With Us</a>
+                <a href="#contact" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Contact</a>
               </div>
-            </div>
-
-            <div className="text-center md:text-left">
-              <h3 className="text-brand-light font-bold text-[24px] mb-6" style={{fontFamily: 'Milker'}}>Address</h3>
-              <p className="text-[18px] text-brand-light font-semibold">
-                Your Street Address,<br />
-                City, State ZIP
-              </p>
-            </div>
-
-            <div className="text-center md:text-left space-y-3">
-              <a href="#expertises" className="block text-brand-light text-[20px] font-semibold hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Expertises</a>
-              <a href="#about" className="block text-brand-light text-[20px] font-semibold hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>About</a>
-              <a href="#contact" className="block text-brand-light text-[20px] font-semibold hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Contact</a>
             </div>
           </div>
           
-          <div className="pt-8 border-t border-brand-light/20 text-center">
-            <a href="#" className="text-[16px] text-brand-light/60 font-semibold hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>
+          {/* Bottom Bar */}
+          <div 
+            data-footer-bottom
+            className="pt-8 border-t border-brand-light/10"
+            style={{
+              opacity: 0,
+              transform: 'translateY(30px)',
+              transition: 'opacity 800ms ease-out, transform 800ms ease-out'
+            }}
+          >
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-[14px] text-brand-light/60 text-center md:text-left" style={{fontFamily: 'Milker'}}>
+                © {new Date().getFullYear()} CDC Global Solutions Ltd. All rights reserved.
+              </p>
+              <div className="flex gap-6">
+                <a href="#" className="text-[14px] text-brand-light/60 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>
               Privacy Policy
             </a>
+                <a href="#" className="text-[14px] text-brand-light/60 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>
+                  Terms of Service
+            </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

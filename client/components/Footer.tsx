@@ -1,7 +1,17 @@
 export default function Footer() {
   return (
-    <footer className="bg-brand-dark py-24 w-full">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <footer className="bg-brand-dark py-24 w-full relative">
+      {/* Grain effect overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.35]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '150px 150px',
+          mixBlendMode: 'overlay',
+          zIndex: 1
+        }}
+      />
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
         <div className="text-center mb-16">
           <h2 className="text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-brand-light mb-8" style={{fontFamily: 'Milker'}}>
             CDC
