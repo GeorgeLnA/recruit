@@ -484,7 +484,7 @@ export default function RotatingEarth({
                 aria-label={`Select ${pin.name}`}
               >
                 {/* Pin dot container */}
-                <div className="relative w-6 h-6">
+                <div className="relative w-4 h-4">
                   {/* Pulsing ring */}
                   <span 
                     ref={(el) => {
@@ -505,16 +505,16 @@ export default function RotatingEarth({
                         });
                       }
                     }}
-                    className="absolute top-0 left-0 w-6 h-6 rounded-full bg-[#ff3a34] opacity-30"
+                    className="absolute top-0 left-0 w-4 h-4 rounded-full bg-[#00BFFF] opacity-30"
                     style={{ transformOrigin: 'center center' }}
                   />
                   
                   {/* Pin dot */}
                   <span
-                    className={`absolute top-0 left-0 w-6 h-6 rounded-full shadow-lg transition-all duration-300 ${
+                    className={`absolute top-0 left-0 w-4 h-4 rounded-full shadow-lg transition-all duration-300 ${
                       selectedId === pin.id 
-                        ? 'bg-[#ff3a34] ring-4 ring-[#ff3a34]/30 scale-125' 
-                        : 'bg-[#ff3a34] ring-2 ring-white/70 hover:scale-110'
+                        ? 'bg-[#00BFFF] ring-4 ring-[#00BFFF]/30 scale-125' 
+                        : 'bg-[#00BFFF] ring-2 ring-white/70 hover:scale-110'
                     }`}
                     style={{ transformOrigin: 'center center' }}
                   />
