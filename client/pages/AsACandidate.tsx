@@ -64,7 +64,7 @@ export default function AsACandidate() {
           </div>
           <div>
             <VideoPlayer
-              src="/CDC Website - ROUGH CUT 1.mp4"
+              src="/CDC Website - ROUGH CUT 1 (1).mp4"
               poster="/placeholder.svg"
               title="What we offer to candidates"
               className="w-full"

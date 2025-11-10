@@ -451,7 +451,7 @@ export default function WorkWithUs() {
           <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/20 blur-xl" />
           <div className="absolute -bottom-6 -left-8 w-28 h-28 rounded-full bg-white/10 blur-2xl" />
           <VideoPlayer
-            src="/CDC Website - ROUGH CUT 1.mp4"
+            src="/CDC Website - ROUGH CUT 1 (1).mp4"
             title="Work With Us Introduction"
             className="w-full"
           />
@@ -483,7 +483,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -520,7 +520,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -557,7 +557,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -594,7 +594,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                  src="/CDC Website - ROUGH CUT 1.mp4"
+                  src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -636,7 +636,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -673,7 +673,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -710,7 +710,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                        src="/CDC Website - ROUGH CUT 1.mp4"
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted
@@ -747,7 +747,7 @@ export default function WorkWithUs() {
                   <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
                     <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
                       <video
-                  src="/CDC Website - ROUGH CUT 1.mp4"
+                  src="/CDC Website - ROUGH CUT 1 (1).mp4"
                         autoPlay
                         loop
                         muted

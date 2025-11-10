@@ -630,7 +630,10 @@ export default function Index() {
               playsInline
               preload="metadata"
             >
-              <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
+              <source
+                src="/CDC Website - ROUGH CUT 1 (1).mp4"
+                type="video/mp4"
+              />
               Your browser does not support the video tag.
             </video>
 
@@ -816,7 +819,10 @@ export default function Index() {
                 display: 'block'
               }}
                     >
-                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
+                      <source
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </video>
             {/* Play button overlay */}
@@ -885,7 +891,10 @@ export default function Index() {
                       loop
                       playsInline
                     >
-                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
+                      <source
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </video>
                   </div>
@@ -928,7 +937,10 @@ export default function Index() {
                       playsInline
                   preload="auto"
                     >
-                  <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
+                  <source
+                    src="/CDC Website - ROUGH CUT 1 (1).mp4"
+                    type="video/mp4"
+                  />
                       Your browser does not support the video tag.
                     </video>
               </div>
@@ -969,7 +981,10 @@ export default function Index() {
                       loop
                       playsInline
                     >
-                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
+                      <source
+                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </video>
                   </div>
