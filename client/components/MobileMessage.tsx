@@ -50,25 +50,25 @@ export default function MobileMessage({ onMobileDetected }: MobileMessageProps) 
       <div className="text-center max-w-md">
         {/* Oops Icon */}
         <div className="mb-8">
-          <div className="w-24 h-24 mx-auto rounded-full bg-[#FF3A34] flex items-center justify-center">
-            <span className="text-white text-4xl font-bold" style={{fontFamily: 'Milker'}}>
+          <div className="w-24 h-24 mx-auto rounded-full bg-[#00BFFF] flex items-center justify-center">
+            <span className="text-white text-4xl font-bold">
               !
             </span>
           </div>
         </div>
 
         {/* Main Message */}
-        <h1 className="text-[48px] font-bold text-[#FF3A34] mb-6" style={{fontFamily: 'Milker'}}>
+        <h1 className="text-[48px] font-bold text-[#00BFFF] mb-6">
           Oops!
         </h1>
         
-        <p className="text-[20px] text-[#FF3A34] font-semibold leading-relaxed mb-8">
+        <p className="text-[20px] text-[#00BFFF] font-semibold leading-relaxed mb-8">
           Sorry, we're still in development. Please check us out from your desktop for the full experience!
         </p>
 
         {/* Desktop Icon */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-[#FF3A34] rounded-lg flex items-center justify-center">
+          <div className="w-16 h-16 bg-[#00BFFF] rounded-lg flex items-center justify-center">
             <svg 
               className="w-8 h-8 text-white" 
               fill="none" 

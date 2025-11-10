@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import { gsap, useGSAP } from "@/lib/gsap";
 import RotatingEarth, { EarthPin } from "@/components/RotatingEarth";
+import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 
 const locations: EarthPin[] = [
   { 
@@ -118,6 +119,8 @@ export default function GlobalReach() {
   return (
     <>
     <div className="min-h-screen pt-48 px-0 relative" style={{ backgroundColor: '#FF914D' }}>
+      {/* Life Sciences Icons */}
+      <LifeSciencesIcons count={12} side="both" size={70} />
         {/* Grain effect overlay */}
         <div 
           className="fixed inset-0 pointer-events-none opacity-[0.22]"
@@ -129,7 +132,7 @@ export default function GlobalReach() {
           }}
         />
         <div className="gr-hero text-center mb-16 relative" style={{ zIndex: 2 }}>
-          <h1 className="text-8xl font-bold mb-16 text-center" style={{ fontFamily: 'Milker' }}>Global Reach</h1>
+          <h1 className="text-8xl font-bold mb-16 text-center">Global Reach</h1>
         </div>
       <div className="w-full flex justify-center relative" style={{ zIndex: 2 }}>
         <RotatingEarth
@@ -144,7 +147,7 @@ export default function GlobalReach() {
       {/* Locations Cards Section */}
       <div className="w-full px-4 md:px-8 lg:px-16 pb-32">
         <div className="max-w-[1600px] mx-auto">
-          <h2 className="text-7xl md:text-8xl font-bold mb-20 text-center" style={{ fontFamily: 'Milker' }}>
+          <h2 className="text-7xl md:text-8xl font-bold mb-20 text-center">
             Our Locations
           </h2>
           
@@ -153,11 +156,11 @@ export default function GlobalReach() {
             <div className="harrogate-card mb-12 bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer" style={{ opacity: 1 }}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Image on left */}
-                <div className="relative h-96 lg:h-[500px] overflow-hidden bg-gray-200">
+                <div className="relative aspect-[16/9] overflow-hidden bg-gray-200">
                   <img
                     src={harrogateLocation.image}
                     alt={harrogateLocation.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     style={{ opacity: 1 }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
@@ -165,7 +168,7 @@ export default function GlobalReach() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
                   <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
-                    <h3 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg" style={{ fontFamily: 'Milker' }}>
+                    <h3 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
                       {harrogateLocation.name}
                     </h3>
                   </div>
@@ -189,11 +192,11 @@ export default function GlobalReach() {
                 className="location-card bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer"
                 style={{ opacity: 1 }}
               >
-                <div className="relative h-64 overflow-hidden bg-gray-200">
+                <div className="relative aspect-[16/9] overflow-hidden bg-gray-200">
                   <img
                     src={location.image}
                     alt={location.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     style={{ opacity: 1 }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
@@ -201,7 +204,7 @@ export default function GlobalReach() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
                   <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
-                    <h3 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg" style={{ fontFamily: 'Milker' }}>
+                    <h3 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
                       {location.name}
                     </h3>
                   </div>

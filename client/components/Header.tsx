@@ -1,6 +1,7 @@
 import { ArrowRight, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
+import { FlipButton } from "@/components/FlipButton";
 
 interface NavItem {
   label: string;
@@ -539,7 +540,7 @@ export default function Header({
           zIndex: 2147483649,
           width: '40px',
           height: '40px',
-          backgroundColor: 'rgba(255, 255, 255, 1)',
+          backgroundColor: '#FF914D',
           mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
@@ -561,7 +562,7 @@ export default function Header({
           zIndex: 2147483649,
           width: '40px',
           height: '40px',
-          backgroundColor: 'rgba(255, 255, 255, 1)',
+          backgroundColor: '#FF914D',
           mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
@@ -579,9 +580,9 @@ export default function Header({
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 2147483647,
-          borderLeft: '13px solid rgba(255, 255, 255, 1)',
-          borderRight: '13px solid rgba(255, 255, 255, 1)',
-          borderBottom: '13px solid rgba(255, 255, 255, 1)',
+          borderLeft: '13px solid #FF914D',
+          borderRight: '13px solid #FF914D',
+          borderBottom: '13px solid #FF914D',
           borderTop: 'none',
           borderRadius: '24px'
         }}
@@ -593,8 +594,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '13px solid rgba(255, 255, 255, 1)',
-          borderLeft: '13px solid rgba(255, 255, 255, 1)',
+          borderTop: '13px solid #FF914D',
+          borderLeft: '13px solid #FF914D',
           borderRight: '13px solid transparent',
           borderBottom: '13px solid transparent'
         }}
@@ -605,8 +606,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '13px solid rgba(255, 255, 255, 1)',
-          borderRight: '13px solid rgba(255, 255, 255, 1)',
+          borderTop: '13px solid #FF914D',
+          borderRight: '13px solid #FF914D',
           borderLeft: '13px solid transparent',
           borderBottom: '13px solid transparent'
         }}
@@ -617,8 +618,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '13px solid rgba(255, 255, 255, 1)',
-          borderLeft: '13px solid rgba(255, 255, 255, 1)',
+          borderBottom: '13px solid #FF914D',
+          borderLeft: '13px solid #FF914D',
           borderRight: '13px solid transparent',
           borderTop: '13px solid transparent'
         }}
@@ -629,8 +630,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '13px solid rgba(255, 255, 255, 1)',
-          borderRight: '13px solid rgba(255, 255, 255, 1)',
+          borderBottom: '13px solid #FF914D',
+          borderRight: '13px solid #FF914D',
           borderLeft: '13px solid transparent',
           borderTop: '13px solid transparent'
         }}
@@ -638,7 +639,7 @@ export default function Header({
       
       <header 
         className={`fixed top-0 left-0 right-0 pointer-events-auto ${className}`}
-        style={{ zIndex: 2147483646 }}
+        style={{ zIndex: 2147483646, fontFamily: 'TexGyreAdventor' }}
         role="banner"
         aria-label="Main navigation"
         onMouseEnter={handleHeaderHover}
@@ -652,8 +653,9 @@ export default function Header({
         {/* Three expanding background layers for liquid fill effect */}
         <div 
           ref={expandBg1Ref}
-          className="absolute bg-white pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
+            backgroundColor: '#FF914D',
             opacity: 0,
             zIndex: 3,
             mixBlendMode: 'normal'
@@ -661,8 +663,9 @@ export default function Header({
         />
         <div 
           ref={expandBg2Ref}
-          className="absolute bg-white pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
+            backgroundColor: '#FF914D',
             opacity: 0,
             zIndex: 4,
             mixBlendMode: 'normal'
@@ -670,8 +673,9 @@ export default function Header({
         />
         <div 
           ref={expandBg3Ref}
-          className="absolute bg-white pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
+            backgroundColor: '#FF914D',
             opacity: 0,
             zIndex: 5,
             mixBlendMode: 'normal'
@@ -688,12 +692,12 @@ export default function Header({
           <div 
             ref={logoRef as React.RefObject<HTMLDivElement>}
             className="glass-island glass-island-logo transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
           >
-            <div className="glass-island-inner flex items-center h-full" style={{ padding: '16px' }}>
+            <div className="glass-island-inner flex items-center h-full" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
               <a href="/" className="flex items-center">
-                <div className="text-gray-900 whitespace-nowrap flex items-center" style={{fontFamily: 'Milker', fontSize: '28px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>
-                  CDC
+                <div className="text-white whitespace-nowrap flex items-center" style={{ fontSize: '24px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', marginLeft: '-8px' }}>
+                  CDC Global
                 </div>
               </a>
             </div>
@@ -703,9 +707,9 @@ export default function Header({
           <nav 
             ref={navRef}
             className="glass-island hidden md:flex items-center transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
           >
-            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px' }}>
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
               <div className="flex items-center" style={{ gap: '20px' }}>
                 {items.map((item, index) => (
                   item.submenu ? (
@@ -731,7 +735,7 @@ export default function Header({
                         ref={(el) => {
                           if (el) buttonRefs.current.set(item.label, el);
                         }}
-                        className="flex items-center text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                        className="flex items-center text-base font-bold text-white relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
                         style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px' }}
                         onClick={() => {
                           if (item.label === 'Work With Us') {
@@ -739,10 +743,10 @@ export default function Header({
                           }
                         }}
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#ff3a34'}}></div>
+                        <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#00BFFF'}}></div>
                         <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
-                          <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
-                          <ChevronDown className="w-4 h-4 text-gray-900 group-hover/nav:text-white transition-all duration-300" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+                          <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
+                          <ChevronDown className="w-4 h-4 text-white group-hover/nav:text-white transition-all duration-300" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                         </div>
                       </button>
                       {item.label !== 'Work With Us' && activeDropdown === item.label && (
@@ -756,8 +760,8 @@ export default function Header({
                             <a
                               key={subIndex}
                               href={subItem.href}
-                              className="block text-base font-bold text-gray-900 hover:bg-[#ff3a34] hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
-                              style={{fontFamily: 'Milker', paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
+                              className="block text-base font-bold text-gray-900 hover:bg-[#00BFFF] hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
+                              style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}
                             >
                               {subItem.label}
                             </a>
@@ -769,12 +773,12 @@ export default function Header({
                     <a
                       key={index}
                       href={item.href}
-                      className="group/nav flex items-center text-base font-bold text-gray-900 relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
+                      className="group/nav flex items-center text-base font-bold text-white relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
                       style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px' }}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#ff3a34'}}></div>
+                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#00BFFF'}}></div>
                       <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
-                        <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
+                        <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
                         <ArrowRight className="w-4 h-4 text-white opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                       </div>
                     </a>
@@ -788,24 +792,25 @@ export default function Header({
           <div 
             ref={ctaRef as React.RefObject<HTMLDivElement>}
             className="glass-island glass-island-cta transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
           >
-            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px' }}>
-              <a
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
+              <FlipButton
                 href={cta?.href || "#contact"}
-                className="inline-flex items-center justify-center rounded-lg text-white font-bold text-base transition-all duration-300 w-full h-full relative overflow-hidden"
-                style={{backgroundColor: '#ff3a34', fontFamily: 'Milker', marginLeft: '8px', gap: '8px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px'}}
-              >
-                <span className="text-center relative z-10 transition-colors duration-300" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>
-                  {cta?.label || "JOIN"}
-                </span>
-              </a>
+                frontText={cta?.label || "Get In Touch"}
+                backText={cta?.label || "Get In Touch"}
+                from="top"
+                className="w-full h-full"
+                frontClassName="bg-[#00BFFF] text-white font-bold text-base rounded-lg"
+                backClassName="bg-white text-[#00BFFF] font-bold text-base rounded-lg"
+                style={{ marginLeft: '8px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
+              />
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            className="md:hidden text-white hover:bg-white/20 rounded-lg transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
             style={{ padding: '8px', marginLeft: '16px' }}
@@ -837,22 +842,22 @@ export default function Header({
             <div className="grid grid-cols-1 md:grid-cols-2">
               <a
                 href="/work-with-us#client"
-                className="group flex items-center justify-between hover:bg-[#ff3a34] transition-colors"
+                className="group flex items-center justify-between hover:bg-[#00BFFF] transition-colors"
                 style={{ padding: '32px', gap: '24px' }}
               >
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker', lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Solve my hiring headaches</div>
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Solve my hiring headaches</div>
                   <div className="mt-2 text-gray-600 group-hover:text-white/90" style={{ lineHeight: '1.5', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>For companies hiring leadership and specialists</div>
                 </div>
                 <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" style={{ width: '28px', height: '28px', flexShrink: 0 }} />
               </a>
               <a
                 href="/work-with-us#candidate"
-                className="group flex items-center justify-between hover:bg-[#ff3a34] transition-colors border-t md:border-t-0 md:border-l border-gray-200"
+                className="group flex items-center justify-between hover:bg-[#00BFFF] transition-colors border-t md:border-t-0 md:border-l border-gray-200"
                 style={{ padding: '32px', gap: '24px' }}
               >
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ fontFamily: 'Milker', lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Find my dream role</div>
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Find my dream role</div>
                   <div className="mt-2 text-gray-600 group-hover:text-white/90" style={{ lineHeight: '1.5', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>For candidates exploring their next move</div>
                 </div>
                 <ArrowRight className="w-7 h-7 text-gray-400 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" style={{ width: '28px', height: '28px', flexShrink: 0 }} />
@@ -865,7 +870,7 @@ export default function Header({
 
       {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-brand-orange border-t border-white/20 md:hidden">
+          <div className="absolute top-full left-0 right-0 border-t border-white/20 md:hidden" style={{ backgroundColor: '#FF914D' }}>
             <nav className="flex flex-col" style={{ gap: '8px', padding: '16px' }}>
               {items.map((item, index) => (
                 <div key={index}>
@@ -874,7 +879,7 @@ export default function Header({
                       <button
                         className="w-full flex items-center justify-between text-lg font-bold text-white relative overflow-hidden rounded-xl transition-all duration-500"
                         onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}
-                        style={{fontFamily: 'Milker', paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
+                        style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}
                       >
                         {item.label}
                         <ChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === item.label ? 'rotate-180' : ''}`} style={{ width: '20px', height: '20px', flexShrink: 0 }} />
@@ -887,7 +892,7 @@ export default function Header({
                               href={subItem.href}
                               className="block text-base font-bold text-white hover:bg-white/10 rounded-lg transition-colors"
                               onClick={() => setIsMenuOpen(false)}
-                              style={{fontFamily: 'Milker', paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}
+                              style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}
                             >
                               {subItem.label}
                             </a>
@@ -902,9 +907,9 @@ export default function Header({
                       onClick={() => setIsMenuOpen(false)}
                       style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-xl" style={{backgroundColor: '#ff3a34'}}></div>
+                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-xl" style={{backgroundColor: '#00BFFF'}}></div>
                       <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
-                        <span className="text-lg font-bold" style={{fontFamily: 'Milker', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility'}}>{item.label}</span>
+                        <span className="text-lg font-bold" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
                         <ArrowRight className="w-4 h-4 opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                       </div>
                     </a>

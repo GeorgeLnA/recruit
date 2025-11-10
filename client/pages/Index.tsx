@@ -1,7 +1,24 @@
-import { ArrowRight, Mail, Linkedin, Instagram, Youtube, Phone, MapPin } from "lucide-react";
+import { ArrowRight, Mail, Linkedin, Phone, MapPin, Volume2, VolumeX } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import MobileMessage from "@/components/MobileMessage";
+import { FlipButton } from "@/components/FlipButton";
+import LifeSciencesIcons from "@/components/LifeSciencesIcons";
+import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
+
+// SVG file names from /public/svgs
+const svgFiles = [
+  'ppe-gloves.svg',
+  'ppe-goggles.svg',
+  'mobile-clinic.svg',
+  'ppe-mask.svg',
+  'bandage-adhesive.svg',
+  'medicines.svg',
+  'infusion-pump.svg',
+  'cell-nuclei.svg',
+  'dna.svg',
+  'blood-drop.svg',
+];
 
 export default function Index() {
   const heroRef = useRef<HTMLElement>(null);
@@ -22,9 +39,13 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const marketInsightsVideoRef = useRef<HTMLVideoElement>(null);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  const heroVideoContainerRef = useRef<HTMLDivElement>(null);
   const aboutUsRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLElement>(null);
   const [revealedWordCount, setRevealedWordCount] = useState(0);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [isHoveringHero, setIsHoveringHero] = useState(false);
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -414,44 +435,6 @@ export default function Index() {
     return () => observer.disconnect();
   }, []);
 
-  // Footer unreveal animation
-  useEffect(() => {
-    if (!footerRef.current) return;
-
-    const footer = footerRef.current;
-    const columns = footer.querySelectorAll('[data-footer-col]');
-    const bottomBar = footer.querySelector('[data-footer-bottom]');
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Animate columns with staggered delay
-            columns.forEach((col, index) => {
-              setTimeout(() => {
-                (col as HTMLElement).style.opacity = '1';
-                (col as HTMLElement).style.transform = 'translateY(0)';
-              }, index * 100);
-            });
-
-            // Animate bottom bar after columns
-            setTimeout(() => {
-              if (bottomBar) {
-                (bottomBar as HTMLElement).style.opacity = '1';
-                (bottomBar as HTMLElement).style.transform = 'translateY(0)';
-              }
-            }, columns.length * 100 + 200);
-
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
-    );
-
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
 
   // Ensure Market Insights video plays when visible
   useEffect(() => {
@@ -473,6 +456,73 @@ export default function Index() {
 
     observer.observe(video);
     return () => observer.unobserve(video);
+  }, []);
+
+  // Hero video sound enable and custom cursor
+  useEffect(() => {
+    const container = heroVideoContainerRef.current;
+    if (!container) return;
+
+    let rafId: number | null = null;
+    let currentX = 0;
+    let currentY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    const damping = 0.8; // Smoothing factor (higher = more delay/smoother)
+
+    const animate = () => {
+      // Smooth interpolation with damping
+      currentX += (targetX - currentX) * (1 - damping);
+      currentY += (targetY - currentY) * (1 - damping);
+      
+      setCursorPosition({ x: currentX, y: currentY });
+      
+      // Continue animation if there's still movement
+      if (Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        rafId = null;
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+
+      if (rafId === null) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    const handleMouseEnter = () => {
+      setIsHoveringHero(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsHoveringHero(false);
+    };
+
+    const handleClick = () => {
+      if (heroVideoRef.current) {
+        heroVideoRef.current.muted = !heroVideoRef.current.muted;
+        setIsSoundEnabled(!heroVideoRef.current.muted);
+      }
+    };
+
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('click', handleClick);
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('click', handleClick);
+    };
   }, []);
 
   // Scroll animation for About Us word reveal
@@ -539,16 +589,6 @@ export default function Index() {
 
   return (
     <div className="overflow-x-hidden bg-white relative">
-      {/* Grain effect overlay for main background */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-[0.35]"
-        style={{
-          zIndex: 1,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '150px 150px',
-          mixBlendMode: 'overlay'
-        }}
-      ></div>
       {/* Mobile message - shows on mobile devices */}
       <MobileMessage onMobileDetected={() => setIsMobile(true)} />
       
@@ -575,9 +615,14 @@ export default function Index() {
         >
           <div className="hero-corner bl"></div>
           <div className="hero-corner br"></div>
-          <div className="hero-inner h-full flex flex-col justify-center relative overflow-hidden">
+          <div 
+            ref={heroVideoContainerRef}
+            className="hero-inner h-full flex flex-col justify-center relative overflow-hidden"
+            style={{ cursor: 'none' }}
+          >
             {/* Video background */}
             <video
+              ref={heroVideoRef}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay
               muted
@@ -585,82 +630,104 @@ export default function Index() {
               playsInline
               preload="metadata"
             >
-              <source src="/placeholder.mp4" type="video/mp4" />
+              <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
 
-            {/* Text with blend effect */}
-        <div 
-              className="absolute top-1/2 left-1/2 z-40"
-          style={{
-            mixBlendMode: 'difference',
-            transform: 'translate(-50%, -50%)',
+            {/* Custom sound cursor */}
+            {isHoveringHero && (
+              <div
+                className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
+                style={{
+                  left: `${cursorPosition.x}px`,
+                  top: `${cursorPosition.y}px`,
+                  transform: 'translate(-50%, -50%)',
+                  willChange: 'transform'
+                }}
+              >
+                {isSoundEnabled ? (
+                  <VolumeX 
+                    className="w-10 h-10 text-white"
+                  />
+                ) : (
+                  <Volume2 
+                    className="w-10 h-10 text-white"
+                  />
+                )}
+                <div
+                  className="px-3 py-1.5 rounded-lg bg-white shadow-lg whitespace-nowrap"
+                  style={{
+                    fontFamily: 'TexGyreAdventor',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: '#00BFFF'
+                  }}
+                >
+                  {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
+                </div>
+              </div>
+            )}
+
+            {/* Work with us button */}
+            <div 
+              className="absolute left-1/2 z-40"
+              style={{
+                bottom: 'clamp(120px, 15vw, 180px)',
+                transform: 'translateX(-50%)',
                 width: '90%',
                 maxWidth: '1400px'
               }}
             >
-              <div className="text-center space-y-4 w-full">
+              <div className="flex items-center justify-center w-full">
+                <FlipButton
+                  href="/work-with-us#client"
+                  frontText="Work with us"
+                  backText="Work with us"
+                  from="top"
+                  className="pointer-events-auto"
+                  frontClassName="bg-[#FF914D] text-white font-bold text-xl rounded-lg"
+                  backClassName="bg-white text-[#FF914D] font-bold text-xl rounded-lg"
+                  style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '24px', paddingBottom: '24px' }}
+                />
+              </div>
+            </div>
+
+            {/* Text with blend effect */}
+          <div 
+              className="absolute left-1/2 z-40"
+          style={{
+            bottom: 'clamp(16px, 5vw, 120px)',
+            transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '1400px'
+              }}
+            >
+              <div
+                className="flex items-center justify-center w-full px-6 py-3 md:px-8 md:py-4"
+              >
                 <div 
-                  className="font-bold leading-none tracking-wide pointer-events-none"
+                  className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
                   style={{ 
-                    fontFamily: 'Milker', 
-                    color: '#FFFFFF',
-                    fontSize: 'clamp(44px, 5.5vw, 108px)',
-                    letterSpacing: '0.05em'
+                    fontFamily: 'TexGyreAdventor',
+                    color: '#FF914D',
+                    fontSize: 'clamp(20px, 2.5vw, 48px)',
+                    textAlign: 'center',
+                    gap: '0.6em'
                   }}
                 >
-                  Executive Search
-                </div>
-                <div 
-                  className="font-bold leading-none tracking-wide pointer-events-none"
-                  style={{ 
-                    fontFamily: 'Milker', 
-                    color: '#FFFFFF',
-                    fontSize: 'clamp(44px, 5.5vw, 108px)',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  Market Insights
-                </div>
-                <div 
-                  className="font-bold leading-none tracking-wide pointer-events-none"
-                  style={{ 
-                    fontFamily: 'Milker', 
-                    color: '#FFFFFF',
-                    fontSize: 'clamp(44px, 5.5vw, 108px)',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  Project Work
+                  <span>CDMO</span>
+                  <span className="text-[#FF914D]" aria-hidden="true">
+                    &bull;
+                  </span>
+                  <span>Diagnostics</span>
+                  <span className="text-[#FF914D]" aria-hidden="true">
+                    &bull;
+                  </span>
+                  <span>CRO</span>
                 </div>
               </div>
           </div>
             
-            {/* CTA Button - separate container without blend effect */}
-            <div 
-              className="absolute top-1/2 left-1/2 z-40 pointer-events-auto"
-              style={{
-                transform: 'translate(-50%, calc(-50% + clamp(120px, 18vw, 260px)))',
-                width: '90%',
-                maxWidth: '1400px'
-              }}
-            >
-              <div className="text-center">
-                <a
-                  href="/work-with-us"
-                  className="inline-block px-8 py-4 font-bold tracking-wide transition-all duration-300 hover:scale-105"
-                  style={{
-                    fontFamily: 'Milker',
-                    backgroundColor: '#FF3A34',
-                    color: '#FFFFFF',
-                    fontSize: 'clamp(18px, 1.5vw, 24px)',
-                    borderRadius: '8px'
-                  }}
-                >
-                  WORK WITH US
-                </a>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -673,10 +740,15 @@ export default function Index() {
             transition: scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none'
           }}
         >
+          {/* Life Sciences Icons */}
+          <LifeSciencesIcons count={12} side="both" size={65} />
+          
           {/* Expanding shape - positioned within section */}
           <div 
-            className="absolute rounded-full relative bg-brand-orange"
+            className="absolute rounded-full relative"
             style={{
+              backgroundColor: '#FF914D',
+              filter: 'none',
               width: scrollProgress < 0.75 
                 ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
                 : scrollProgress < 0.85
@@ -697,16 +769,6 @@ export default function Index() {
               willChange: 'width, height, border-radius' // Optimize for performance
             }}
           >
-            {/* Grain effect overlay for expanding circle */}
-            <div 
-              className="absolute inset-0 pointer-events-none opacity-[0.25]"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                backgroundSize: '150px 150px',
-                mixBlendMode: 'overlay',
-                borderRadius: 'inherit'
-              }}
-            />
           </div>
           
         </div>
@@ -722,21 +784,14 @@ export default function Index() {
           marginTop: '-80px' // Move section higher, closer to section above
         }}
       >
-        {/* Grain effect overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-          style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
+        {/* Life Sciences Icons */}
+        <LifeSciencesIcons count={12} side="both" size={70} />
+        
         <div className="container mx-auto px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center gap-12" style={{ paddingTop: 0 }}>
           {/* Heading */}
           <h2 
             className="text-[48px] sm:text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-2"
-            style={{fontFamily: 'Milker', marginTop: 0, paddingTop: 0}}
+            style={{ marginTop: 0, paddingTop: 0 }}
           >
             Watch Our Story
             </h2>
@@ -761,7 +816,7 @@ export default function Index() {
                 display: 'block'
               }}
                     >
-                      <source src="/placeholder.mp4" type="video/mp4" />
+                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
             {/* Play button overlay */}
@@ -803,16 +858,8 @@ export default function Index() {
           minHeight: '100vh'
         }}
       >
-        {/* Grain effect overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-                    style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
+        {/* Life Sciences Icons */}
+        <LifeSciencesIcons count={12} side="both" size={70} />
         
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col gap-12 lg:gap-16">
@@ -838,7 +885,7 @@ export default function Index() {
                       loop
                       playsInline
                     >
-                      <source src="/placeholder.mp4" type="video/mp4" />
+                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   </div>
@@ -851,8 +898,8 @@ export default function Index() {
                   transition: 'opacity 700ms ease, transform 700ms ease'
                 }}
               >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
-                  Executive Search Excellence
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
+                  Outstanding candidates
                 </h3>
               </div>
                   </div>
@@ -881,7 +928,7 @@ export default function Index() {
                       playsInline
                   preload="auto"
                     >
-                  <source src="/video2.mp4" type="video/mp4" />
+                  <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
               </div>
@@ -894,8 +941,8 @@ export default function Index() {
                   transition: 'opacity 700ms ease, transform 700ms ease'
                 }}
               >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
-                  Market Insights That Matter
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
+                  World-leading clients
                 </h3>
               </div>
                   </div>
@@ -922,7 +969,7 @@ export default function Index() {
                       loop
                       playsInline
                     >
-                      <source src="/placeholder.mp4" type="video/mp4" />
+                      <source src="/CDC Website - ROUGH CUT 1.mp4" type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   </div>
@@ -935,8 +982,8 @@ export default function Index() {
                   transition: 'opacity 700ms ease, transform 700ms ease'
                 }}
               >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold" style={{fontFamily: 'Milker'}}>
-                  Project Work Delivered
+                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
+                  Tailored to your needs
                 </h3>
           </div>
               </div>
@@ -948,21 +995,14 @@ export default function Index() {
           <section 
         ref={aboutUsRef as any}
         className="w-full relative bg-brand-orange"
-        style={{ minHeight: '150vh', paddingTop: '120px', paddingBottom: '120px' }}
+        style={{ paddingTop: '120px', paddingBottom: '60px' }}
       >
-        {/* Grain effect overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-            style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
+        {/* Life Sciences Icons */}
+        <LifeSciencesIcons count={12} side="both" size={72} />
+        
         <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
-          <div className="max-w-5xl mx-auto space-y-16">
-            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center" style={{ fontFamily: 'Milker' }}>About Us</h2>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-24">About Us</h2>
             
             {(() => {
               const storySegments = [
@@ -974,7 +1014,7 @@ export default function Index() {
               let wordIndex = 0;
 
               return (
-              <div className="space-y-16">
+              <div className="space-y-32">
                   {storySegments.map((segment, segmentIndex) => {
                     const segmentWords = segment.split(' ');
                     const segmentStartIndex = wordIndex;
@@ -983,11 +1023,9 @@ export default function Index() {
                     return (
                       <p
                         key={segmentIndex}
-                        className="text-4xl md:text-5xl lg:text-6xl leading-tight text-white"
+                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-white ${segmentIndex === 1 ? 'text-right' : ''}`}
                         style={{
-                          fontFamily: 'Milker',
-                          fontWeight: 600,
-                          letterSpacing: '0.02em'
+                          fontWeight: 600
                         }}
                       >
                         {segmentWords.map((word, i) => {
@@ -1017,20 +1055,15 @@ export default function Index() {
       </section>
 
       {/* Meet Our Founders */}
-      <section className="w-full relative bg-brand-orange py-24">
-        {/* Grain effect overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-          style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
+      <section className="w-full relative bg-brand-orange py-24 overflow-visible">
+        {/* Life Sciences Icons - extend into next section (halfway) */}
+        <div className="absolute inset-0" style={{ bottom: '-50%' }}>
+          <LifeSciencesIcons count={12} side="both" size={68} />
+        </div>
+        
         <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-16" style={{ fontFamily: 'Milker' }}>Meet Our Founders</h2>
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-16">Meet Our Founders</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
               {/* Harriet */}
@@ -1038,7 +1071,7 @@ export default function Index() {
                 <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                   <div className="bg-white rounded-xl overflow-hidden">
                     <img 
-                      src="/Harriet Headshot 8.jpg" 
+                      src="/optimised/Harriet Headshot 8.jpg" 
                       alt="Harriet" 
                       className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
@@ -1046,9 +1079,9 @@ export default function Index() {
               </div>
               </div>
                 <div className="mt-6 text-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Milker' }}>Harriet</h3>
-                  <p className="text-white/90 text-lg md:text-xl font-semibold">Strategy & Brand</p>
-                  <p className="text-white/80 text-base md:text-lg mt-3">Leads strategy and brand development, ensuring every campaign is built on insight and purpose.</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Harriet Wheat</h3>
+                  <p className="text-white/90 text-lg md:text-xl font-semibold">Co-Founder</p>
+                  <p className="text-white/80 text-base md:text-lg mt-3">CDMO/CRO Recruitment</p>
             </div>
         </div>
 
@@ -1057,7 +1090,7 @@ export default function Index() {
                 <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                   <div className="bg-white rounded-xl overflow-hidden">
                     <img 
-                      src="/Adam Headshot 4.jpg" 
+                      src="/optimised/Adam Headshot 4.jpg" 
                       alt="Adam" 
                       className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
@@ -1065,9 +1098,9 @@ export default function Index() {
               </div>
               </div>
                 <div className="mt-6 text-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Milker' }}>Adam</h3>
-                  <p className="text-white/90 text-lg md:text-xl font-semibold">Creative & Production</p>
-                  <p className="text-white/80 text-base md:text-lg mt-3">Drives creative and production, turning strategy into bold, impactful work that moves brands forward.</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Adam Hargreaves</h3>
+                  <p className="text-white/90 text-lg md:text-xl font-semibold">Co-Founder</p>
+                  <p className="text-white/80 text-base md:text-lg mt-3">Diagnostics Recruitment</p>
         </div>
           </div>
         </div>
@@ -1076,179 +1109,29 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section id="contact" className="bg-brand-orange w-full relative py-32">
-        {/* Grain effect for contact section */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply',
-            zIndex: 1
-          }}
-        />
+      <section id="contact" className="bg-brand-orange w-full relative py-32 overflow-visible">
         <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
           <div className="text-center max-w-6xl mx-auto">
-            <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-white mb-16" style={{fontFamily: 'Milker'}}>
+            <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-white mb-16">
               Let's Work Together!
             </h2>
             
             <div className="flex justify-center items-center max-w-4xl mx-auto">
-              <button className="px-16 py-6 rounded-[25px] bg-brand-red text-white font-bold text-[32px] hover:opacity-90 hover:scale-105 hover:shadow-2xl transition-all duration-500" style={{fontFamily: 'Milker'}}>
-                YES!
-              </button>
+              <FlipButton
+                href="/contact"
+                frontText="Yes!"
+                backText="Yes!"
+                from="top"
+                className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
+                frontClassName="bg-brand-red text-white rounded-[25px]"
+                backClassName="bg-white text-brand-red rounded-[25px]"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer ref={footerRef as any} className="bg-brand-dark py-20 lg:py-32 relative">
-        {/* Grain Effect */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-          style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
-        
-        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-16">
-            {/* Brand Column */}
-            <div 
-              data-footer-col
-              className="text-center md:text-left"
-              style={{
-                opacity: 0,
-                transform: 'translateY(40px)',
-                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
-              }}
-            >
-              <h2 className="text-[48px] md:text-[56px] lg:text-[64px] font-bold leading-[0.95] tracking-[0.02em] text-brand-light mb-4" style={{fontFamily: 'Milker'}}>
-              CDC
-            </h2>
-              <p className="text-[18px] md:text-[20px] text-brand-light/70 mb-8" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>
-                Global Solutions Ltd
-            </p>
-              <div className="flex gap-4 justify-center md:justify-start">
-                  <a
-                    href="#"
-                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="w-5 h-5 text-white" />
-                </a>
-                <a
-                  href="#"
-                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-5 h-5 text-white" />
-                </a>
-                <a
-                  href="#"
-                  className="w-12 h-12 rounded-full bg-brand-red/90 flex items-center justify-center hover:bg-brand-red hover:scale-110 transition-all duration-300"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="w-5 h-5 text-white" />
-                </a>
-              </div>
-            </div>
-
-            {/* Contact Column */}
-            <div 
-              data-footer-col
-              className="text-center md:text-left"
-              style={{
-                opacity: 0,
-                transform: 'translateY(40px)',
-                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
-              }}
-            >
-              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Contact</h3>
-              <div className="space-y-4">
-                <a href="mailto:info@cdcglobalsolutions.com" className="flex items-center gap-3 text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors group justify-center md:justify-start">
-                  <Mail className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                  <span>info@cdcglobalsolutions.com</span>
-                </a>
-                <a href="tel:+12345678900" className="flex items-center gap-3 text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors group justify-center md:justify-start">
-                  <Phone className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                  <span>+1 234 567 8900</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Address Column */}
-            <div 
-              data-footer-col
-              className="text-center md:text-left"
-              style={{
-                opacity: 0,
-                transform: 'translateY(40px)',
-                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
-              }}
-            >
-              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Location</h3>
-              <div className="flex items-start gap-3 text-[16px] md:text-[18px] text-brand-light/80 justify-center md:justify-start">
-                <MapPin className="w-5 h-5 flex-shrink-0 mt-1" />
-                <div>
-                  <p>123 Business Street</p>
-                  <p>City, State 12345</p>
-                  <p>United Kingdom</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation Column */}
-            <div 
-              data-footer-col
-              className="text-center md:text-left"
-              style={{
-                opacity: 0,
-                transform: 'translateY(40px)',
-                transition: 'opacity 800ms ease-out, transform 800ms ease-out'
-              }}
-            >
-              <h3 className="text-brand-light font-bold text-[20px] mb-6" style={{fontFamily: 'Milker', letterSpacing: '0.05em'}}>Quick Links</h3>
-              <div className="space-y-3">
-                <a href="#expertises" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Expertises</a>
-                <a href="#about" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>About</a>
-                <a href="/work-with-us" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Work With Us</a>
-                <a href="#contact" className="block text-[16px] md:text-[18px] text-brand-light/80 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>Contact</a>
-              </div>
-            </div>
-          </div>
-          
-          {/* Bottom Bar */}
-          <div 
-            data-footer-bottom
-            className="pt-8 border-t border-brand-light/10"
-            style={{
-              opacity: 0,
-              transform: 'translateY(30px)',
-              transition: 'opacity 800ms ease-out, transform 800ms ease-out'
-            }}
-          >
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-[14px] text-brand-light/60 text-center md:text-left" style={{fontFamily: 'Milker'}}>
-                © {new Date().getFullYear()} CDC Global Solutions Ltd. All rights reserved.
-              </p>
-              <div className="flex gap-6">
-                <a href="#" className="text-[14px] text-brand-light/60 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>
-              Privacy Policy
-            </a>
-                <a href="#" className="text-[14px] text-brand-light/60 hover:text-brand-red transition-colors" style={{fontFamily: 'Milker'}}>
-                  Terms of Service
-            </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
           </div>
         </>
       )}

@@ -52,28 +52,26 @@ export default function AnimatedSwitch({
   return (
     <div 
       ref={switchRef}
-      className="relative flex items-center cursor-pointer gap-12 flex-wrap justify-center"
+      className="relative flex items-center cursor-pointer gap-16 flex-wrap justify-center"
       onClick={() => onCheckedChange(!checked)}
     >
       <span 
         ref={leftLabelRef}
-        className="text-6xl font-bold transition-colors whitespace-normal text-center text-white" 
-        style={{ fontFamily: 'Milker' }}
+        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight"
       >
         {leftLabel}
       </span>
       
-      <div className="relative w-32 h-16 bg-white rounded-full border-4 border-gray-300 overflow-hidden shadow-inner flex-shrink-0">
+      <div className="relative w-40 h-20 bg-white rounded-full border-4 border-gray-200 overflow-hidden shadow-inner flex-shrink-0">
         <div
           ref={sliderRef}
-          className="absolute top-0 left-0 w-1/2 h-full bg-[#ff3a34] rounded-full transition-transform duration-600 ease-out will-change-transform"
+          className="absolute top-0 left-0 w-1/2 h-full bg-[#00BFFF] rounded-full transition-transform duration-600 ease-out will-change-transform"
         />
       </div>
       
       <span 
         ref={rightLabelRef}
-        className="text-6xl font-bold transition-colors whitespace-normal text-center text-white" 
-        style={{ fontFamily: 'Milker' }}
+        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight"
       >
         {rightLabel}
       </span>

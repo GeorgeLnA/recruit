@@ -21,67 +21,112 @@ interface CurvedSliderProps {
 export default function CurvedSlider({
   items,
   className = "",
-  scrollProgress = 0,
+  accentFrom = "#01FFA4",
+  accentTo = "#0028F8",
+  scrollProgress: externalProgress,
 }: CurvedSliderProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
   const rafRef = useRef<number | null>(null);
   const lastProgressRef = useRef(0);
+  const lastTransformRef = useRef<string[]>([]);
 
-  // Easing function for smooth animations
-  const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-  // Update card positions based on scroll progress
   useEffect(() => {
-    if (!containerRef.current || items.length === 0) return;
+    if (externalProgress !== undefined) {
+      // Always update external progress to trigger transform updates
+      if (Math.abs(externalProgress - lastProgressRef.current) > 0.0001) {
+        setProgress(externalProgress);
+        lastProgressRef.current = externalProgress;
+      }
+      return;
+    }
 
-    const updateCards = () => {
-      const totalItems = items.length;
-      const centerIndex = (totalItems - 1) / 2;
-      const cardSpacing = 26; // Increased distance between cards
-      const maxTravel = 200; // Maximum horizontal movement in vw
-      const maxTilt = 20; // Maximum rotation angle in degrees
-      const baseY = -350; // Vertical position (negative = higher up)
+    let rafId: number | null = null;
 
-      // Apply easing to progress for smoother animation
-      const easedProgress = easeOutCubic(scrollProgress);
-
-      items.forEach((_, index) => {
-        const cardEl = cardRefs.current[index];
-        if (!cardEl) return;
-
-        // Calculate card position relative to center
-        const distanceFromCenter = (index - centerIndex) * cardSpacing;
-        
-        // Shift all cards so that card 01 (index 0) starts centered
-        // Card 01 is at index 0, centerIndex=3, so we shift by centerIndex * cardSpacing
-        const centerOffset = centerIndex * cardSpacing;
-        const baseX = distanceFromCenter + centerOffset;
-        
-        // Calculate final position with scroll-based movement
-        const targetX = baseX - (easedProgress * maxTravel);
-        
-        // Calculate tilt based on distance from center and progress
-        const tiltOffset = index * 0.1;
-        const tiltProgress = Math.max(0, Math.min(1, (easedProgress - tiltOffset) / (1 - tiltOffset)));
-        const tilt = -maxTilt * easeOutCubic(tiltProgress);
-
-        // Apply transform using transform3d for hardware acceleration
-        cardEl.style.transform = `translate3d(${targetX}vw, ${baseY}px, 0) rotate(${tilt}deg)`;
-        cardEl.style.opacity = '1'; // Full opacity for all cards, no fade effect
-      });
-
-      lastProgressRef.current = scrollProgress;
+    const onScroll = () => {
+      if (!sectionRef.current) return;
+      
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
+          const rect = sectionRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          const h = Math.max(rect.height, 1);
+          const p = 1 - Math.min(1, Math.max(0, (rect.bottom - 120) / (h + 1)));
+          
+          // Only update if progress changed significantly
+          if (Math.abs(p - lastProgressRef.current) > 0.001) {
+            setProgress(p);
+            lastProgressRef.current = p;
+          }
+          
+          rafId = null;
+        });
+      }
     };
 
-    // Use requestAnimationFrame for smooth updates
-    if (rafRef.current === null) {
-      rafRef.current = requestAnimationFrame(() => {
-        updateCards();
-        rafRef.current = null;
-      });
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [externalProgress]);
+
+  // Initialize transform ref array
+  useEffect(() => {
+    if (lastTransformRef.current.length !== items.length) {
+      lastTransformRef.current = new Array(items.length).fill('');
     }
+  }, [items.length]);
+
+  // Update transforms directly via DOM (no React re-renders)
+  useEffect(() => {
+    const currentProgress = externalProgress !== undefined ? externalProgress : progress;
+    const totalItems = items.length;
+    const centerIndex = (totalItems - 1) / 2;
+    const spacingVw = 24;
+    const baseTilt = 25;
+    const staggerDelay = 0.12;
+
+    const updateTransforms = () => {
+      items.forEach((_, i) => {
+        const cardEl = cardRefs.current[i];
+        if (!cardEl) return;
+
+        const distanceFromCenter = (i - centerIndex) * spacingVw;
+        const startX = distanceFromCenter + 85;
+        const startY = -40;
+        const x = startX - currentProgress * 210;
+        const y = startY;
+        const tiltProgressOffset = i * staggerDelay;
+        const tiltProgress = Math.max(0, Math.min(1, (currentProgress - tiltProgressOffset) / (1 - tiltProgressOffset)));
+        const deg = -baseTilt * tiltProgress;
+
+        const transformStr = `translate3d(-50%, -50%, 0) translateX(${x}vw) translateY(${y}px) rotate(${deg}deg)`;
+        
+        // Only update if transform changed
+        if (lastTransformRef.current[i] !== transformStr) {
+          cardEl.style.left = `calc(50% + ${x}vw)`;
+          cardEl.style.top = `calc(50% + ${y}px)`;
+          cardEl.style.transform = transformStr;
+          lastTransformRef.current[i] = transformStr;
+        }
+      });
+    };
+
+    // Always schedule an update when progress changes
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    
+    rafRef.current = requestAnimationFrame(() => {
+      updateTransforms();
+      rafRef.current = null;
+    });
 
     return () => {
       if (rafRef.current) {
@@ -89,44 +134,40 @@ export default function CurvedSlider({
         rafRef.current = null;
       }
     };
-  }, [items, scrollProgress]);
+  }, [items, progress, externalProgress]);
 
   const handleToggle = useCallback((id: string) => {
     setFlipped((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }, []);
 
   return (
-    <div
-      ref={containerRef}
+    <section
+      ref={sectionRef}
       className={cn(
-        "relative w-full h-screen flex items-center justify-center overflow-visible",
+        "relative h-screen w-full mx-auto text-white overflow-visible",
         className,
       )}
     >
-      <div className="relative w-full h-full flex items-center justify-center">
-        {items.map((item, index) => {
-          const isFlipped = flipped.has(item.id);
-          return (
-            <div
+      <div className="h-full flex items-center justify-center w-full relative z-10 overflow-visible">
+         {items.map((item, index) => {
+           const isFlipped = flipped.has(item.id);
+           return (
+            <figure
               key={item.id}
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
-              className="absolute w-[22vw] min-w-[220px] max-w-[420px] aspect-[400/472]"
-                style={{
+              className={cn("w-[32vw] min-w-[260px] max-w-[560px] aspect-[400/472] absolute overflow-visible")}
+              style={{ 
                 left: '50%',
                 top: '50%',
-                transform: 'translate(-50%, -50%)',
+                transform: 'translate3d(-50%, -50%, 0)',
                 willChange: 'transform',
-                transformOrigin: 'center center',
               }}
             >
               <div
@@ -134,16 +175,10 @@ export default function CurvedSlider({
                 tabIndex={0}
                 aria-pressed={isFlipped}
                 onClick={() => handleToggle(item.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleToggle(item.id);
-                  }
-                }}
-                className="flip-card h-full w-full cursor-pointer"
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleToggle(item.id)}
+                className="flip-card h-full w-full"
               >
-                <div className={cn("flip-inner h-full w-full", isFlipped && "flipped")}>
-                  {/* Front */}
+                <div className={cn("flip-inner h-full w-full", isFlipped && "flipped")}> 
                   <div className="flip-front h-full w-full relative rounded-[16px] overflow-hidden">
                     <img 
                       src={item.imageUrl} 
@@ -153,16 +188,13 @@ export default function CurvedSlider({
                       decoding="async"
                     />
                     {item.number && (
-                      <p className="absolute top-8 left-8 text-white text-xl font-bold z-10" style={{ fontFamily: 'Milker' }}>
-                        {item.number}
-                      </p>
+                      <p className="absolute top-8 left-8 text-white text-xl font-bold" style={{ fontFamily: 'Milker' }}>{item.number}</p>
                     )}
-                    <figcaption className="absolute bottom-6 md:bottom-10 xl:bottom-12 left-6 md:left-10 xl:left-12 text-white text-xl md:text-2xl font-bold z-10" style={{ fontFamily: 'Milker' }}>
+                    <figcaption className="absolute bottom-8 md:bottom-12 xl:bottom-14 left-6 md:left-10 xl:left-14 text-white text-4xl md:text-5xl xl:text-6xl font-bold leading-[0.9] drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]" style={{ fontFamily: 'Milker' }}>
                       {item.title}
                     </figcaption>
                   </div>
 
-                  {/* Back */}
                   <div className="flip-back absolute inset-0 rounded-[16px] overflow-hidden">
                     {item.backImageUrl ? (
                       <>
@@ -174,17 +206,15 @@ export default function CurvedSlider({
                           decoding="async"
                         />
                         {item.number && (
-                          <p className="absolute top-8 left-8 text-white text-xl font-bold z-10" style={{ fontFamily: 'Milker' }}>
-                            {item.number}
-                          </p>
+                          <p className="absolute top-8 left-8 text-white text-xl font-bold" style={{ fontFamily: 'Milker' }}>{item.number}</p>
                         )}
-                        <figcaption className="absolute bottom-6 md:bottom-10 xl:bottom-12 left-6 md:left-10 xl:left-12 text-white text-xl md:text-2xl font-bold z-10" style={{ fontFamily: 'Milker' }}>
+                        <figcaption className="absolute bottom-8 md:bottom-12 xl:bottom-14 left-6 md:left-10 xl:left-14 text-white text-4xl md:text-5xl xl:text-6xl font-bold leading-[0.9] drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]" style={{ fontFamily: 'Milker' }}>
                           {item.title}
                         </figcaption>
                       </>
                     ) : (
-                      <div className="h-full w-full bg-white p-6 flex items-center justify-center rounded-[16px]">
-                        <p className="text-gray-800 text-base md:text-lg leading-relaxed text-center">
+                      <div className="h-full w-full bg-[#00BFFF] p-8 md:p-10 flex items-center justify-center rounded-[16px] text-center">
+                        <p className="text-white text-xl md:text-2xl leading-relaxed font-semibold" style={{ fontFamily: 'Milker' }}>
                           {item.description || "More details coming soon."}
                         </p>
                       </div>
@@ -192,10 +222,11 @@ export default function CurvedSlider({
                   </div>
                 </div>
               </div>
-            </div>
+            </figure>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
+

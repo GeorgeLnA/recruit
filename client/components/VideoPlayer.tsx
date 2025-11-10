@@ -72,7 +72,7 @@ export default function VideoPlayer({
           <Button
             onClick={handlePlay}
             className="px-6 py-4 text-white font-bold"
-            style={{ backgroundColor: "#ff3a34", fontFamily: "Milker" }}
+            style={{ backgroundColor: "#00BFFF" }}
             aria-label="Play video"
           >
             <Play className="w-5 h-5" />

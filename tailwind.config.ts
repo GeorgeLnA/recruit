@@ -25,7 +25,7 @@ export default {
         "brand-blue": "#0D8DFF",
         "brand-pink": "#FCB8FA",
         "brand-green": "#33C791",
-        "brand-red": "#FF3A34",
+        "brand-red": "#00BFFF",
         "brand-dark": "#161616",
         "brand-light": "#FAF4EC",
         "brand-gray": "#393939",
@@ -36,7 +36,7 @@ export default {
         "brand-blue-light": "#28AAFF",
         "brand-pink-light": "#FDD0FE",
         "brand-green-light": "#73E2B6",
-        "brand-red-dark": "#DD512C",
+        "brand-red-dark": "#009AD6",
         "brand-orange-light": "#FC997B",
         
         primary: {
@@ -96,7 +96,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["TexGyreAdventor", "Inter", "system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

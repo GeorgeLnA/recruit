@@ -1,16 +1,23 @@
+@font-face {
+  font-family: 'TexGyreAdventor';
+  src: url('/texgyreadventor-regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TexGyreAdventor';
+  src: url('/texgyreadventor-bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 /** @import must precede all other statements */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@font-face {
-  font-family: 'Milker';
-  src: url('/Milker.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-}
 
 @layer base {
   :root {
@@ -43,6 +50,31 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+  }
+
+  /* Minimal scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #00BFFF;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-button:start:decrement,
+  ::-webkit-scrollbar-button:end:increment {
+    display: none;
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-color: #00BFFF #ffffff;
+    scrollbar-width: thin;
   }
 
   .dark {
@@ -83,7 +115,8 @@
 
   html, body {
     @apply bg-white text-white font-sans;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 0.05em;
     overflow-x: hidden;
     overflow-y: auto;
     background-color: white;
@@ -94,20 +127,6 @@
     font-feature-settings: normal;
   }
 
-  /* Hide scrollbar completely */
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* For Firefox */
-  html {
-    scrollbar-width: none;
-  }
-
-  /* For IE and Edge */
-  body {
-    -ms-overflow-style: none;
-  }
 }
 
 @layer utilities {
@@ -195,7 +214,7 @@
 
   /* Glass Island Styles */
   .glass-island {
-    background: white;
+    background: #FF914D;
     backdrop-filter: none;
     border: none;
     border-top-left-radius: 0;
@@ -231,7 +250,7 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: white;
+    background: #FF914D;
     z-index: -1;
   }
 
@@ -244,7 +263,7 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: white;
+    background: #FF914D;
     z-index: -1;
   }
 
@@ -256,13 +275,13 @@
     left: 0;
     right: 0;
     height: 100vh;
-    background: white;
+    background: #FF914D;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
 
   .glass-island-inner {
-    background: white;
+    background: #FF914D;
     border-radius: 10px;
     position: relative;
     z-index: 10;
@@ -586,15 +605,10 @@
     align-items: stretch;
     gap: 32px;
     width: max-content;
-    animation: marquee var(--marquee-duration, 40s) linear infinite;
   }
 
   .marquee-reverse {
-    animation-direction: reverse;
-  }
-
-  .marquee-pause:hover .marquee-track {
-    animation-play-state: paused;
+    flex-direction: row-reverse;
   }
 
   .marquee.group:hover .review-card {
@@ -613,10 +627,6 @@
     cursor: grabbing;
   }
 
-  .marquee.is-dragging .marquee-track {
-    animation-play-state: paused;
-  }
-
   .marquee-drag {
     will-change: transform;
   }
@@ -628,12 +638,12 @@
     user-select: none;
   }
 
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
+  @keyframes float {
+    0%, 100% {
+      transform: translate(-50%, -50%) translateY(0px);
     }
-    to {
-      transform: translateX(-50%);
+    50% {
+      transform: translate(-50%, -50%) translateY(-10px);
     }
   }
 }

@@ -15,6 +15,7 @@ import WorkWithUs from "./pages/WorkWithUs";
 import GlobalReach from "./pages/GlobalReach";
 import ProofInThePeople from "./pages/ProofInThePeople";
 import CandidMoments from "./pages/CandidMoments";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -52,7 +53,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollTracker />
-        <Header items={navigationItems} cta={{ label: "JOIN", href: "/contact" }} />
+        <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/gsap-demo" element={<GSAPExample />} />
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/global-reach" element={<GlobalReach />} />
           <Route path="/proof-in-the-people" element={<ProofInThePeople />} />
           <Route path="/candid-moments" element={<CandidMoments />} />
+          <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

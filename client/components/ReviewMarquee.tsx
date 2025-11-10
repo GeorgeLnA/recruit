@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -80,13 +80,13 @@ function MarqueeRow({
   const [dragVelocity, setDragVelocity] = useState(0);
 
   // Calculate loop width (half the track width since items are duplicated)
-  const getLoopWidth = () => {
+  const getLoopWidth = useCallback(() => {
     if (!trackRef.current) return null;
     return trackRef.current.scrollWidth / 2;
-  };
+  }, []);
 
   // Wrap offset to create seamless loop
-  const wrapOffset = (offset: number): number => {
+  const wrapOffset = useCallback((offset: number): number => {
     const loopWidth = getLoopWidth();
     if (!loopWidth) return offset;
     
@@ -98,12 +98,28 @@ function MarqueeRow({
       wrapped += loopWidth;
     }
     return wrapped;
-  };
+  }, [getLoopWidth]);
+
+  const baseOffsetRef = useRef(0);
+  const prevTimeRef = useRef<number | null>(null);
+  const hoverRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+
+  const applyTransform = useCallback(() => {
+    if (!dragWrapRef.current) return;
+    const totalOffset = wrapOffset(baseOffsetRef.current + dragOffset);
+    dragWrapRef.current.style.transform = `translateX(${totalOffset}px)`;
+  }, [dragOffset, wrapOffset]);
+
+  useEffect(() => {
+    applyTransform();
+  }, [applyTransform]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (!containerRef.current) return;
     containerRef.current.setPointerCapture(e.pointerId);
     setIsDragging(true);
+    hoverRef.current = false;
     startXRef.current = e.clientX;
     startOffsetRef.current = dragOffset;
     lastMoveXRef.current = e.clientX;
@@ -158,10 +174,48 @@ function MarqueeRow({
     setIsDragging(false);
     smoothedVelocityRef.current = 0;
     setDragVelocity(0);
+    setDragOffset((prev) => {
+      baseOffsetRef.current = wrapOffset(baseOffsetRef.current + prev);
+      applyTransform();
+      return 0;
+    });
     if (e && containerRef.current) {
       try { containerRef.current.releasePointerCapture(e.pointerId); } catch {}
     }
   };
+
+  useEffect(() => {
+    const step = (timestamp: number) => {
+      if (prevTimeRef.current == null) {
+        prevTimeRef.current = timestamp;
+      }
+      const delta = timestamp - prevTimeRef.current;
+      prevTimeRef.current = timestamp;
+
+      if (!isDragging) {
+        const loopWidth = getLoopWidth();
+        if (loopWidth) {
+          const directionMultiplier = direction === "left" ? -1 : 1;
+          const secondsPerLoop = duration;
+          const pxPerMs = loopWidth / (secondsPerLoop * 1000);
+          const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
+          const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
+          baseOffsetRef.current = wrapOffset(baseOffsetRef.current + deltaOffset);
+          applyTransform();
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      prevTimeRef.current = null;
+    };
+  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover, getLoopWidth]);
 
   return (
     <div
@@ -179,12 +233,20 @@ function MarqueeRow({
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
-      onPointerLeave={endDrag}
+      onPointerLeave={(e) => {
+        endDrag(e);
+        if (pauseOnHover) hoverRef.current = false;
+      }}
+      onMouseEnter={() => {
+        if (pauseOnHover) hoverRef.current = true;
+      }}
+      onMouseLeave={() => {
+        if (pauseOnHover) hoverRef.current = false;
+      }}
     >
       <div
         ref={dragWrapRef}
         className="marquee-drag"
-        style={{ transform: `translateX(${dragOffset}px)` }}
       >
         <div 
           ref={trackRef}
@@ -226,7 +288,7 @@ function MarqueeItem({
 
   const card = (
     <div
-      className="mx-5 w-[500px] lg:w-[580px] shrink-0 rounded-[16px] bg-white border border-gray-200 p-8 shadow-sm will-change-transform review-card"
+      className="mx-5 w-[500px] lg:w-[580px] shrink-0 rounded-[16px] bg-[#00BFFF] border border-[#33D4FF] p-8 shadow-lg will-change-transform review-card"
       style={{ 
         transform: `rotate(${tiltDeg}deg)`,
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
@@ -235,20 +297,20 @@ function MarqueeItem({
       }}
     >
       <div className="flex items-center gap-5 mb-8">
-        <Avatar className="h-28 w-28 shadow-none">
-          <AvatarImage src={avatarUrl} alt={authorName} className="shadow-none" />
-          <AvatarFallback className="shadow-none">{initials(authorName)}</AvatarFallback>
+        <Avatar className="h-28 w-28 shadow-none ring-2 ring-white/40">
+          <AvatarImage src={avatarUrl} alt={authorName} className="shadow-none object-cover" />
+          <AvatarFallback className="shadow-none text-[#00BFFF] bg-white">{initials(authorName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="font-semibold text-gray-900 truncate text-2xl">{authorName}</div>
+          <div className="font-semibold text-white truncate text-2xl">{authorName}</div>
           {(authorTitle || company) && (
-            <div className="text-lg text-gray-600 truncate">
+            <div className="text-lg text-white/70 truncate">
               {[authorTitle, company].filter(Boolean).join(" · ")}
             </div>
           )}
         </div>
       </div>
-      <blockquote className="text-gray-800 leading-relaxed text-2xl min-h-[360px] flex items-start">"{quote}"</blockquote>
+      <blockquote className="text-white/90 leading-relaxed text-2xl min-h-[360px] flex items-start">"{quote}"</blockquote>
     </div>
   );
 
@@ -258,7 +320,7 @@ function MarqueeItem({
         href={sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#ff3a34] rounded-2xl"
+        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#00BFFF] rounded-2xl"
       >
         {card}
       </a>

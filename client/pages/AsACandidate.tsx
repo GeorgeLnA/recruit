@@ -2,11 +2,15 @@ import { ArrowLeft } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import Footer from "@/components/Footer";
 import AnimatedSwitch from "@/components/AnimatedSwitch";
+import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 
 export default function AsACandidate() {
   return (
     <>
     <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: '#FF914D' }}>
+      {/* Life Sciences Icons */}
+      <LifeSciencesIcons count={12} side="both" size={70} />
+      
       {/* Grain effect overlay */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-[0.22]"
@@ -24,7 +28,7 @@ export default function AsACandidate() {
         aria-label="Back to Work With Us"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span className="font-bold" style={{ fontFamily: 'Milker' }}>Back</span>
+        <span className="font-bold">Back</span>
       </a>
 
       <div className="max-w-7xl mx-auto relative" style={{ zIndex: 2 }}>
@@ -40,7 +44,7 @@ export default function AsACandidate() {
           />
         </div>
 
-        <h1 className="text-8xl font-bold mb-16 text-center" style={{ fontFamily: 'Milker' }}>
+        <h1 className="text-8xl font-bold mb-16 text-center">
           Work With Us: As a Candidate
         </h1>
         <p className="text-xl text-white mb-20">
@@ -50,7 +54,7 @@ export default function AsACandidate() {
 
         <div className="grid md:grid-cols-2 gap-16">
           <div>
-            <h2 className="text-3xl font-bold mb-8" style={{ fontFamily: 'Milker' }}>How we help candidates</h2>
+            <h2 className="text-3xl font-bold mb-8">How we help candidates</h2>
             <ul className="space-y-6 text-white">
               <li>Confidential representation to relevant hiring leaders</li>
               <li>Advice on positioning, narrative and market mapping</li>
@@ -60,7 +64,7 @@ export default function AsACandidate() {
           </div>
           <div>
             <VideoPlayer
-              src="/placeholder.mp4"
+              src="/CDC Website - ROUGH CUT 1.mp4"
               poster="/placeholder.svg"
               title="What we offer to candidates"
               className="w-full"
@@ -73,7 +77,6 @@ export default function AsACandidate() {
           <a
             href="https://www.linkedin.com/company/" target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition text-white font-bold"
-            style={{ fontFamily: 'Milker' }}
           >
             View open roles on LinkedIn
           </a>

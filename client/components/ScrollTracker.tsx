@@ -20,19 +20,18 @@ export default function ScrollTracker() {
   }, []);
 
   return (
-    <div className="fixed top-1/2 transform -translate-y-1/2 z-50 pointer-events-none" style={{ right: '56px' }}>
+    <div className="fixed top-1/2 transform -translate-y-1/2 z-50 pointer-events-none" style={{ right: '32px' }}>
       <div className="flex flex-col items-center space-y-3">
         {/* Percentage display - matching loading screen style */}
         <div className="relative">
           {/* Background circle with brand colors */}
           <div 
-            className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: '#FF3A34' }}
+            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
+            style={{ backgroundColor: '#00BFFF' }}
           >
             <div 
-              className="text-white font-bold text-lg"
+              className="text-white font-bold text-base"
               style={{ 
-                fontFamily: 'Milker',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore - vendor property not in TS CSS types
                 fontFeatureSettings: '"tnum" 1'
@@ -52,17 +51,6 @@ export default function ScrollTracker() {
               }}
             />
           </div>
-        </div>
-
-        {/* Scroll indicator line */}
-        <div className="w-1 h-24 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 58, 52, 0.2)' }}>
-          <div 
-            className="w-full bg-brand-red transition-all duration-200 ease-out rounded-full"
-            style={{
-              height: `${scrollPercentage}%`,
-              transform: 'translateY(0)'
-            }}
-          />
         </div>
       </div>
     </div>

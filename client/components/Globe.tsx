@@ -94,7 +94,7 @@ function GlobeInner({ locations, onSelect, selectedId, onAddPin }: GlobeProps) {
           }}
         >
           <sphereGeometry args={[0.025, 16, 16]} />
-          <meshStandardMaterial color={selectedId === p.id ? "#ff3a34" : "#ff9b78"} emissive="#ff3a34" emissiveIntensity={selectedId === p.id ? 0.6 : 0.15} />
+          <meshStandardMaterial color={selectedId === p.id ? "#00BFFF" : "#5CD6FF"} emissive="#00BFFF" emissiveIntensity={selectedId === p.id ? 0.6 : 0.15} />
         </mesh>
       ))}
 

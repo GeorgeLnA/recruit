@@ -5,17 +5,29 @@ interface LoadingScreenProps {
 }
 
 type Phase = 'count' | 'exit';
+type AnimationType = 'morph' | 'stack';
 
 const morphTime = 1.5;
 const cooldownTime = 0.5;
 
-export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
+const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<Phase>('count');
+  
+  // Load animation type from localStorage or default to 'morph'
+  const [animationType, setAnimationType] = useState<AnimationType>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('loadingAnimationType');
+      return (saved === 'morph' || saved === 'stack') ? saved : 'morph';
+    }
+    return 'morph';
+  });
+  
   const rafIdRef = useRef<number | null>(null);
   const hasStartedRef = useRef(false);
   
   const words = ['CDMO', 'CRO', 'Diagnostics'];
+  const stackWords = ['CDMO', 'Diagnostics', 'CRO']; // Order: CDMO -> Diagnostics -> CRO (spells CDC)
   
   // Morphing text refs and logic
   const textIndexRef = useRef(0);
@@ -24,6 +36,11 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const timeRef = useRef(new Date());
   const text1Ref = useRef<HTMLSpanElement>(null);
   const text2Ref = useRef<HTMLSpanElement>(null);
+  
+  // Stack animation state
+  const [visibleWords, setVisibleWords] = useState<number[]>([]);
+  const stackAnimationRef = useRef<number | null>(null);
+  const currentWordIndexRef = useRef<number>(0);
 
   useEffect(() => {
     // Prevent multiple starts
@@ -134,9 +151,76 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     }
   }, []);
 
+  // Stack animation effect
+  useEffect(() => {
+    if (animationType !== 'stack' || phase === 'exit') {
+      // Clear any pending timeouts if not in stack mode
+      if (stackAnimationRef.current) {
+        clearTimeout(stackAnimationRef.current);
+        stackAnimationRef.current = null;
+      }
+      return;
+    }
+    
+    // Reset visible words and index when starting stack animation
+    setVisibleWords([]);
+    currentWordIndexRef.current = 0;
+    
+    // Clear any existing timeout
+    if (stackAnimationRef.current) {
+      clearTimeout(stackAnimationRef.current);
+      stackAnimationRef.current = null;
+    }
+    
+    const WORD_DELAY = 600; // Consistent delay between each word appearing
+    
+    const showNextWord = () => {
+      const currentIndex = currentWordIndexRef.current;
+      if (currentIndex >= stackWords.length) {
+        return; // All words shown
+      }
+      
+      // Show the current word
+      setVisibleWords(prev => {
+        // Add the current index if not already present
+        if (!prev.includes(currentIndex)) {
+          return [...prev, currentIndex].sort((a, b) => a - b);
+        }
+        return prev;
+      });
+      
+      // Move to next word
+      currentWordIndexRef.current = currentIndex + 1;
+      
+      // Schedule next word if there are more
+      if (currentWordIndexRef.current < stackWords.length) {
+        stackAnimationRef.current = window.setTimeout(showNextWord, WORD_DELAY);
+      } else {
+        stackAnimationRef.current = null;
+      }
+    };
+    
+    // Start showing words immediately
+    showNextWord();
+    
+    return () => {
+      if (stackAnimationRef.current) {
+        clearTimeout(stackAnimationRef.current);
+        stackAnimationRef.current = null;
+      }
+    };
+  }, [animationType, phase, stackWords.length]);
+
+  // Reset visible words when switching FROM stack TO morph
+  useEffect(() => {
+    if (animationType === 'morph') {
+      setVisibleWords([]);
+    }
+  }, [animationType]);
+
   // Morphing text animation
   useEffect(() => {
-    if (phase === 'exit') return;
+    if (animationType !== 'morph' || phase === 'exit') return;
     
     let animationFrameId: number;
 
@@ -153,10 +237,29 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [phase, doMorph, doCooldown]);
+  }, [animationType, phase, doMorph, doCooldown]);
 
   const isCounting = phase === 'count';
   const isExiting = phase === 'exit';
+
+  // Helper function to render word (no shine effect)
+  const renderWord = (word: string, index: number, isVisible: boolean) => {
+    return (
+      <span
+        className="inline-block font-bold leading-none whitespace-nowrap"
+        style={{
+          color: '#00BFFF',
+          fontSize: 'clamp(100px, 12vw, 220px)',
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0px)' : 'translateY(-30px)',
+          transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+          willChange: 'opacity, transform'
+        }}
+      >
+        {word}
+      </span>
+    );
+  };
 
   return (
     <div
@@ -169,52 +272,99 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         zIndex: 2147483650 // Above Header's highest z-index (2147483649)
       }}
     >
+      {/* Toggle Switch - Top Right */}
+      <div
+        className="absolute top-6 right-6 z-50 flex items-center gap-2"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <span style={{ fontSize: '12px', color: '#00BFFF', fontWeight: 'bold' }}>
+          {animationType === 'morph' ? 'Morph' : 'Stack'}
+        </span>
+        <button
+          onClick={() => {
+            const newType = animationType === 'morph' ? 'stack' : 'morph';
+            setAnimationType(newType);
+            localStorage.setItem('loadingAnimationType', newType);
+          }}
+          className="px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-bold hover:bg-white/30 transition-colors"
+          style={{ fontFamily: 'TexGyreAdventor' }}
+        >
+          Switch
+        </button>
+      </div>
+
+
       {/* Content container */}
       <div className="relative w-full max-w-[1600px] px-8 flex flex-col items-center justify-center">
-        {/* Morphing words on top */}
-        <div 
-          className="text-center mb-16 select-none relative flex items-center justify-center" 
-          style={{ 
-            height: 'clamp(120px, 15vw, 240px)',
-            filter: isCounting ? 'url(#threshold) blur(0.6px)' : 'none',
-            opacity: isCounting ? 1 : 0,
-            transform: isCounting ? 'translateY(0px)' : 'translateY(-40px)',
-            transition: 'opacity 0.3s ease-out, transform 0.3s ease-out'
-          }}
-        >
-          <svg id="filters" className="hidden" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <filter id="threshold">
-                <feColorMatrix
-                  in="SourceGraphic"
-                  type="matrix"
-                  values="1 0 0 0 0
-                          0 1 0 0 0
-                          0 0 1 0 0
-                          0 0 0 255 -140"
-                />
-              </filter>
-            </defs>
-          </svg>
-          <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
-            ref={text1Ref}
-            style={{
-              fontFamily: 'Milker',
-              color: '#FF3A34',
-              fontSize: 'clamp(100px, 12vw, 220px)',
+        {/* Animation container */}
+        {animationType === 'morph' ? (
+          /* Morphing words animation */
+          <div 
+            className="text-center mb-16 select-none relative flex items-center justify-center" 
+            style={{ 
+              height: 'clamp(120px, 15vw, 240px)',
+              filter: isCounting ? 'url(#threshold) blur(0.6px)' : 'none',
+              opacity: isCounting ? 1 : 0,
+              transform: isCounting ? 'translateY(0px)' : 'translateY(-40px)',
+              transition: 'opacity 0.3s ease-out, transform 0.3s ease-out'
             }}
-          />
-          <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
-            ref={text2Ref}
-            style={{
-              fontFamily: 'Milker',
-              color: '#FF3A34',
-              fontSize: 'clamp(100px, 12vw, 220px)',
+          >
+            <svg id="filters" className="hidden" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <filter id="threshold">
+                  <feColorMatrix
+                    in="SourceGraphic"
+                    type="matrix"
+                    values="1 0 0 0 0
+                            0 1 0 0 0
+                            0 0 1 0 0
+                            0 0 0 255 -140"
+                  />
+                </filter>
+              </defs>
+            </svg>
+            <span
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
+              ref={text1Ref}
+              style={{
+                color: '#00BFFF',
+                fontSize: 'clamp(100px, 12vw, 220px)',
+              }}
+            />
+            <span
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
+              ref={text2Ref}
+              style={{
+                color: '#00BFFF',
+                fontSize: 'clamp(100px, 12vw, 220px)',
+              }}
+            />
+          </div>
+        ) : (
+          /* Stack animation - words appearing one on top of the other */
+          <div 
+            className="text-center mb-16 select-none relative flex flex-wrap items-center justify-center gap-8" 
+            style={{ 
+              minHeight: 'clamp(160px, 24vw, 360px)',
+              opacity: isCounting ? 1 : 0,
+              transform: isCounting ? 'translateY(0px)' : 'translateY(-40px)',
+              transition: 'opacity 0.3s ease-out, transform 0.3s ease-out'
             }}
-          />
-        </div>
+          >
+            {stackWords.map((word, index) => {
+              const isVisible = visibleWords.includes(index);
+              
+              return (
+                <span
+                  key={`stack-word-${index}`}
+                  className="inline-flex items-center gap-6"
+                >
+                  {renderWord(word, index, isVisible)}
+                </span>
+              );
+            })}
+          </div>
+        )}
 
         {/* Percentage display - moved lower */}
         <div className="text-center select-none relative">
@@ -222,7 +372,6 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           <div
             className="invisible font-bold leading-none"
             style={{ 
-              fontFamily: 'Milker',
               fontSize: 'clamp(80px, 8vw, 120px)'
             }}
           >
@@ -234,8 +383,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             <div
               className="font-bold leading-none transition-all duration-1000 ease-out"
               style={{
-                fontFamily: 'Milker',
-                color: '#FF3A34',
+                color: '#00BFFF',
                 fontSize: 'clamp(80px, 8vw, 120px)',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore - vendor property not in TS CSS types
@@ -252,4 +400,6 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </div>
     </div>
   );
-}
+};
+
+export default LoadingScreen;

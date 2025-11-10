@@ -2,11 +2,15 @@ import { ArrowLeft } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import Footer from "@/components/Footer";
 import AnimatedSwitch from "@/components/AnimatedSwitch";
+import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 
 export default function AsAClient() {
   return (
     <>
     <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: '#FF914D' }}>
+      {/* Life Sciences Icons */}
+      <LifeSciencesIcons count={12} side="both" size={70} />
+      
       {/* Grain effect overlay */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-[0.22]"
@@ -24,7 +28,7 @@ export default function AsAClient() {
         aria-label="Back to Work With Us"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span className="font-bold" style={{ fontFamily: 'Milker' }}>Back</span>
+        <span className="font-bold">Back</span>
       </a>
 
       <div className="max-w-7xl mx-auto relative" style={{ zIndex: 2 }}>
@@ -40,7 +44,7 @@ export default function AsAClient() {
           />
         </div>
 
-        <h1 className="text-8xl font-bold mb-16 text-center" style={{ fontFamily: 'Milker' }}>
+        <h1 className="text-8xl font-bold mb-16 text-center">
           Work With Us: As a Client
         </h1>
         <p className="text-xl text-white mb-20">
@@ -50,7 +54,7 @@ export default function AsAClient() {
 
         <div className="grid md:grid-cols-2 gap-16">
           <div>
-            <h2 className="text-3xl font-bold mb-8" style={{ fontFamily: 'Milker' }}>Positions we recruit for</h2>
+            <h2 className="text-3xl font-bold mb-8">Positions we recruit for</h2>
             <p className="text-white mb-8">Executive and senior leadership through functional heads and managers:</p>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-white">
               <li>CEO, COO, CSO, CFO, CCO, CTO</li>
@@ -63,14 +67,14 @@ export default function AsAClient() {
               <li>Clinical & Laboratory Leadership</li>
             </ul>
 
-            <h2 className="text-3xl font-bold mt-16 mb-8" style={{ fontFamily: 'Milker' }}>Search solutions</h2>
+            <h2 className="text-3xl font-bold mt-16 mb-8">Search solutions</h2>
             <ul className="space-y-6 text-white">
               <li><strong>Executive search:</strong> discreet, curated shortlists for critical hires</li>
               <li><strong>Volume search:</strong> scalable hiring for multi-role or multi-region growth</li>
               <li><strong>Marketing support:</strong> brand and talent marketing to accelerate outcomes</li>
             </ul>
 
-            <h3 className="text-2xl font-bold mt-16 mb-6" style={{ fontFamily: 'Milker' }}>Cost‑effective marketing to grow your business</h3>
+            <h3 className="text-2xl font-bold mt-16 mb-6">Cost‑effective marketing to grow your business</h3>
             <div className="flex flex-wrap gap-2 text-sm">
               {['strategy','social media','training','copywriting','lead generation','website design'].map((tag) => (
                 <span key={tag} className="px-3 py-1 rounded-full bg-gray-100 text-white border border-gray-200">{tag}</span>
@@ -79,7 +83,7 @@ export default function AsAClient() {
           </div>
           <div>
             <VideoPlayer
-              src="/placeholder.mp4"
+              src="/CDC Website - ROUGH CUT 1.mp4"
               poster="/placeholder.svg"
               title="What we offer to clients"
               className="w-full"
@@ -92,7 +96,7 @@ export default function AsAClient() {
           <a 
             href="/contact"
             className="inline-block px-8 py-4 text-white font-bold rounded-lg hover:scale-105 transition-all duration-300"
-            style={{ backgroundColor: '#ff3a34', fontFamily: 'Milker', fontSize: '1.25rem' }}
+            style={{ backgroundColor: '#00BFFF', fontSize: '1.25rem' }}
           >
             Get Started Today
           </a>
