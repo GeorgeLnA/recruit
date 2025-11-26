@@ -663,7 +663,7 @@ export default function Index() {
                     fontFamily: 'TexGyreAdventor',
                     fontSize: '12px',
                     fontWeight: 'bold',
-                    color: '#00BFFF'
+                    color: 'var(--color-blue)'
                   }}
                 >
                   {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
@@ -688,8 +688,8 @@ export default function Index() {
                   backText="Work with us"
                   from="top"
                   className="pointer-events-auto"
-                  frontClassName="bg-[#FF914D] text-white font-bold text-xl rounded-lg"
-                  backClassName="bg-white text-[#FF914D] font-bold text-xl rounded-lg"
+                  frontClassName="bg-[var(--color-peach)] text-white font-bold text-xl rounded-lg"
+                  backClassName="bg-[var(--color-white)] text-[var(--color-peach)] font-bold text-xl rounded-lg"
                   style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '24px', paddingBottom: '24px' }}
                 />
               </div>
@@ -712,18 +712,18 @@ export default function Index() {
                   className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
                   style={{ 
                     fontFamily: 'TexGyreAdventor',
-                    color: '#FF914D',
+                    color: 'var(--color-peach)',
                     fontSize: 'clamp(20px, 2.5vw, 48px)',
                     textAlign: 'center',
                     gap: '0.6em'
                   }}
                 >
                   <span>CDMO</span>
-                  <span className="text-[#FF914D]" aria-hidden="true">
+                  <span className="text-[var(--color-peach)]" aria-hidden="true">
                     &bull;
                   </span>
                   <span>Diagnostics</span>
-                  <span className="text-[#FF914D]" aria-hidden="true">
+                  <span className="text-[var(--color-peach)]" aria-hidden="true">
                     &bull;
                   </span>
                   <span>CRO</span>
@@ -750,7 +750,7 @@ export default function Index() {
           <div 
             className="absolute rounded-full relative"
             style={{
-              backgroundColor: '#FF914D',
+              backgroundColor: 'var(--color-peach)',
               filter: 'none',
               width: scrollProgress < 0.75 
                 ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
@@ -856,7 +856,7 @@ export default function Index() {
       <section 
         className="w-full relative"
         style={{
-          backgroundColor: '#FF914D',
+          backgroundColor: 'var(--color-peach)',
           paddingTop: '96px',
           paddingBottom: '64px',
           paddingLeft: '48px',

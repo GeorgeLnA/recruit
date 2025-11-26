@@ -101,6 +101,10 @@ export default function RotatingEarth({
     const context = canvas.getContext("2d");
     if (!context) return;
 
+    const rootStyles = getComputedStyle(document.documentElement);
+    const peachColor = rootStyles.getPropertyValue("--color-peach")?.trim() || "#FF914D";
+    const whiteColor = rootStyles.getPropertyValue("--color-white")?.trim() || "#FFFFFF";
+
     const containerWidth = Math.min(width, window.innerWidth - 40);
     const containerHeight = Math.min(height, window.innerHeight - 120);
     const radius = Math.min(containerWidth, containerHeight) / 2.1;
@@ -120,9 +124,9 @@ export default function RotatingEarth({
       // Ocean background (peach) + white outline
       context.beginPath();
     context.arc(containerWidth / 2, containerHeight / 2, radius, 0, 2 * Math.PI);
-      context.fillStyle = "#FF914D";
+      context.fillStyle = peachColor;
       context.fill();
-      context.strokeStyle = "#ffffff";
+      context.strokeStyle = whiteColor;
       context.lineWidth = 2 * scaleFactor;
       context.stroke();
 
@@ -134,7 +138,7 @@ export default function RotatingEarth({
         const graticule = d3.geoGraticule();
         context.beginPath();
         path(graticule());
-        context.strokeStyle = "#ffffff";
+        context.strokeStyle = whiteColor;
         context.lineWidth = 1 * scaleFactor;
         context.globalAlpha = 0.25;
         context.stroke();
@@ -144,9 +148,9 @@ export default function RotatingEarth({
       landFeaturesRef.current.features.forEach((feature: any) => {
           context.beginPath();
           path(feature);
-          context.fillStyle = "#ffffff";
+          context.fillStyle = whiteColor;
           context.fill();
-          context.strokeStyle = "#ffffff";
+          context.strokeStyle = whiteColor;
           context.lineWidth = 1 * scaleFactor;
           context.stroke();
         });
@@ -505,7 +509,7 @@ export default function RotatingEarth({
                         });
                       }
                     }}
-                    className="absolute top-0 left-0 w-4 h-4 rounded-full bg-[#00BFFF] opacity-30"
+                    className="absolute top-0 left-0 w-4 h-4 rounded-full bg-[var(--color-blue)] opacity-30"
                     style={{ transformOrigin: 'center center' }}
                   />
                   
@@ -513,8 +517,8 @@ export default function RotatingEarth({
                   <span
                     className={`absolute top-0 left-0 w-4 h-4 rounded-full shadow-lg transition-all duration-300 ${
                       selectedId === pin.id 
-                        ? 'bg-[#00BFFF] ring-4 ring-[#00BFFF]/30 scale-125' 
-                        : 'bg-[#00BFFF] ring-2 ring-white/70 hover:scale-110'
+                        ? 'bg-[var(--color-blue)] ring-4 ring-[rgb(var(--color-blue-rgb)_/_0.3)] scale-125' 
+                        : 'bg-[var(--color-blue)] ring-2 ring-white/70 hover:scale-110'
                     }`}
                     style={{ transformOrigin: 'center center' }}
                   />

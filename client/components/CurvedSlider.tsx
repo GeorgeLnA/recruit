@@ -21,8 +21,8 @@ interface CurvedSliderProps {
 export default function CurvedSlider({
   items,
   className = "",
-  accentFrom = "#01FFA4",
-  accentTo = "#0028F8",
+  accentFrom = "var(--color-blue)",
+  accentTo = "var(--color-peach)",
   scrollProgress: externalProgress,
 }: CurvedSliderProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -213,7 +213,7 @@ export default function CurvedSlider({
                         </figcaption>
                       </>
                     ) : (
-                      <div className="h-full w-full bg-[#00BFFF] p-8 md:p-10 flex items-center justify-center rounded-[16px] text-center">
+                      <div className="h-full w-full bg-[var(--color-blue)] p-8 md:p-10 flex items-center justify-center rounded-[16px] text-center">
                         <p className="text-white text-xl md:text-2xl leading-relaxed font-semibold" style={{ fontFamily: 'Milker' }}>
                           {item.description || "More details coming soon."}
                         </p>

@@ -117,11 +117,11 @@ export default function WorkWithUs() {
     // On initial mount, set immediately without animation
     const isInitial = isInitialMount.current;
     if (isInitial) {
-      pageRef.current.style.backgroundColor = checked ? '#00BFFF' : '#FF914D';
+      pageRef.current.style.backgroundColor = checked ? 'var(--color-blue)' : 'var(--color-peach)';
     } else {
       // On subsequent changes, animate the color transition
       gsap.to(pageRef.current, {
-        backgroundColor: checked ? '#00BFFF' : '#FF914D',
+        backgroundColor: checked ? 'var(--color-blue)' : 'var(--color-peach)',
         duration: 0.5,
         ease: 'power2.out'
       });
@@ -409,7 +409,7 @@ export default function WorkWithUs() {
 
   return (
     <>
-    <div ref={pageRef} className="relative min-h-screen pt-48 px-8 overflow-hidden" style={{ backgroundColor: checked ? '#00BFFF' : '#FF914D' }}>
+    <div ref={pageRef} className="relative min-h-screen pt-48 px-8 overflow-hidden" style={{ backgroundColor: checked ? 'var(--color-blue)' : 'var(--color-peach)' }}>
       {/* Life Sciences Icons - only show on orange background */}
       {!checked && <LifeSciencesIcons count={12} side="both" size={70} />}
       {/* Grain effect overlay */}

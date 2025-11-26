@@ -540,7 +540,7 @@ export default function Header({
           zIndex: 2147483649,
           width: '40px',
           height: '40px',
-          backgroundColor: '#FF914D',
+          backgroundColor: 'var(--theme-accent)',
           mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(0 0, 20px 0, 20px 20px, 0 20px)',
@@ -562,7 +562,7 @@ export default function Header({
           zIndex: 2147483649,
           width: '40px',
           height: '40px',
-          backgroundColor: '#FF914D',
+          backgroundColor: 'var(--theme-accent)',
           mask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           WebkitMask: 'radial-gradient(circle at center, transparent 20px, white 20px)',
           clipPath: 'polygon(20px 0, 40px 0, 40px 20px, 20px 20px)',
@@ -580,9 +580,9 @@ export default function Header({
         className="fixed inset-0 pointer-events-none"
         style={{ 
           zIndex: 2147483647,
-          borderLeft: '13px solid #FF914D',
-          borderRight: '13px solid #FF914D',
-          borderBottom: '13px solid #FF914D',
+          borderLeft: '13px solid var(--theme-accent)',
+          borderRight: '13px solid var(--theme-accent)',
+          borderBottom: '13px solid var(--theme-accent)',
           borderTop: 'none',
           borderRadius: '24px'
         }}
@@ -594,8 +594,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '13px solid #FF914D',
-          borderLeft: '13px solid #FF914D',
+          borderTop: '13px solid var(--theme-accent)',
+          borderLeft: '13px solid var(--theme-accent)',
           borderRight: '13px solid transparent',
           borderBottom: '13px solid transparent'
         }}
@@ -606,8 +606,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderTop: '13px solid #FF914D',
-          borderRight: '13px solid #FF914D',
+          borderTop: '13px solid var(--theme-accent)',
+          borderRight: '13px solid var(--theme-accent)',
           borderLeft: '13px solid transparent',
           borderBottom: '13px solid transparent'
         }}
@@ -618,8 +618,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '13px solid #FF914D',
-          borderLeft: '13px solid #FF914D',
+          borderBottom: '13px solid var(--theme-accent)',
+          borderLeft: '13px solid var(--theme-accent)',
           borderRight: '13px solid transparent',
           borderTop: '13px solid transparent'
         }}
@@ -630,8 +630,8 @@ export default function Header({
           zIndex: 2147483648,
           width: 0,
           height: 0,
-          borderBottom: '13px solid #FF914D',
-          borderRight: '13px solid #FF914D',
+          borderBottom: '13px solid var(--theme-accent)',
+          borderRight: '13px solid var(--theme-accent)',
           borderLeft: '13px solid transparent',
           borderTop: '13px solid transparent'
         }}
@@ -655,7 +655,7 @@ export default function Header({
           ref={expandBg1Ref}
           className="absolute pointer-events-none"
           style={{
-            backgroundColor: '#FF914D',
+            backgroundColor: 'var(--theme-accent)',
             opacity: 0,
             zIndex: 3,
             mixBlendMode: 'normal'
@@ -665,7 +665,7 @@ export default function Header({
           ref={expandBg2Ref}
           className="absolute pointer-events-none"
           style={{
-            backgroundColor: '#FF914D',
+            backgroundColor: 'var(--theme-accent)',
             opacity: 0,
             zIndex: 4,
             mixBlendMode: 'normal'
@@ -675,7 +675,7 @@ export default function Header({
           ref={expandBg3Ref}
           className="absolute pointer-events-none"
           style={{
-            backgroundColor: '#FF914D',
+            backgroundColor: 'var(--theme-accent)',
             opacity: 0,
             zIndex: 5,
             mixBlendMode: 'normal'
@@ -692,9 +692,9 @@ export default function Header({
           <div 
             ref={logoRef as React.RefObject<HTMLDivElement>}
             className="glass-island glass-island-logo transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: 'var(--color-peach)' }}
           >
-            <div className="glass-island-inner flex items-center h-full" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
+            <div className="glass-island-inner flex items-center h-full" style={{ padding: '16px', backgroundColor: 'var(--color-peach)' }}>
               <a href="/" className="flex items-center">
                 <div className="text-white whitespace-nowrap flex items-center" style={{ fontSize: '24px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', marginLeft: '-8px' }}>
                   CDC Global
@@ -707,9 +707,9 @@ export default function Header({
           <nav 
             ref={navRef}
             className="glass-island hidden md:flex items-center transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: 'var(--color-peach)' }}
           >
-            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: 'var(--color-peach)' }}>
               <div className="flex items-center" style={{ gap: '20px' }}>
                 {items.map((item, index) => (
                   item.submenu ? (
@@ -743,7 +743,7 @@ export default function Header({
                           }
                         }}
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#00BFFF'}}></div>
+                        <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)'}}></div>
                         <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
                           <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
                           <ChevronDown className="w-4 h-4 text-white group-hover/nav:text-white transition-all duration-300" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
@@ -760,8 +760,26 @@ export default function Header({
                             <a
                               key={subIndex}
                               href={subItem.href}
-                              className="block text-base font-bold text-gray-900 hover:bg-[#00BFFF] hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
-                              style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}
+                              className="block text-base font-bold text-gray-900 hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
+                              style={{ 
+                                '--hover-bg': 'var(--theme-accent)',
+                                paddingLeft: '24px',
+                                paddingRight: '24px',
+                                paddingTop: '12px',
+                                paddingBottom: '12px',
+                                lineHeight: '1',
+                                fontWeight: 'normal',
+                                fontFeatureSettings: 'normal',
+                                WebkitFontSmoothing: 'antialiased',
+                                MozOsxFontSmoothing: 'grayscale',
+                                textRendering: 'optimizeLegibility'
+                              } as React.CSSProperties}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = 'var(--theme-accent)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '';
+                              }}
                             >
                               {subItem.label}
                             </a>
@@ -776,7 +794,7 @@ export default function Header({
                       className="group/nav flex items-center text-base font-bold text-white relative overflow-hidden rounded-lg transition-all duration-300 hover:scale-105"
                       style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '10px', paddingBottom: '10px' }}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: '#00BFFF'}}></div>
+                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--color-blue)'}}></div>
                       <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
                         <span className="text-base font-bold group-hover/nav:text-white transition-colors" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
                         <ArrowRight className="w-4 h-4 text-white opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />
@@ -792,17 +810,17 @@ export default function Header({
           <div 
             ref={ctaRef as React.RefObject<HTMLDivElement>}
             className="glass-island glass-island-cta transition-all duration-300 ease-out cursor-default pointer-events-auto relative"
-            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: '#FF914D' }}
+            style={{ zIndex: 30, marginTop: '-10px', height: '65px', minHeight: '65px', maxHeight: '65px', backgroundColor: 'var(--color-peach)' }}
           >
-            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: '#FF914D' }}>
+            <div className="glass-island-inner h-full flex items-center" style={{ padding: '16px', backgroundColor: 'var(--color-peach)' }}>
               <FlipButton
                 href={cta?.href || "#contact"}
                 frontText={cta?.label || "Get In Touch"}
                 backText={cta?.label || "Get In Touch"}
                 from="top"
                 className="w-full h-full"
-                frontClassName="bg-[#00BFFF] text-white font-bold text-base rounded-lg"
-                backClassName="bg-white text-[#00BFFF] font-bold text-base rounded-lg"
+                frontClassName="bg-[var(--color-blue)] text-white font-bold text-base rounded-lg"
+                backClassName="bg-[var(--color-white)] text-[var(--color-blue)] font-bold text-base rounded-lg"
                 style={{ marginLeft: '8px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
               />
             </div>
@@ -842,8 +860,18 @@ export default function Header({
             <div className="grid grid-cols-1 md:grid-cols-2">
               <a
                 href="/work-with-us#client"
-                className="group flex items-center justify-between hover:bg-[#00BFFF] transition-colors"
-                style={{ padding: '32px', gap: '24px' }}
+                className="group flex items-center justify-between transition-colors"
+                style={{ 
+                  padding: '32px', 
+                  gap: '24px',
+                  '--hover-bg': 'var(--theme-accent)',
+                } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--theme-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                }}
               >
                 <div>
                   <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Solve my hiring headaches</div>
@@ -853,8 +881,18 @@ export default function Header({
               </a>
               <a
                 href="/work-with-us#candidate"
-                className="group flex items-center justify-between hover:bg-[#00BFFF] transition-colors border-t md:border-t-0 md:border-l border-gray-200"
-                style={{ padding: '32px', gap: '24px' }}
+                className="group flex items-center justify-between transition-colors border-t md:border-t-0 md:border-l border-gray-200"
+                style={{ 
+                  padding: '32px', 
+                  gap: '24px',
+                  '--hover-bg': 'var(--theme-accent)',
+                } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--theme-accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                }}
               >
                 <div>
                   <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-white" style={{ lineHeight: '1.2', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>Find my dream role</div>
@@ -870,7 +908,7 @@ export default function Header({
 
       {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="absolute top-full left-0 right-0 border-t border-white/20 md:hidden" style={{ backgroundColor: '#FF914D' }}>
+          <div className="absolute top-full left-0 right-0 border-t border-white/20 md:hidden" style={{ backgroundColor: 'var(--color-peach)' }}>
             <nav className="flex flex-col" style={{ gap: '8px', padding: '16px' }}>
               {items.map((item, index) => (
                 <div key={index}>
@@ -907,7 +945,7 @@ export default function Header({
                       onClick={() => setIsMenuOpen(false)}
                       style={{ gap: '8px', paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-xl" style={{backgroundColor: '#00BFFF'}}></div>
+                      <div className="absolute inset-0 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 rounded-xl" style={{backgroundColor: 'var(--color-blue)'}}></div>
                       <div className="relative z-10 flex items-center" style={{ gap: '8px' }}>
                         <span className="text-lg font-bold" style={{ lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{item.label}</span>
                         <ArrowRight className="w-4 h-4 opacity-0 group-hover/nav:opacity-100 transition-all duration-300 transform group-hover/nav:translate-x-1" style={{ width: '16px', height: '16px', flexShrink: 0 }} />

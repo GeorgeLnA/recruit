@@ -26,8 +26,7 @@ export default function ScrollTracker() {
         <div className="relative">
           {/* Background circle with brand colors */}
           <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: '#00BFFF' }}
+            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg bg-[var(--color-blue)]"
           >
             <div 
               className="text-white font-bold text-base"
@@ -44,7 +43,7 @@ export default function ScrollTracker() {
           {/* Progress ring with brand orange */}
           <div className="absolute inset-0 rounded-full border-3 border-white/20">
             <div 
-              className="absolute inset-0 rounded-full border-3 border-brand-orange border-t-transparent transition-all duration-200 ease-out"
+              className="absolute inset-0 rounded-full border-3 border-[var(--color-peach)] border-t-transparent transition-all duration-200 ease-out"
               style={{
                 transform: `rotate(${(scrollPercentage / 100) * 360 - 90}deg)`,
                 transformOrigin: 'center'

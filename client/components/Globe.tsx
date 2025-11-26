@@ -3,6 +3,7 @@ import { OrbitControls } from "@react-three/drei";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { gsap } from "@/lib/gsap";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export interface GlobeLocation {
   id: string;
@@ -31,6 +32,12 @@ function GlobeInner({ locations, onSelect, selectedId, onAddPin }: GlobeProps) {
   const groupRef = useRef<THREE.Group>(null);
   const pinRefs = useRef<Record<string, THREE.Mesh>>({});
   const radius = 1.2;
+  const { colors } = useTheme();
+  const blue = colors.blue;
+  const blueGlow = adjustColorBrightness(blue, 30);
+  const white = colors.white;
+  const whiteWire = addAlpha(white, 0.13);
+  const whiteGrid = addAlpha(white, 0.08);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -55,17 +62,17 @@ function GlobeInner({ locations, onSelect, selectedId, onAddPin }: GlobeProps) {
       {/* White wireframe overlay for outlines */}
       <mesh>
         <sphereGeometry args={[radius + 0.001, 32, 32]} />
-        <meshBasicMaterial color="#ffffff" wireframe transparent opacity={0.15} />
+        <meshBasicMaterial color={white} wireframe transparent opacity={0.15} />
       </mesh>
 
       {/* Equator ring */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[radius + 0.002, 0.005, 8, 128]} />
-        <meshBasicMaterial color="#ffffff" />
+        <meshBasicMaterial color={white} />
       </mesh>
 
       {/* Subtle longitudes/latitudes grid */}
-      <gridHelper args={[radius * 2.4, 24, "#ffffff22", "#ffffff14"]} position={[0, -radius, 0]} />
+      <gridHelper args={[radius * 2.4, 24, whiteWire, whiteGrid]} position={[0, -radius, 0]} />
 
       {/* Pins */}
       {pins.map((p) => (
@@ -94,7 +101,7 @@ function GlobeInner({ locations, onSelect, selectedId, onAddPin }: GlobeProps) {
           }}
         >
           <sphereGeometry args={[0.025, 16, 16]} />
-          <meshStandardMaterial color={selectedId === p.id ? "#00BFFF" : "#5CD6FF"} emissive="#00BFFF" emissiveIntensity={selectedId === p.id ? 0.6 : 0.15} />
+          <meshStandardMaterial color={selectedId === p.id ? blue : blueGlow} emissive={blue} emissiveIntensity={selectedId === p.id ? 0.6 : 0.15} />
         </mesh>
       ))}
 
@@ -134,6 +141,24 @@ export default function Globe(props: GlobeProps) {
       <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.6} />
     </Canvas>
   );
+}
+
+function adjustColorBrightness(color: string, amount: number) {
+  const hex = color.replace("#", "");
+  const num = parseInt(hex, 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amount));
+  const b = Math.min(255, Math.max(0, (num & 0xff) + amount));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+}
+
+function addAlpha(color: string, alpha: number) {
+  const hex = color.replace("#", "");
+  const num = parseInt(hex, 16);
+  const r = (num >> 16) & 0xff;
+  const g = (num >> 8) & 0xff;
+  const b = num & 0xff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 

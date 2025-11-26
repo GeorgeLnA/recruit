@@ -50,6 +50,28 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    /* Customizable color groups - defaults, overridden by ThemeContext */
+    --color-peach: #FF914D;
+    --color-peach-rgb: 255 145 77;
+    --color-peach-dark: #e67e3a;
+    --color-peach-light: #ffb68b;
+
+    --color-blue: #00BFFF;
+    --color-blue-rgb: 0 191 255;
+    --color-blue-dark: #0090c5;
+    --color-blue-light: #5CD6FF;
+    --color-blue-soft: #a6e8ff;
+
+    --color-white: #ffffff;
+    --color-white-rgb: 255 255 255;
+
+    /* Legacy aliases used throughout the app */
+    --theme-accent: var(--color-peach);
+    --theme-accent-hover: var(--color-peach-dark);
+    --theme-background: var(--color-white);
+    --theme-dark: #2a2a2a;
+    --theme-scrollbar: var(--color-blue);
   }
 
   /* Minimal scrollbar styling */
@@ -58,11 +80,11 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #ffffff;
+    background: var(--theme-background);
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #00BFFF;
+    background-color: var(--theme-scrollbar);
     border-radius: 999px;
   }
 
@@ -73,7 +95,7 @@
 
   /* Firefox */
   html {
-    scrollbar-color: #00BFFF #ffffff;
+    scrollbar-color: var(--theme-scrollbar) var(--theme-background);
     scrollbar-width: thin;
   }
 
@@ -114,12 +136,14 @@
   }
 
   html, body {
-    @apply bg-white text-white font-sans;
+    @apply font-sans;
+    color: var(--color-white);
     font-family: "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     letter-spacing: 0.05em;
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: white;
+    background-color: var(--theme-background);
+    transition: background-color 0.3s ease;
     /* Ensure consistent font rendering across platforms */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -130,6 +154,85 @@
 }
 
 @layer utilities {
+  /* Dynamic white utility overrides */
+  .text-white {
+    color: var(--color-white) !important;
+  }
+  .hover\:text-white:hover {
+    color: var(--color-white) !important;
+  }
+  .text-white\/90 {
+    color: rgb(var(--color-white-rgb) / 0.9) !important;
+  }
+  .text-white\/85 {
+    color: rgb(var(--color-white-rgb) / 0.85) !important;
+  }
+  .text-white\/80 {
+    color: rgb(var(--color-white-rgb) / 0.8) !important;
+  }
+  .text-white\/70 {
+    color: rgb(var(--color-white-rgb) / 0.7) !important;
+  }
+  .text-white\/40 {
+    color: rgb(var(--color-white-rgb) / 0.4) !important;
+  }
+  .text-white\/20 {
+    color: rgb(var(--color-white-rgb) / 0.2) !important;
+  }
+  .text-white\/10 {
+    color: rgb(var(--color-white-rgb) / 0.1) !important;
+  }
+  .bg-white {
+    background-color: var(--color-white) !important;
+  }
+  .bg-white\/95 {
+    background-color: rgb(var(--color-white-rgb) / 0.95) !important;
+  }
+  .bg-white\/30 {
+    background-color: rgb(var(--color-white-rgb) / 0.3) !important;
+  }
+  .bg-white\/20 {
+    background-color: rgb(var(--color-white-rgb) / 0.2) !important;
+  }
+  .bg-white\/10 {
+    background-color: rgb(var(--color-white-rgb) / 0.1) !important;
+  }
+  .hover\:bg-white\/20:hover {
+    background-color: rgb(var(--color-white-rgb) / 0.2) !important;
+  }
+  .hover\:bg-white\/10:hover {
+    background-color: rgb(var(--color-white-rgb) / 0.1) !important;
+  }
+  .hover\:bg-white\/30:hover {
+    background-color: rgb(var(--color-white-rgb) / 0.3) !important;
+  }
+  .border-white {
+    border-color: var(--color-white) !important;
+  }
+  .border-white\/30 {
+    border-color: rgb(var(--color-white-rgb) / 0.3) !important;
+  }
+  .border-white\/20 {
+    border-color: rgb(var(--color-white-rgb) / 0.2) !important;
+  }
+  .ring-white {
+    --tw-ring-color: var(--color-white) !important;
+  }
+  .ring-white\/70 {
+    --tw-ring-color: rgb(var(--color-white-rgb) / 0.7) !important;
+  }
+  .ring-white\/40 {
+    --tw-ring-color: rgb(var(--color-white-rgb) / 0.4) !important;
+  }
+  .focus\:ring-white:focus {
+    --tw-ring-color: var(--color-white) !important;
+  }
+  .focus\:ring-white\/50:focus {
+    --tw-ring-color: rgb(var(--color-white-rgb) / 0.5) !important;
+  }
+  .placeholder-white\/60::placeholder {
+    color: rgb(var(--color-white-rgb) / 0.6) !important;
+  }
   /* 3D flip card utilities */
   .flip-card {
     perspective: 1200px;
@@ -177,12 +280,13 @@
   /* Hero: sharp outside, rounded inside */
   .hero-outline {
     @apply border-r-[16px] border-b-[16px] border-l-[16px];
-    border-color: white;
+    border-color: var(--theme-background);
     border-top: none;
     border-radius: 0;
     position: relative;
-    background: white;
+    background: var(--theme-background);
     z-index: 10;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
   .hero-corner.bl,
@@ -190,8 +294,9 @@
     position: absolute;
     width: 32px;
     height: 32px;
-    background: white;
+    background: var(--theme-background);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .hero-corner.bl {
@@ -214,7 +319,7 @@
 
   /* Glass Island Styles */
   .glass-island {
-    background: #FF914D;
+    background: var(--theme-accent);
     backdrop-filter: none;
     border: none;
     border-top-left-radius: 0;
@@ -224,6 +329,7 @@
     position: relative;
     z-index: 20;
     min-width: 140px;
+    transition: background-color 0.3s ease;
     /* Ensure consistent rendering */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
@@ -250,8 +356,9 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: -1;
+    transition: background-color 0.3s ease;
   }
 
   /* Extend logo island to touch left edge of screen */
@@ -263,8 +370,9 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: -1;
+    transition: background-color 0.3s ease;
   }
 
   /* Visual top extension without changing layout height */
@@ -275,19 +383,21 @@
     left: 0;
     right: 0;
     height: 100vh;
-    background: #FF914D;
+    background: var(--theme-accent);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    transition: background-color 0.3s ease;
   }
 
   .glass-island-inner {
-    background: #FF914D;
+    background: var(--theme-accent);
     border-radius: 10px;
     position: relative;
     z-index: 10;
     height: 100%;
     display: flex;
     align-items: center;
+    transition: background-color 0.3s ease;
     /* Ensure consistent rendering */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
@@ -298,14 +408,15 @@
   /* Header logo section: sharp outside, rounded inside */
   .header-logo-outline {
     @apply border-t-[10px] border-r-[10px] border-b-[10px] border-l-[10px];
-    border-color: #FF914D;
+    border-color: var(--theme-accent);
     border-radius: 0;
     position: relative;
-    background: white;
+    background: var(--theme-background);
     height: 50px;
     min-width: 120px;
     width: 120px;
     z-index: 20;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
   .header-logo-outline::before,
@@ -314,8 +425,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-logo-outline::before {
@@ -333,8 +445,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-logo-corner-bl {
@@ -349,23 +462,25 @@
 
   .header-logo-inner {
     @apply rounded-[24px];
-    background-color: #2a2a2a;
+    background-color: var(--theme-dark);
     position: relative;
     z-index: 10;
     height: 100%;
     display: flex;
     align-items: center;
+    transition: background-color 0.3s ease;
   }
 
   /* Header CTA section: sharp outside, rounded inside */
   .header-cta-outline {
     @apply border-t-[10px] border-r-[10px] border-b-[10px] border-l-[10px];
-    border-color: #FF914D;
+    border-color: var(--theme-accent);
     border-radius: 0;
     position: relative;
-    background: white;
+    background: var(--theme-background);
     height: 50px;
     min-width: 80px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
   .header-cta-outline::before,
@@ -374,8 +489,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-cta-outline::before {
@@ -393,8 +509,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-cta-corner-tl {
@@ -409,18 +526,20 @@
 
   .header-cta-inner {
     @apply rounded-[24px];
-    background-color: #2a2a2a;
+    background-color: var(--theme-dark);
     position: relative;
     z-index: 10;
+    transition: background-color 0.3s ease;
   }
 
   /* Header navigation section: sharp outside, rounded inside */
   .header-nav-outline {
     @apply border-t-[5px] border-r-[10px] border-b-[5px] border-l-[10px];
-    border-color: #FF914D;
+    border-color: var(--theme-accent);
     border-radius: 0;
     position: relative;
-    background: white;
+    background: var(--theme-background);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
   .header-nav-outline::before,
@@ -429,8 +548,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-nav-outline::before {
@@ -448,8 +568,9 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: #FF914D;
+    background: var(--theme-accent);
     z-index: 0;
+    transition: background-color 0.3s ease;
   }
 
   .header-nav-corner-tr {
@@ -464,9 +585,10 @@
 
   .header-nav-inner {
     @apply rounded-[24px];
-    background-color: #2a2a2a;
+    background-color: var(--theme-dark);
     position: relative;
     z-index: 10;
+    transition: background-color 0.3s ease;
   }
 
   /* Morphing circle animation */

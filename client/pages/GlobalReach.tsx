@@ -118,7 +118,7 @@ export default function GlobalReach() {
 
   return (
     <>
-    <div className="min-h-screen pt-48 px-0 relative" style={{ backgroundColor: '#FF914D' }}>
+    <div className="min-h-screen pt-48 px-0 relative" style={{ backgroundColor: 'var(--color-peach)' }}>
       {/* Life Sciences Icons */}
       <LifeSciencesIcons count={12} side="both" size={70} />
         <div className="gr-hero text-center mb-16 relative" style={{ zIndex: 2 }}>

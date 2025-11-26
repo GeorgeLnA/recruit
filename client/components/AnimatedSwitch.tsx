@@ -36,14 +36,14 @@ export default function AnimatedSwitch({
     // Animate label emphasis (keep both labels white)
     gsap.to(leftLabelRef.current, {
       opacity: isChecked ? 1 : 0.5,
-      color: "white",
+      color: "var(--color-white)",
       duration: 0.4,
       ease: "power1.out",
     });
 
     gsap.to(rightLabelRef.current, {
       opacity: isChecked ? 0.5 : 1,
-      color: "white",
+      color: "var(--color-white)",
       duration: 0.4,
       ease: "power1.out",
     });
@@ -65,7 +65,7 @@ export default function AnimatedSwitch({
       <div className="relative w-40 h-20 bg-white rounded-full border-4 border-gray-200 overflow-hidden shadow-inner flex-shrink-0">
         <div
           ref={sliderRef}
-          className="absolute top-0 left-0 w-1/2 h-full bg-[#00BFFF] rounded-full transition-transform duration-600 ease-out will-change-transform"
+          className="absolute top-0 left-0 w-1/2 h-full bg-[var(--color-blue)] rounded-full transition-transform duration-600 ease-out will-change-transform"
         />
       </div>
       

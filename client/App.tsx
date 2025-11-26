@@ -16,6 +16,8 @@ import GlobalReach from "./pages/GlobalReach";
 import ProofInThePeople from "./pages/ProofInThePeople";
 import CandidMoments from "./pages/CandidMoments";
 import Contact from "./pages/Contact";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ColorThemeSwitcher } from "@/components/ColorThemeSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -48,25 +50,28 @@ const navigationItems = [
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollTracker />
-        <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/gsap-demo" element={<GSAPExample />} />
-          <Route path="/work-with-us" element={<WorkWithUs />} />
-          <Route path="/global-reach" element={<GlobalReach />} />
-          <Route path="/proof-in-the-people" element={<ProofInThePeople />} />
-          <Route path="/candid-moments" element={<CandidMoments />} />
-          <Route path="/contact" element={<Contact />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollTracker />
+          <ColorThemeSwitcher />
+          <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/gsap-demo" element={<GSAPExample />} />
+            <Route path="/work-with-us" element={<WorkWithUs />} />
+            <Route path="/global-reach" element={<GlobalReach />} />
+            <Route path="/proof-in-the-people" element={<ProofInThePeople />} />
+            <Route path="/candid-moments" element={<CandidMoments />} />
+            <Route path="/contact" element={<Contact />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

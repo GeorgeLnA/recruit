@@ -90,7 +90,7 @@ export default function Footer() {
     <footer
       ref={footerRef}
       className="relative overflow-hidden text-white min-h-screen"
-      style={{ backgroundColor: "#00BFFF" }}
+      style={{ backgroundColor: "var(--color-blue)" }}
     >
       {/* Top Section */}
       <div className="relative z-10 flex items-start justify-end px-6 lg:px-12 pt-12 pb-8">

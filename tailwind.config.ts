@@ -20,24 +20,24 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         
-        // Get Hyped Brand Colors
-        "brand-orange": "#FF914D",
-        "brand-blue": "#0D8DFF",
+        // Get Hyped Brand Colors mapped to live theme variables
+        "brand-orange": "var(--color-peach)",
+        "brand-blue": "var(--color-blue)",
         "brand-pink": "#FCB8FA",
         "brand-green": "#33C791",
-        "brand-red": "#00BFFF",
+        "brand-red": "var(--color-blue)",
         "brand-dark": "#161616",
-        "brand-light": "#FAF4EC",
+        "brand-light": "var(--color-white)",
         "brand-gray": "#393939",
         "brand-beige": "#EAE4D8",
         "brand-yellow": "#FA9C2E",
         
         // Accent variations
-        "brand-blue-light": "#28AAFF",
+        "brand-blue-light": "var(--color-blue-light)",
         "brand-pink-light": "#FDD0FE",
         "brand-green-light": "#73E2B6",
         "brand-red-dark": "#009AD6",
-        "brand-orange-light": "#FC997B",
+        "brand-orange-light": "var(--color-peach-light)",
         
         primary: {
           DEFAULT: "hsl(var(--primary))",

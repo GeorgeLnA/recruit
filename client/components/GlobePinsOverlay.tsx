@@ -39,14 +39,14 @@ const GlobePinsOverlay = forwardRef<HTMLDivElement, GlobePinsOverlayProps>(
           >
             <div className="pointer-events-auto flex flex-col items-center">
               <div className="relative">
-                <span className="absolute -inset-1 rounded-full bg-[#00BFFF] opacity-30 animate-ping" />
+                <span className="absolute -inset-1 rounded-full bg-[var(--color-blue)] opacity-30 animate-ping" />
                 <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedId(pin.id);
                   onSelectPin?.(pin.id);
                 }}
-                className="relative block w-2.5 h-2.5 rounded-full bg-[#00BFFF] shadow ring-2 ring-white/70"
+                className="relative block w-2.5 h-2.5 rounded-full bg-[var(--color-blue)] shadow ring-2 ring-white/70"
                 aria-label={`Select ${pin.name}`}
               />
               </div>

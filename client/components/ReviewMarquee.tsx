@@ -288,7 +288,7 @@ function MarqueeItem({
 
   const card = (
     <div
-      className="mx-5 w-[500px] lg:w-[580px] shrink-0 rounded-[16px] bg-[#00BFFF] border border-[#33D4FF] p-8 shadow-lg will-change-transform review-card"
+      className="mx-5 w-[500px] lg:w-[580px] shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] p-8 shadow-lg will-change-transform review-card"
       style={{ 
         transform: `rotate(${tiltDeg}deg)`,
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
@@ -299,7 +299,7 @@ function MarqueeItem({
       <div className="flex items-center gap-5 mb-8">
         <Avatar className="h-28 w-28 shadow-none ring-2 ring-white/40">
           <AvatarImage src={avatarUrl} alt={authorName} className="shadow-none object-cover" />
-          <AvatarFallback className="shadow-none text-[#00BFFF] bg-white">{initials(authorName)}</AvatarFallback>
+          <AvatarFallback className="shadow-none text-[var(--color-blue)] bg-white">{initials(authorName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <div className="font-semibold text-white truncate text-2xl">{authorName}</div>
@@ -320,7 +320,7 @@ function MarqueeItem({
         href={sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#00BFFF] rounded-2xl"
+        className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-blue)] rounded-2xl"
       >
         {card}
       </a>

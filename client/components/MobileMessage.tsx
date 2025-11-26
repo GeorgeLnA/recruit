@@ -46,11 +46,11 @@ export default function MobileMessage({ onMobileDetected }: MobileMessageProps) 
   if (!isMobile) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#FF914D] z-[9999] flex flex-col items-center justify-center p-8">
+    <div className="fixed inset-0 bg-[var(--color-peach)] z-[9999] flex flex-col items-center justify-center p-8">
       <div className="text-center max-w-md">
         {/* Oops Icon */}
         <div className="mb-8">
-          <div className="w-24 h-24 mx-auto rounded-full bg-[#00BFFF] flex items-center justify-center">
+          <div className="w-24 h-24 mx-auto rounded-full bg-[var(--color-blue)] flex items-center justify-center">
             <span className="text-white text-4xl font-bold">
               !
             </span>
@@ -58,17 +58,17 @@ export default function MobileMessage({ onMobileDetected }: MobileMessageProps) 
         </div>
 
         {/* Main Message */}
-        <h1 className="text-[48px] font-bold text-[#00BFFF] mb-6">
+        <h1 className="text-[48px] font-bold text-[var(--color-blue)] mb-6">
           Oops!
         </h1>
         
-        <p className="text-[20px] text-[#00BFFF] font-semibold leading-relaxed mb-8">
+        <p className="text-[20px] text-[var(--color-blue)] font-semibold leading-relaxed mb-8">
           Sorry, we're still in development. Please check us out from your desktop for the full experience!
         </p>
 
         {/* Desktop Icon */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 bg-[#00BFFF] rounded-lg flex items-center justify-center">
+          <div className="w-16 h-16 bg-[var(--color-blue)] rounded-lg flex items-center justify-center">
             <svg 
               className="w-8 h-8 text-white" 
               fill="none" 

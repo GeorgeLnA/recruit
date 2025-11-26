@@ -83,7 +83,7 @@ export default function Contact() {
       <div 
         ref={pageRef}
         className="relative pt-48 px-6 overflow-hidden min-h-screen" 
-        style={{ backgroundColor: '#FF914D' }}
+        style={{ backgroundColor: 'var(--color-peach)' }}
       >
         {/* Life Sciences Icons */}
         <LifeSciencesIcons count={12} side="both" size={70} />
@@ -117,7 +117,7 @@ export default function Contact() {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Contact Form */}
-            <div ref={formRef} className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-8" style={{ fontFamily: 'TexGyreAdventor' }}>
                   Send us a message
@@ -180,8 +180,8 @@ export default function Contact() {
                       backText="Sent!"
                       from="top"
                       className="w-full"
-                      frontClassName="bg-[#00BFFF] text-white font-bold text-lg rounded-lg py-4"
-                      backClassName="bg-white text-[#00BFFF] font-bold text-lg rounded-lg py-4"
+                      frontClassName="bg-[var(--color-blue)] text-white font-bold text-lg rounded-lg py-4"
+                      backClassName="bg-[var(--color-white)] text-[var(--color-blue)] font-bold text-lg rounded-lg py-4"
                       type="submit"
                     />
                   </div>

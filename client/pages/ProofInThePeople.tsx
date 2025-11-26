@@ -8,8 +8,8 @@ export default function ProofInThePeople() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const caseStudiesRef = useRef<HTMLDivElement>(null);
-  const caseStudyCardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
+  const caseStudiesRef = useRef<HTMLElement>(null);
+  const caseStudyCardRefs = useRef<(HTMLElement | null)[]>([null, null, null]);
   const [caseStudyCardProgress, setCaseStudyCardProgress] = useState<number[]>([0, 0, 0]);
   const lastScrollYRef = useRef(0);
   const [enableTransforms, setEnableTransforms] = useState(true);
@@ -122,7 +122,7 @@ export default function ProofInThePeople() {
 
   return (
     <>
-      <div className="min-h-screen pt-48 px-6 relative" style={{ backgroundColor: '#FF914D' }}>
+    <div className="min-h-screen pt-48 px-6 relative" style={{ backgroundColor: 'var(--color-peach)' }}>
         {/* Life Sciences Icons */}
         <LifeSciencesIcons count={12} side="both" size={70} />
         {/* Grain effect overlay */}
@@ -177,7 +177,7 @@ export default function ProofInThePeople() {
                 <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[0] = el; }}
-                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[#00BFFF] border border-[#33D4FF] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
+                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[var(--color-blue)] border border-[var(--color-blue-light)] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
                     style={{ transform: enableTransforms ? getCardTransform('left', caseStudyCardProgress[0] || 0) : undefined }}
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -216,7 +216,7 @@ export default function ProofInThePeople() {
                 <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[1] = el; }}
-                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[#00BFFF] border border-[#33D4FF] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
+                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[var(--color-blue)] border border-[var(--color-blue-light)] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
                     style={{ transform: enableTransforms ? getCardTransform('right', caseStudyCardProgress[1] || 0) : undefined }}
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -255,7 +255,7 @@ export default function ProofInThePeople() {
                 <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[2] = el; }}
-                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[#00BFFF] border border-[#33D4FF] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
+                    className="case-study-card md:sticky top-0 z-30 max-w-7xl mx-auto bg-[var(--color-blue)] border border-[var(--color-blue-light)] rounded-2xl md:rounded-3xl p-8 md:p-14 lg:p-16 shadow-lg transition-all duration-500 ease-out"
                     style={{ transform: enableTransforms ? getCardTransform('left', caseStudyCardProgress[2] || 0) : undefined }}
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">

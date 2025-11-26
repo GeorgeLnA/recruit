@@ -7,7 +7,7 @@ import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 export default function AsAClient() {
   return (
     <>
-    <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: '#FF914D' }}>
+    <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: 'var(--color-peach)' }}>
       {/* Life Sciences Icons */}
       <LifeSciencesIcons count={12} side="both" size={70} />
       
@@ -96,7 +96,7 @@ export default function AsAClient() {
           <a 
             href="/contact"
             className="inline-block px-8 py-4 text-white font-bold rounded-lg hover:scale-105 transition-all duration-300"
-            style={{ backgroundColor: '#00BFFF', fontSize: '1.25rem' }}
+            style={{ backgroundColor: 'var(--color-blue)', fontSize: '1.25rem' }}
           >
             Get Started Today
           </a>

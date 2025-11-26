@@ -168,7 +168,7 @@ export default function CandidMoments() {
       <div 
         ref={pageRef}
         className="relative px-6 overflow-hidden" 
-        style={{ backgroundColor: '#FF914D' }}
+        style={{ backgroundColor: 'var(--color-peach)' }}
       >
         <AmbientOrbs tone="peach" />
       </div>
@@ -177,14 +177,14 @@ export default function CandidMoments() {
       <div 
         ref={pinWrapperRef}
         className="relative w-full overflow-visible"
-        style={{ backgroundColor: '#FF914D' }}
+        style={{ backgroundColor: 'var(--color-peach)' }}
       >
         <div ref={cardsSectionRef} className="relative min-h-screen flex items-center justify-center px-6 py-24 overflow-visible">
           <div ref={sliderRef} className="max-w-7xl mx-auto w-full overflow-visible">
             <CurvedSlider 
               items={items} 
-              accentFrom="#00BFFF" 
-              accentTo="#5CD6FF" 
+              accentFrom="var(--color-blue)" 
+              accentTo="var(--color-blue-light)" 
               scrollProgress={cardScrollProgress}
             />
           </div>

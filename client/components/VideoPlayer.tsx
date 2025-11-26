@@ -71,8 +71,7 @@ export default function VideoPlayer({
         <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
           <Button
             onClick={handlePlay}
-            className="px-6 py-4 text-white font-bold"
-            style={{ backgroundColor: "#00BFFF" }}
+            className="px-6 py-4 text-white font-bold bg-[var(--color-blue)] hover:bg-[var(--color-blue-dark)]"
             aria-label="Play video"
           >
             <Play className="w-5 h-5" />

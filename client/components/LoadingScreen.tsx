@@ -248,7 +248,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       <span
         className="inline-block font-bold leading-none whitespace-nowrap"
         style={{
-          color: '#00BFFF',
+          color: 'var(--color-blue)',
           fontSize: 'clamp(100px, 12vw, 220px)',
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? 'translateY(0px)' : 'translateY(-30px)',
@@ -265,7 +265,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     <div
       className="fixed inset-0 flex items-center justify-center"
       style={{
-        backgroundColor: '#FF914D',
+        backgroundColor: 'var(--color-peach)',
         transform: isExiting ? 'translateY(-100%)' : 'translateY(0%)',
         transition: 'transform 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         willChange: 'transform',
@@ -277,7 +277,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         className="absolute top-6 right-6 z-50 flex items-center gap-2"
         style={{ pointerEvents: 'auto' }}
       >
-        <span style={{ fontSize: '12px', color: '#00BFFF', fontWeight: 'bold' }}>
+        <span style={{ fontSize: '12px', color: 'var(--color-blue)', fontWeight: 'bold' }}>
           {animationType === 'morph' ? 'Morph' : 'Stack'}
         </span>
         <button
@@ -327,7 +327,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
               ref={text1Ref}
               style={{
-                color: '#00BFFF',
+                color: 'var(--color-blue)',
                 fontSize: 'clamp(100px, 12vw, 220px)',
               }}
             />
@@ -335,7 +335,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
               ref={text2Ref}
               style={{
-                color: '#00BFFF',
+                color: 'var(--color-blue)',
                 fontSize: 'clamp(100px, 12vw, 220px)',
               }}
             />
@@ -383,7 +383,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             <div
               className="font-bold leading-none transition-all duration-1000 ease-out"
               style={{
-                color: '#00BFFF',
+                color: 'var(--color-blue)',
                 fontSize: 'clamp(80px, 8vw, 120px)',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore - vendor property not in TS CSS types

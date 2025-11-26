@@ -7,7 +7,7 @@ import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 export default function AsACandidate() {
   return (
     <>
-    <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: '#FF914D' }}>
+    <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: 'var(--color-peach)' }}>
       {/* Life Sciences Icons */}
       <LifeSciencesIcons count={12} side="both" size={70} />
       
