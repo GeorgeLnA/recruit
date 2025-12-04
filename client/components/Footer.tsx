@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
 import { ArrowUp } from "lucide-react";
+import ClientLogoMarquee from "@/components/ClientLogoMarquee";
+import { gsap } from "@/lib/gsap";
 
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
+  const backToTopRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || !footerRef.current || typeof IntersectionObserver === "undefined") {
@@ -84,158 +87,214 @@ export default function Footer() {
     return () => observer.disconnect();
   }, []);
 
+  // Add shake animation on hover for back to top button
+  useEffect(() => {
+    const button = backToTopRef.current;
+    if (!button) return;
+
+    const handleMouseEnter = () => {
+      gsap.to(button, {
+        rotation: -20,
+        duration: 0.015,
+        ease: 'power2.out',
+        yoyo: true,
+        repeat: 6
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.killTweensOf(button);
+      gsap.to(button, {
+        rotation: 0,
+        duration: 0.1,
+        ease: 'power2.out'
+      });
+    };
+
+    button.addEventListener('mouseenter', handleMouseEnter);
+    button.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      button.removeEventListener('mouseenter', handleMouseEnter);
+      button.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      ref={footerRef}
-      className="relative overflow-hidden text-white min-h-screen"
-      style={{ backgroundColor: "var(--color-blue)" }}
-    >
-      {/* Top Section */}
-      <div className="relative z-10 flex items-start justify-end px-6 lg:px-12 pt-12 pb-8">
-        <button
-          data-footer-top
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          aria-label="Back to top"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </button>
-      </div>
+    <>
+      {/* Client Logo Marquee Section */}
+      <section className="w-full bg-[var(--color-blue)] overflow-visible" style={{ paddingTop: '120px', paddingBottom: '40px' }}>
+        <div className="container mx-auto px-6 lg:px-8 overflow-visible">
+          <ClientLogoMarquee 
+            speedSeconds={50}
+            pauseOnHover={true}
+            rows={1}
+            className="[&_.marquee]:pt-0 [&_.marquee]:pb-0 [&_.marquee]:overflow-visible"
+          />
+        </div>
+      </section>
 
+      <footer
+        ref={footerRef}
+        className="relative overflow-hidden text-white min-h-screen"
+        style={{ backgroundColor: "var(--color-blue)" }}
+      >
       {/* Main Content Columns */}
-      <div className="relative z-10 px-6 lg:px-12 pb-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-[98vw] mx-auto">
+      <div className="relative z-10 px-6 lg:px-12 pb-32 pt-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-[98vw] mx-auto" style={{ alignItems: 'start' }}>
           {/* Column 1: CDC Global Address */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">CDC GLOBAL</h4>
-            <div className="text-white text-sm space-y-2">
-              <p>65 Arthurs Avenue, Harrogate, North Yorkshire, United Kingdom, HG2 0EB</p>
+            <h4 className="text-white font-bold text-sm tracking-wider mb-4">CDC Global</h4>
+            <div className="text-white text-sm">
+              <p>Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
             </div>
           </div>
 
           {/* Column 2: Navigation */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">NAVIGATION</h4>
+            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Navigation</h4>
             <div className="space-y-2">
-              <a href="/" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                HOME
+              <a href="/" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                Home
               </a>
-              <a href="#expertises" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                EXPERTISES
+              <a href="/work-with-us" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                Work With Us
               </a>
-              <a href="#about" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                ABOUT
-              </a>
-              <a href="/work-with-us" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                WORK WITH US
-              </a>
-              <a href="/global-reach" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                GLOBAL REACH
+              <a href="/global-reach" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                Global Reach
               </a>
               <a
                 href="/proof-in-the-people"
-                className="block text-white text-sm uppercase hover:opacity-70 transition-opacity"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
               >
-                PROOF IN THE PEOPLE
+                Proof in the People
               </a>
-              <a href="/candid-moments" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                CANDID MOMENTS
+              <a href="/candid-moments" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                Candid Moments
               </a>
-              <a href="/contact" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                CONTACT
+              <a href="/contact" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                Contact
               </a>
             </div>
           </div>
 
  	    {/* Column 3: Work With Us */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">WORK WITH US</h4>
+            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Work With Us</h4>
             <div className="space-y-2">
-              <a href="/work-with-us#client" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
-                AS A CLIENT
+              <a href="/work-with-us#client" className="block text-white text-sm hover:opacity-70 transition-opacity">
+                As a Client
               </a>
               <a
                 href="/work-with-us#candidate"
-                className="block text-white text-sm uppercase hover:opacity-70 transition-opacity"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
               >
-                AS A CANDIDATE
+                As a Candidate
               </a>
             </div>
           </div>
 
           {/* Column 4: Contact & Follow */}
-          <div data-footer-col>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">CONTACT</h4>
+          <div data-footer-col className="relative">
+            {/* Back to Top Button - aligned with Contact heading on desktop, moved to top of big text on mobile */}
+            <div className="absolute top-0 right-0 md:block hidden">
+              <button
+                ref={backToTopRef}
+                data-footer-top
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+                aria-label="Back to top"
+              >
+                <ArrowUp className="w-5 h-5" />
+              </button>
+            </div>
+            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Contact</h4>
             <div className="space-y-2 mb-6">
-              <a href="tel:+447554440299" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
+              <a href="tel:+447554440299" className="block text-white text-sm hover:opacity-70 transition-opacity">
                 07554 440 299
               </a>
               <a
                 href="mailto:harriet@cdcglobal.co.uk"
-                className="block text-white text-sm uppercase hover:opacity-70 transition-opacity"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
               >
                 harriet@cdcglobal.co.uk
               </a>
-              <a href="mailto:adam@cdcglobal.co.uk" className="block text-white text-sm uppercase hover:opacity-70 transition-opacity">
+              <a href="mailto:adam@cdcglobal.co.uk" className="block text-white text-sm hover:opacity-70 transition-opacity">
                 adam@cdcglobal.co.uk
               </a>
             </div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4 mt-6">FOLLOW</h4>
+            <h4 className="text-white font-bold text-sm tracking-wider mb-4 mt-6">Follow</h4>
             <div className="space-y-2">
               <a
                 href="https://www.linkedin.com/company/cdcglobal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-white text-sm uppercase hover:opacity-70 transition-opacity"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
               >
-                LINKEDIN
+                LinkedIn
+              </a>
+              <a
+                href="https://www.linkedin.com/in/harriet-wheat/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
+              >
+                Harriet's LinkedIn
+              </a>
+              <a
+                href="https://www.linkedin.com/in/adam-hargreaves-ivd/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-white text-sm hover:opacity-70 transition-opacity"
+              >
+                Adam's LinkedIn
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Large Background Logo */}
-      <div className="pointer-events-none select-none absolute inset-x-0 bottom-0 text-center text-white/10 font-bold leading-none tracking-tight" style={{ fontSize: "clamp(120px, 25vw, 400px)", lineHeight: "0.9" }}>
-        <div className="-translate-y-[20%]">CDC GLOBAL</div>
-      </div>
-
       {/* Bottom Bar */}
       <div className="relative z-10 px-6 lg:px-12 py-6">
+        {/* Back to Top Button - Mobile only, positioned at top of big text */}
+        <div className="md:hidden flex justify-end mb-1">
+          <button
+            ref={backToTopRef}
+            data-footer-top
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+            aria-label="Back to top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </button>
+        </div>
         <div
           data-footer-head
-          className="text-white font-bold leading-[0.9] mb-6 w-full text-center"
+          className="text-white font-bold leading-[0.9] mb-2 md:mb-6 w-full text-center"
           style={{
             fontSize: "clamp(4rem, 15vw, 18rem)",
             padding: "0 1rem",
           }}
         >
           <div className="w-full flex justify-center">
-            <span className="whitespace-nowrap">CDC GLOBAL</span>
+            <span className="whitespace-nowrap">Cdc Global</span>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 max-w-[98vw] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-1 md:gap-4 max-w-[98vw] mx-auto">
           <div data-footer-bottom className="text-white text-sm">
-            <p className="font-bold">©{currentYear} CDC GLOBAL SOLUTIONS LTD</p>
+            <p className="font-bold">©{currentYear} CDC Global Solutions</p>
           </div>
-          <div data-footer-bottom className="flex gap-4 text-white text-sm uppercase">
-            <a href="#" className="hover:opacity-70 transition-opacity">
-              LEGAL
-            </a>
-            <span>—</span>
-            <a href="#" className="hover:opacity-70 transition-opacity">
-              PRIVACY
-            </a>
-            <span>—</span>
-            <a href="#" className="hover:opacity-70 transition-opacity">
-              COOKIES
+          <div data-footer-bottom className="flex gap-4 text-white text-sm">
+            <a href="/privacy-policy" className="hover:opacity-70 transition-opacity">
+              Privacy Policy
             </a>
           </div>
         </div>
       </div>
     </footer>
+    </>
   );
 }

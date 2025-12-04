@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Footer from "@/components/Footer";
 import { gsap, useGSAP } from "@/lib/gsap";
-import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { FlipButton } from "@/components/FlipButton";
 
@@ -15,6 +14,7 @@ export default function Contact() {
     email: "",
     message: ""
   });
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Animate elements on scroll
   useGSAP(() => {
@@ -67,8 +67,13 @@ export default function Contact() {
     e.preventDefault();
     // Handle form submission here
     console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: "", email: "", message: "" });
+    // Trigger flip animation
+    setIsSubmitted(true);
+    // Reset form after a delay
+    setTimeout(() => {
+      setFormData({ name: "", email: "", message: "" });
+      setIsSubmitted(false);
+    }, 2000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -82,49 +87,35 @@ export default function Contact() {
     <>
       <div 
         ref={pageRef}
-        className="relative pt-48 px-6 overflow-hidden min-h-screen" 
-        style={{ backgroundColor: 'var(--color-peach)' }}
+        className="relative overflow-hidden min-h-screen" 
+        style={{ backgroundColor: 'var(--color-peach)', paddingTop: 'clamp(120px, 12vw, 192px)', paddingLeft: 'clamp(24px, 3vw, 48px)', paddingRight: 'clamp(24px, 3vw, 48px)' }}
       >
-        {/* Life Sciences Icons */}
-        <LifeSciencesIcons count={12} side="both" size={70} />
-        
-        {/* Grain effect overlay */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-[0.22]"
-          style={{
-            zIndex: 1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '150px 150px',
-            mixBlendMode: 'multiply'
-          }}
-        />
-
-        <div className="max-w-7xl mx-auto relative z-10 pb-32">
+        <div className="mx-auto relative z-10" style={{ maxWidth: '1400px', paddingBottom: 'clamp(80px, 8vw, 128px)' }}>
           {/* Header Section */}
-          <div className="mb-16 text-center">
+          <div className="text-center" style={{ marginBottom: 'clamp(40px, 4vw, 64px)' }}>
             <h1 
               ref={titleRef}
-              className="text-8xl md:text-9xl lg:text-[140px] font-bold mb-8 text-center text-white"
-              style={{ fontFamily: 'TexGyreAdventor' }}
+              className="font-bold text-center text-white"
+              style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(48px, 8vw, 140px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}
             >
               Get In Touch
             </h1>
-            <p className="text-white/90 text-xl md:text-2xl max-w-3xl mx-auto" style={{ fontFamily: 'TexGyreAdventor' }}>
+            <p className="text-white/90 mx-auto" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '960px' }}>
               Ready to find your next opportunity or the perfect candidate? Let's start a conversation.
             </p>
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 'clamp(48px, 4vw, 64px)' }}>
             {/* Contact Form */}
             <div className="order-2 lg:order-1">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-8" style={{ fontFamily: 'TexGyreAdventor' }}>
+              <div className="rounded-2xl border-2" style={{ backgroundColor: '#FF9752', borderColor: '#FF9752', padding: 'clamp(32px, 3vw, 48px)' }}>
+                <h2 className="font-bold text-white" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(28px, 2.5vw, 40px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>
                   Send us a message
                 </h2>
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+                <form ref={formRef} onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 1.5vw, 24px)' }}>
                   <div>
-                    <label htmlFor="name" className="block text-white text-sm font-semibold mb-2 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                    <label htmlFor="name" className="block text-white font-semibold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(11px, 0.875vw, 14px)', marginBottom: 'clamp(8px, 0.75vw, 12px)' }}>
                       Name
                     </label>
                     <input
@@ -134,14 +125,14 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-6 py-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all"
+                      className="w-full rounded-lg placeholder-white/60 focus:outline-none focus:ring-2 transition-all"
+                      style={{ backgroundColor: '#FFF5E5', border: '2px solid #FF9752', '--tw-ring-color': '#FF9752', fontFamily: 'TexGyreAdventor', color: '#464C53', paddingLeft: 'clamp(16px, 1.5vw, 24px)', paddingRight: 'clamp(16px, 1.5vw, 24px)', paddingTop: 'clamp(12px, 1vw, 16px)', paddingBottom: 'clamp(12px, 1vw, 16px)', fontSize: 'clamp(14px, 1vw, 18px)' } as React.CSSProperties}
                       placeholder="Your name"
-                      style={{ fontFamily: 'TexGyreAdventor' }}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-white text-sm font-semibold mb-2 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                    <label htmlFor="email" className="block text-white font-semibold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(11px, 0.875vw, 14px)', marginBottom: 'clamp(8px, 0.75vw, 12px)' }}>
                       Email
                     </label>
                     <input
@@ -151,14 +142,14 @@ export default function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-6 py-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all"
+                      className="w-full rounded-lg placeholder-white/60 focus:outline-none focus:ring-2 transition-all"
+                      style={{ backgroundColor: '#FFF5E5', border: '2px solid #FF9752', '--tw-ring-color': '#FF9752', fontFamily: 'TexGyreAdventor', color: '#464C53', paddingLeft: 'clamp(16px, 1.5vw, 24px)', paddingRight: 'clamp(16px, 1.5vw, 24px)', paddingTop: 'clamp(12px, 1vw, 16px)', paddingBottom: 'clamp(12px, 1vw, 16px)', fontSize: 'clamp(14px, 1vw, 18px)' } as React.CSSProperties}
                       placeholder="your.email@example.com"
-                      style={{ fontFamily: 'TexGyreAdventor' }}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-white text-sm font-semibold mb-2 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                    <label htmlFor="message" className="block text-white font-semibold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(11px, 0.875vw, 14px)', marginBottom: 'clamp(8px, 0.75vw, 12px)' }}>
                       Message
                     </label>
                     <textarea
@@ -168,21 +159,23 @@ export default function Contact() {
                       onChange={handleChange}
                       required
                       rows={6}
-                      className="w-full px-6 py-4 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all resize-none"
+                      className="w-full rounded-lg placeholder-white/60 focus:outline-none focus:ring-2 transition-all resize-none"
+                      style={{ backgroundColor: '#FFF5E5', border: '2px solid #FF9752', '--tw-ring-color': '#FF9752', fontFamily: 'TexGyreAdventor', color: '#464C53', paddingLeft: 'clamp(16px, 1.5vw, 24px)', paddingRight: 'clamp(16px, 1.5vw, 24px)', paddingTop: 'clamp(12px, 1vw, 16px)', paddingBottom: 'clamp(12px, 1vw, 16px)', fontSize: 'clamp(14px, 1vw, 18px)' } as React.CSSProperties}
                       placeholder="Tell us about your needs..."
-                      style={{ fontFamily: 'TexGyreAdventor' }}
                     />
                   </div>
 
-                  <div className="pt-4">
+                  <div style={{ paddingTop: 'clamp(12px, 1vw, 16px)' }}>
                     <FlipButton
                       frontText="Send Message"
-                      backText="Sent!"
+                      backText={isSubmitted ? "Sent!" : "Send Message"}
                       from="top"
                       className="w-full"
-                      frontClassName="bg-[var(--color-blue)] text-white font-bold text-lg rounded-lg py-4"
-                      backClassName="bg-[var(--color-white)] text-[var(--color-blue)] font-bold text-lg rounded-lg py-4"
+                      frontClassName="bg-[#FFF5E5] text-[#464C53] font-bold rounded-lg"
+                      backClassName="bg-[#464C53] text-[#FF9752] font-bold rounded-lg"
                       type="submit"
+                      animate={isSubmitted ? "hover" : "initial"}
+                      style={{ paddingTop: 'clamp(12px, 1vw, 16px)', paddingBottom: 'clamp(12px, 1vw, 16px)', fontSize: 'clamp(14px, 1.125vw, 18px)' }}
                     />
                   </div>
                 </form>
@@ -191,55 +184,55 @@ export default function Contact() {
 
             {/* Contact Information */}
             <div ref={infoRef} className="order-1 lg:order-2">
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(24px, 2vw, 32px)' }}>
                 <div>
-                  <h2 className="text-4xl md:text-5xl font-bold text-white mb-8" style={{ fontFamily: 'TexGyreAdventor' }}>
+                  <h2 className="font-bold text-white" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(28px, 2.5vw, 40px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>
                     Contact Information
                   </h2>
-                  <p className="text-white/90 text-lg md:text-xl mb-8" style={{ fontFamily: 'TexGyreAdventor' }}>
+                  <p className="text-white/90" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(16px, 1.25vw, 20px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>
                     Whether you're looking to fill a role or explore new opportunities, we're here to help.
                   </p>
                 </div>
 
-                <div className="space-y-6">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 1.5vw, 24px)' }}>
                   {/* Address */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-white" />
+                  <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
+                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                      <MapPin className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                      <h3 className="text-white font-bold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)', marginBottom: 'clamp(4px, 0.5vw, 8px)' }}>
                         Address
                       </h3>
-                      <p className="text-white/90 text-base" style={{ fontFamily: 'TexGyreAdventor' }}>
-                        65 Arthurs Avenue<br />
-                        Harrogate, North Yorkshire<br />
-                        United Kingdom, HG2 0EB
+                      <p className="text-white/90" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1vw, 16px)' }}>
+                        Meydan Grandstand, 6th Floor<br />
+                        Meydan Road, Nad Al Sheba<br />
+                        Dubai, U.A.E.
                       </p>
                     </div>
                   </div>
 
                   {/* Email */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                      <Mail className="w-6 h-6 text-white" />
+                  <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
+                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                      <Mail className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                      <h3 className="text-white font-bold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)', marginBottom: 'clamp(4px, 0.5vw, 8px)' }}>
                         Email
                       </h3>
-                      <div className="space-y-1">
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px, 0.5vw, 8px)' }}>
                         <a 
                           href="mailto:harriet@cdcglobal.co.uk" 
-                          className="block text-white/90 hover:text-white transition-colors text-base"
-                          style={{ fontFamily: 'TexGyreAdventor' }}
+                          className="block text-white/90 hover:text-white transition-colors"
+                          style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1vw, 16px)' }}
                         >
                           harriet@cdcglobal.co.uk
                         </a>
                         <a 
                           href="mailto:adam@cdcglobal.co.uk" 
-                          className="block text-white/90 hover:text-white transition-colors text-base"
-                          style={{ fontFamily: 'TexGyreAdventor' }}
+                          className="block text-white/90 hover:text-white transition-colors"
+                          style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1vw, 16px)' }}
                         >
                           adam@cdcglobal.co.uk
                         </a>
@@ -248,41 +241,22 @@ export default function Contact() {
                   </div>
 
                   {/* Phone */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                      <Phone className="w-6 h-6 text-white" />
+                  <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
+                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                      <Phone className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
+                      <h3 className="text-white font-bold uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)', marginBottom: 'clamp(4px, 0.5vw, 8px)' }}>
                         Phone
                       </h3>
-                      <p className="text-white/90 text-base" style={{ fontFamily: 'TexGyreAdventor' }}>
-                        Available upon request
-                      </p>
+                      <a 
+                        href="tel:+447554440299" 
+                        className="block text-white/90 hover:text-white transition-colors"
+                        style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1vw, 16px)' }}
+                      >
+                        07554 440 299
+                      </a>
                     </div>
-                  </div>
-                </div>
-
-                {/* Quick Links */}
-                <div className="pt-8 border-t border-white/20">
-                  <h3 className="text-white font-bold text-xl mb-4 uppercase tracking-wider" style={{ fontFamily: 'TexGyreAdventor' }}>
-                    Quick Links
-                  </h3>
-                  <div className="flex flex-wrap gap-4">
-                    <a 
-                      href="/work-with-us#client"
-                      className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg text-white font-semibold transition-all hover:scale-105"
-                      style={{ fontFamily: 'TexGyreAdventor' }}
-                    >
-                      For Clients
-                    </a>
-                    <a 
-                      href="/work-with-us#candidate"
-                      className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg text-white font-semibold transition-all hover:scale-105"
-                      style={{ fontFamily: 'TexGyreAdventor' }}
-                    >
-                      For Candidates
-                    </a>
                   </div>
                 </div>
               </div>

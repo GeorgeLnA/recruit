@@ -16,6 +16,8 @@ interface CurvedSliderProps {
   accentFrom?: string;
   accentTo?: string;
   scrollProgress?: number;
+  onCardHover?: (isHovering: boolean) => void;
+  onCardMouseMove?: (x: number, y: number) => void;
 }
 
 export default function CurvedSlider({
@@ -24,6 +26,8 @@ export default function CurvedSlider({
   accentFrom = "var(--color-blue)",
   accentTo = "var(--color-peach)",
   scrollProgress: externalProgress,
+  onCardHover,
+  onCardMouseMove,
 }: CurvedSliderProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
@@ -32,6 +36,10 @@ export default function CurvedSlider({
   const rafRef = useRef<number | null>(null);
   const lastProgressRef = useRef(0);
   const lastTransformRef = useRef<string[]>([]);
+  const [cardWidthVw, setCardWidthVw] = useState(28);
+  const [spacingVw, setSpacingVw] = useState(10);
+  const [maxCardWidth, setMaxCardWidth] = useState(480);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (externalProgress !== undefined) {
@@ -83,36 +91,108 @@ export default function CurvedSlider({
     }
   }, [items.length]);
 
+  // Calculate card width dynamically based on viewport with max-width constraint
+  useEffect(() => {
+    const calculateCardSize = () => {
+      const viewportWidth = window.innerWidth;
+      const isMobile = viewportWidth < 768;
+      const maxCardWidth = isMobile ? 600 : 480; // Much larger max width on mobile
+      const baseCardWidthVw = isMobile ? 70 : 28; // Much larger base width on mobile (70vw vs 28vw)
+      
+      // Calculate what baseCardWidthVw equals in pixels
+      const baseCardWidthPx = (viewportWidth * baseCardWidthVw) / 100;
+      
+      // Use the smaller of base width or max width, then convert back to vw
+      const actualCardWidthPx = Math.min(baseCardWidthPx, maxCardWidth);
+      const actualCardWidthVw = (actualCardWidthPx / viewportWidth) * 100;
+      
+      // Calculate spacing as percentage of card width for consistent overlap
+      const overlapPercentage = 0.54; // 54% overlap means spacing is 46% of card width
+      const calculatedSpacingVw = actualCardWidthVw * (1 - overlapPercentage);
+      
+      setCardWidthVw(actualCardWidthVw);
+      setSpacingVw(calculatedSpacingVw);
+      setMaxCardWidth(maxCardWidth);
+      setIsMobile(isMobile);
+    };
+
+    calculateCardSize();
+    window.addEventListener('resize', calculateCardSize);
+    return () => window.removeEventListener('resize', calculateCardSize);
+  }, []);
+
   // Update transforms directly via DOM (no React re-renders)
   useEffect(() => {
     const currentProgress = externalProgress !== undefined ? externalProgress : progress;
     const totalItems = items.length;
     const centerIndex = (totalItems - 1) / 2;
-    const spacingVw = 24;
-    const baseTilt = 25;
+    const baseTilt = 65; // Increased for more significant tilt
     const staggerDelay = 0.12;
 
     const updateTransforms = () => {
+      // Calculate last card's start position to determine travel distances
+      const lastCardIndex = totalItems - 1;
+      const firstCardIndex = 0;
+      const baseVerticalOffset = -30; // Move starting position higher
+      // Last card starts at its spread position from center (where first card starts)
+      const lastCardHorizontalSpread = (lastCardIndex - firstCardIndex) * spacingVw;
+      const lastCardVerticalSpread = (lastCardIndex - firstCardIndex) * 35;
+      const lastCardStartX = lastCardHorizontalSpread;
+      const lastCardStartY = baseVerticalOffset + lastCardVerticalSpread;
+      
+      // Calculate travel distances so last card reaches center (0, 0) when progress = 1
+      // Note: diagonalDistanceY is calculated independently - globalUpwardOffset is additional
+      // When progress = 1: x = 0, y = 0
+      // 0 = lastCardStartX - 1 * diagonalDistanceX  =>  diagonalDistanceX = lastCardStartX
+      // 0 = lastCardStartY - 1 * diagonalDistanceY  =>  diagonalDistanceY = lastCardStartY
+      const diagonalDistanceX = lastCardStartX;
+      const diagonalDistanceY = lastCardStartY;
+      
       items.forEach((_, i) => {
         const cardEl = cardRefs.current[i];
         if (!cardEl) return;
 
-        const distanceFromCenter = (i - centerIndex) * spacingVw;
-        const startX = distanceFromCenter + 85;
-        const startY = -40;
-        const x = startX - currentProgress * 210;
-        const y = startY;
-        const tiltProgressOffset = i * staggerDelay;
-        const tiltProgress = Math.max(0, Math.min(1, (currentProgress - tiltProgressOffset) / (1 - tiltProgressOffset)));
-        const deg = -baseTilt * tiltProgress;
+        // Position cards so first card (index 0) starts at center of screen (slightly higher)
+        // Calculate base positions to center the first card
+        const firstCardIndex = 0;
+        const baseVerticalOffset = -30; // Move starting position higher
+        const horizontalSpread = (i - firstCardIndex) * spacingVw;
+        const verticalSpread = (i - firstCardIndex) * 35; // Stagger vertically for diagonal row
+        
+        // First card starts at center (0, 0) but higher, other cards spread from there
+        const startX = horizontalSpread;
+        const startY = baseVerticalOffset + verticalSpread;
+        
+        // Each card travels independently on diagonal path: bottom-right to top-left
+        // All cards use the same progress - they all travel at the same time
+        const cardProgress = currentProgress;
+        
+        // Global vertical offset - moves entire row up with scroll so last card isn't too low
+        const globalUpwardOffset = currentProgress * 35; // Additional upward movement for whole row
+        
+        // Calculate current position based on card progress (all cards use same progress)
+        const x = startX - cardProgress * diagonalDistanceX;
+        const y = startY - cardProgress * diagonalDistanceY - globalUpwardOffset;
+        
+        // Individual rotation based on position: cards on right tilt right, at center upright, on left tilt left
+        // Rotation is proportional to distance from center (x = 0)
+        // Use last card's start position as max distance reference for consistent rotation
+        const maxDistanceFromCenter = Math.abs(lastCardStartX) || 1; // Avoid division by zero
+        const rotationFactor = x / maxDistanceFromCenter; // -1 to 1, 0 at center
+        const deg = baseTilt * rotationFactor; // Positive (right) on right side, 0 at center, negative (left) on left side
 
         const transformStr = `translate3d(-50%, -50%, 0) translateX(${x}vw) translateY(${y}px) rotate(${deg}deg)`;
+        
+        // Calculate z-index: cards further along their journey (higher progress) appear on top
+        // Also account for position - cards more to top-left have higher z-index
+        const zIndex = Math.round(1000 + i * 10 + cardProgress * 100);
         
         // Only update if transform changed
         if (lastTransformRef.current[i] !== transformStr) {
           cardEl.style.left = `calc(50% + ${x}vw)`;
           cardEl.style.top = `calc(50% + ${y}px)`;
           cardEl.style.transform = transformStr;
+          cardEl.style.zIndex = `${zIndex}`;
           lastTransformRef.current[i] = transformStr;
         }
       });
@@ -134,7 +214,7 @@ export default function CurvedSlider({
         rafRef.current = null;
       }
     };
-  }, [items, progress, externalProgress]);
+  }, [items, progress, externalProgress, spacingVw]);
 
   const handleToggle = useCallback((id: string) => {
     setFlipped((prev) => {
@@ -162,8 +242,11 @@ export default function CurvedSlider({
               ref={(el) => {
                 cardRefs.current[index] = el;
               }}
-              className={cn("w-[32vw] min-w-[260px] max-w-[560px] aspect-[400/472] absolute overflow-visible")}
+              className={cn("absolute overflow-visible")}
               style={{ 
+                width: `${cardWidthVw}vw`,
+                maxWidth: `${maxCardWidth}px`,
+                aspectRatio: isMobile ? '400/700' : '400/472', // Much taller on mobile
                 left: '50%',
                 top: '50%',
                 transform: 'translate3d(-50%, -50%, 0)',
@@ -177,6 +260,14 @@ export default function CurvedSlider({
                 onClick={() => handleToggle(item.id)}
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleToggle(item.id)}
                 className="flip-card h-full w-full"
+                onMouseEnter={() => onCardHover?.(true)}
+                onMouseLeave={() => onCardHover?.(false)}
+                onMouseMove={(e) => {
+                  // Disable cursor tracking on mobile/touch devices
+                  if (onCardMouseMove && !('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+                    onCardMouseMove(e.clientX, e.clientY);
+                  }
+                }}
               >
                 <div className={cn("flip-inner h-full w-full", isFlipped && "flipped")}> 
                   <div className="flip-front h-full w-full relative rounded-[16px] overflow-hidden">
@@ -187,37 +278,25 @@ export default function CurvedSlider({
                       loading="lazy"
                       decoding="async"
                     />
-                    {item.number && (
-                      <p className="absolute top-8 left-8 text-white text-xl font-bold" style={{ fontFamily: 'Milker' }}>{item.number}</p>
-                    )}
-                    <figcaption className="absolute bottom-8 md:bottom-12 xl:bottom-14 left-6 md:left-10 xl:left-14 text-white text-4xl md:text-5xl xl:text-6xl font-bold leading-[0.9] drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]" style={{ fontFamily: 'Milker' }}>
-                      {item.title}
-                    </figcaption>
                   </div>
 
                   <div className="flip-back absolute inset-0 rounded-[16px] overflow-hidden">
                     {item.backImageUrl ? (
-                      <>
-                        <img 
-                          src={item.backImageUrl} 
-                          alt="" 
-                          className="object-cover-absolute"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        {item.number && (
-                          <p className="absolute top-8 left-8 text-white text-xl font-bold" style={{ fontFamily: 'Milker' }}>{item.number}</p>
-                        )}
-                        <figcaption className="absolute bottom-8 md:bottom-12 xl:bottom-14 left-6 md:left-10 xl:left-14 text-white text-4xl md:text-5xl xl:text-6xl font-bold leading-[0.9] drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]" style={{ fontFamily: 'Milker' }}>
-                          {item.title}
-                        </figcaption>
-                      </>
+                      <img 
+                        src={item.backImageUrl} 
+                        alt="" 
+                        className="object-cover-absolute"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
-                      <div className="h-full w-full bg-[var(--color-blue)] p-8 md:p-10 flex items-center justify-center rounded-[16px] text-center">
-                        <p className="text-white text-xl md:text-2xl leading-relaxed font-semibold" style={{ fontFamily: 'Milker' }}>
-                          {item.description || "More details coming soon."}
-                        </p>
-                      </div>
+                      <img 
+                        src={item.imageUrl} 
+                        alt="" 
+                        className="object-cover-absolute"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     )}
                   </div>
                 </div>

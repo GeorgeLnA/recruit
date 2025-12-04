@@ -1,98 +1,58 @@
 [
   {
-    "id": "ph-001",
-    "authorName": "Alex Morgan",
-    "authorTitle": "Founder",
-    "company": "Acme Labs",
-    "avatarUrl": "/place%20holders%20faces/cheerful-smiling-bearded-man-laughing.jpg",
-    "quote": "The team made hiring feel easy and human. We moved faster with confidence. What impressed me most was their ability to truly understand our company culture and find candidates who didn't just have the right skills, but genuinely fit with our vision and values. The whole process was transparent, communication was excellent, and we filled our critical role faster than we ever expected."
+    "id": "review-001",
+    "authorName": "Mark DaFonseca",
+    "authorTitle": "CCO",
+    "company": "Lifecore CDMO",
+    "avatarUrl": "/testimonials/1751479692717.jpeg",
+    "quote": "I have had the pleasure of working with Harriet in both a role where I was a candidate, as well as utilizing her to help me fill an open position. In both instances, I found Harriet to be extremely responsive, making sure the process moved smoothly for both the candidate and hiring manager. She does a great job of listening to what both sides are looking for, ensuring there is alignment between both parties. I highly recommend her services."
   },
   {
-    "id": "ph-002",
-    "authorName": "Priya Singh",
-    "authorTitle": "Head of People",
-    "company": "Northstar",
-    "avatarUrl": "/place%20holders%20faces/front-view-woman-testing-colours.jpg",
-    "quote": "Genuine partners who truly listened to what we needed. A refreshing experience. Unlike other recruiters who push candidates without understanding our context, they took time to learn about our challenges, our team dynamics, and our growth plans. Every candidate they presented felt thoughtfully matched, and the feedback process was collaborative rather than transactional. Highly recommend working with them."
+    "id": "review-002",
+    "authorName": "Christophe Bertrand Vernay",
+    "authorTitle": "SVP",
+    "company": "Enzo Life Sciences",
+    "avatarUrl": "/testimonials/1707167433943.jpeg",
+    "quote": "I had the pleasure of working with Adam during our search for a Sales Director for the Americas this year. Adam quickly demonstrated a deep understanding of our needs, grasping the specifics of the role and aligning perfectly with our expectations. His extensive network, market knowledge, and efficiency were key to filling this critical position in just a few months. Adam's ability to access candidates we wouldn't have reached on our own made all the difference."
   },
   {
-    "id": "ph-003",
-    "authorName": "Daniel Kim",
-    "authorTitle": "VP Marketing",
-    "company": "Brightside",
-    "avatarUrl": "/place%20holders%20faces/people-beauty-positive-emotions-concept-attractive-smiling-young-woman-with-bobbed-hairdo-dressed-green-casual-sweater-glad-recieve-present.jpg",
-    "quote": "Every candidate felt like a great cultural add. The bar was consistently high. They didn't just fill the role—they elevated our entire team. The candidates they brought us were not only qualified but brought fresh perspectives and energy that have positively impacted our marketing efforts. The attention to both technical fit and cultural alignment made all the difference in our hiring success."
-  },
-  {
-    "id": "ph-004",
-    "authorName": "Sofia Alvarez",
-    "authorTitle": "CTO",
-    "company": "Flux Systems",
-    "avatarUrl": "/place%20holders%20faces/cheerful-smiling-bearded-man-laughing.jpg",
-    "quote": "Technical depth plus empathy. We closed a critical role in record time. Finding the right technical talent is challenging, but they understood our stack, our architecture decisions, and what we really needed beyond just checking boxes. The candidates were well-vetted technically, and the team showed genuine care about both our needs and the candidates' career goals. This collaborative approach resulted in a perfect match."
-  },
-  {
-    "id": "ph-005",
-    "authorName": "James Parker",
-    "authorTitle": "COO",
-    "company": "Harvest Retail",
-    "avatarUrl": "/place%20holders%20faces/front-view-woman-testing-colours.jpg",
-    "quote": "Professional, proactive, and personable. Our hiring process just felt better. From the initial consultation through to onboarding, every interaction was smooth and well-coordinated. They anticipated our needs, provided regular updates without us having to ask, and handled every detail with care. The candidates they presented were not only strong professionally but also aligned with our company values, making our decision-making process much easier."
-  },
-  {
-    "id": "ph-006",
-    "authorName": "Amelia Hart",
-    "authorTitle": "Product Lead",
-    "company": "Crescent",
-    "avatarUrl": "/place%20holders%20faces/people-beauty-positive-emotions-concept-attractive-smiling-young-woman-with-bobbed-hairdo-dressed-green-casual-sweater-glad-recieve-present.jpg",
-    "quote": "They brought us candidates we didn't know we could attract. Outstanding. When we started looking for a senior product role, we were skeptical about finding the right person in our market. They exceeded expectations by not only finding candidates with the exact expertise we needed but also helping us understand the talent landscape better. Their network and approach opened doors to professionals we wouldn't have reached otherwise."
-  },
-  {
-    "id": "ph-007",
-    "authorName": "Marcus Lee",
-    "authorTitle": "Talent Partner",
-    "company": "Riverstone",
-    "avatarUrl": "/place%20holders%20faces/cheerful-smiling-bearded-man-laughing.jpg",
-    "quote": "Smooth communication from start to finish. Trusted advisors for our team. What sets them apart is their genuine partnership approach. They took time to understand our organization, our challenges, and our goals before presenting any candidates. The communication was consistent, transparent, and always helpful. They provided market insights, salary benchmarks, and interview guidance that made our entire process more effective. Truly consultative recruitment."
-  },
-  {
-    "id": "ph-008",
-    "authorName": "Hannah Moore",
-    "authorTitle": "Hiring Manager",
-    "company": "FerroTech",
-    "avatarUrl": "/place%20holders%20faces/front-view-woman-testing-colours.jpg",
-    "quote": "We saved weeks. The shortlist was on point and the process felt thoughtful. Time is critical when filling key roles, and they delivered efficiency without sacrificing quality. The candidates they presented were pre-vetted and genuinely interested, which saved us countless hours of interviews with mismatched profiles. Their understanding of our needs and market dynamics meant we got to 'yes' faster while feeling confident in our choice."
-  },
-  {
-    "id": "ph-009",
-    "authorName": "Owen Wright",
-    "authorTitle": "Operations Manager",
-    "company": "Pioneer",
-    "avatarUrl": "/place%20holders%20faces/people-beauty-positive-emotions-concept-attractive-smiling-young-woman-with-bobbed-hairdo-dressed-green-casual-sweater-glad-recieve-present.jpg",
-    "quote": "Real people, real results. The energy and care were obvious at every step. So many recruiters feel transactional, but working with them felt like working with a partner who genuinely cared about our success. They asked thoughtful questions, listened carefully, and delivered candidates who not only met the requirements but brought something extra to the table. The positive energy and professionalism made the hiring process enjoyable rather than stressful."
-  },
-  {
-    "id": "ph-010",
-    "authorName": "Grace Chen",
-    "authorTitle": "CEO",
-    "company": "Lumen",
-    "avatarUrl": "/place%20holders%20faces/cheerful-smiling-bearded-man-laughing.jpg",
-    "quote": "We felt represented. They told our story to candidates better than we could. As a growing company, it's challenging to communicate our vision and culture effectively to potential hires. They took the time to understand what makes us unique and became genuine advocates for our brand. Candidates came into interviews already excited about who we are and what we're building, which made all the difference in attracting top talent."
-  },
-  {
-    "id": "ph-011",
-    "authorName": "Noah Smith",
-    "authorTitle": "Engineering Manager",
-    "company": "Helix",
-    "avatarUrl": "/place%20holders%20faces/front-view-woman-testing-colours.jpg",
-    "quote": "Fantastic rapport with candidates. The experience reflected well on our brand. Technical recruiting requires understanding both sides deeply, and they excel at this. They built genuine relationships with candidates, which meant people felt comfortable and respected throughout the process. This positive experience translated directly to how candidates viewed our company, and we've had several candidates express interest in future opportunities based on their great experience."
-  },
-  {
-    "id": "ph-012",
-    "authorName": "Emma Thompson",
+    "id": "review-003",
+    "authorName": "Jonny Cruickshank",
     "authorTitle": "Head of Sales",
-    "company": "Aurora",
-    "avatarUrl": "/place%20holders%20faces/people-beauty-positive-emotions-concept-attractive-smiling-young-woman-with-bobbed-hairdo-dressed-green-casual-sweater-glad-recieve-present.jpg",
-    "quote": "Friendly, fast, and focused. Exactly what we needed at a critical moment. When we had an urgent hiring need, they stepped up immediately. Their responsiveness and ability to move quickly without compromising on quality was exactly what we needed. The friendly, approachable style made working with them a pleasure, and their focus on what mattered most helped us stay efficient while finding the perfect candidate for our team."
+    "company": "Abzena",
+    "avatarUrl": "/testimonials/1682551066953.jpeg",
+    "quote": "I worked with Harriet throughout 2023, to find new hires into my team. Harriet is a gifted recruiter; exceptionally driven, responsive and an impressive ability to understand her clients need. Her awareness of her market is remarkable and this allowed her to identify exactly the type of people we were looking for. In the interactions I had with potential hires, they all spoke highly of her diligence and tenacity."
+  },
+  {
+    "id": "review-004",
+    "authorName": "Dennis Merkle",
+    "authorTitle": "Biotech Executive",
+    "company": "Oncology",
+    "avatarUrl": "/testimonials/1603315388988.jpeg",
+    "quote": "I have had the pleasure of working with Adam a number of times over the past several years. Not only a good human being, but he definitely does a great job matching roles to candidates. Not only has he supported me in finding roles for my own career, but he has also brought in high-level candidates for teams I have built in the past. Highly responsive and diligent, I can recommend working with Adam if you are looking to bring new talent into your team, or if you are looking to make the next step in your own career."
+  },
+  {
+    "id": "review-005",
+    "authorName": "Tuneer Ghosh",
+    "authorTitle": "SVP BD",
+    "company": "Sai Life Sciences",
+    "avatarUrl": "/testimonials/1612961022603.jpeg",
+    "quote": "I worked with Harriet in recruiting some very critical positions for my team and was extremely pleased with her engagement and service levels. She makes a lot of effort to understand the business requirements and suggests the right candidates which makes the job of a recruiting manager a lot easy. It was indeed a pleasure working with Harriet and she will be my first port of call in future."
+  },
+  {
+    "id": "review-006",
+    "authorName": "Yasmine Du Preez",
+    "authorTitle": "Director TA",
+    "company": "Predicine",
+    "avatarUrl": "/testimonials/1516335020328.jpeg",
+    "quote": "Adam is an outstanding business partner; he has extensive industry knowledge and is constantly innovating to provide an elevated client and candidate experience. Adam builds long term client relationships, he does not support \"one size fits all\" but takes time to understand business needs, budget constraints and long-term company goals and will tailor a strategy/timeline to meet your talent acquisition needs. I highly recommend Adam as an external recruiting resource for large staffing buildouts, niche sourcing support and individual hiring needs."
+  },
+  {
+    "id": "review-007",
+    "authorName": "Dean Bornilla",
+    "authorTitle": "VP Commercial",
+    "company": "Pace Life Sciences",
+    "avatarUrl": "/testimonials/Dean-Bornilla-_Pace-Branded.jpg",
+    "quote": "Harriet has been a pleasure to work with. She is very responsive and has a very good understanding of the CDMO landscape. This understanding allows her to be a valued partner as she understands what it takes for a candidate to be successful in this industry."
   }
 ]

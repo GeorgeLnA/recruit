@@ -12,6 +12,55 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Josefin Sans';
+  src: url('/fonts/JosefinSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CC SuperHuman';
+  src: url('/fonts/CCSuperHuman-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope-regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Vipnagorgialla';
+  src: url('/fonts/Vipnagorgialla Rg.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Engebrechtre';
+  src: url('/fonts/Engebrechtre Rg.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Stormfaze';
+  src: url('/fonts/Stormfaze.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Matamata';
+  src: url('/fonts/Matamata-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /** @import must precede all other statements */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
@@ -52,25 +101,25 @@
     --radius: 0.5rem;
 
     /* Customizable color groups - defaults, overridden by ThemeContext */
-    --color-peach: #FF914D;
-    --color-peach-rgb: 255 145 77;
-    --color-peach-dark: #e67e3a;
-    --color-peach-light: #ffb68b;
+    --color-peach: #FFF5E5;
+    --color-peach-rgb: 255 245 229;
+    --color-peach-dark: #e6d9c8;
+    --color-peach-light: #fffaf0;
 
-    --color-blue: #00BFFF;
-    --color-blue-rgb: 0 191 255;
-    --color-blue-dark: #0090c5;
-    --color-blue-light: #5CD6FF;
-    --color-blue-soft: #a6e8ff;
+    --color-blue: #FF9752;
+    --color-blue-rgb: 255 151 82;
+    --color-blue-dark: #e6823a;
+    --color-blue-light: #ffb077;
+    --color-blue-soft: #ffd4b3;
 
-    --color-white: #ffffff;
-    --color-white-rgb: 255 255 255;
+    --color-white: #464C53;
+    --color-white-rgb: 70 76 83;
 
     /* Legacy aliases used throughout the app */
-    --theme-accent: var(--color-peach);
-    --theme-accent-hover: var(--color-peach-dark);
-    --theme-background: var(--color-white);
-    --theme-dark: #2a2a2a;
+    --theme-accent: var(--color-blue);
+    --theme-accent-hover: var(--color-blue-dark);
+    --theme-background: var(--color-peach);
+    --theme-dark: var(--color-white);
     --theme-scrollbar: var(--color-blue);
   }
 
@@ -138,17 +187,35 @@
   html, body {
     @apply font-sans;
     color: var(--color-white);
-    font-family: "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    letter-spacing: 0.05em;
+    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 400) !important;
+    letter-spacing: var(--letter-spacing, 0.00em) !important;
+    line-height: var(--line-height, 1.5) !important;
     overflow-x: hidden;
     overflow-y: auto;
     background-color: var(--theme-background);
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, font-family 0.2s ease, font-weight 0.2s ease, letter-spacing 0.2s ease, line-height 0.2s ease;
     /* Ensure consistent font rendering across platforms */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: normal;
+  }
+
+  /* Apply font settings to all text elements (except font-size to preserve relative sizing) */
+  * {
+    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 400) !important;
+    letter-spacing: var(--letter-spacing, 0.00em) !important;
+    line-height: var(--line-height, 1.5) !important;
+  }
+
+  /* Ensure headings and other text elements inherit font properties (but keep their size) */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, li, td, th, label, small, strong, em, b, i, u, s, code, pre, blockquote, cite {
+    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 400) !important;
+    letter-spacing: var(--letter-spacing, 0.00em) !important;
+    line-height: var(--line-height, 1.5) !important;
   }
 
 }
@@ -279,24 +346,23 @@
 
   /* Hero: sharp outside, rounded inside */
   .hero-outline {
-    @apply border-r-[16px] border-b-[16px] border-l-[16px];
-    border-color: var(--theme-background);
-    border-top: none;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 16px solid var(--theme-background);
     border-radius: 0;
     position: relative;
     background: var(--theme-background);
     z-index: 10;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    box-shadow: none;
+    outline: none;
   }
+
 
   .hero-corner.bl,
   .hero-corner.br {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    background: var(--theme-background);
-    z-index: 0;
-    transition: background-color 0.3s ease;
+    display: none;
   }
 
   .hero-corner.bl {
@@ -310,22 +376,25 @@
   }
 
   .hero-inner {
-    border-radius: 24px;
+    border-radius: 0;
     background-color: transparent;
     position: relative;
     z-index: 10;
     overflow: hidden;
+    border: none;
+    box-shadow: none;
+    outline: none;
   }
 
   /* Glass Island Styles */
   .glass-island {
-    background: var(--theme-accent);
+    background: var(--theme-background);
     backdrop-filter: none;
     border: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    border-bottom-left-radius: 14px;
-    border-bottom-right-radius: 14px;
+    border-bottom-left-radius: clamp(10px, 1vw, 14px);
+    border-bottom-right-radius: clamp(10px, 1vw, 14px);
     position: relative;
     z-index: 20;
     min-width: 140px;
@@ -356,7 +425,7 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: -1;
     transition: background-color 0.3s ease;
   }
@@ -370,7 +439,7 @@
     bottom: 0;
     width: 100vw;
     height: calc(100vh + 100%);
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: -1;
     transition: background-color 0.3s ease;
   }
@@ -383,14 +452,14 @@
     left: 0;
     right: 0;
     height: 100vh;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     transition: background-color 0.3s ease;
   }
 
   .glass-island-inner {
-    background: var(--theme-accent);
+    background: var(--theme-background);
     border-radius: 10px;
     position: relative;
     z-index: 10;
@@ -408,7 +477,7 @@
   /* Header logo section: sharp outside, rounded inside */
   .header-logo-outline {
     @apply border-t-[10px] border-r-[10px] border-b-[10px] border-l-[10px];
-    border-color: var(--theme-accent);
+    border-color: var(--theme-background);
     border-radius: 0;
     position: relative;
     background: var(--theme-background);
@@ -425,7 +494,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -445,7 +514,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -474,7 +543,7 @@
   /* Header CTA section: sharp outside, rounded inside */
   .header-cta-outline {
     @apply border-t-[10px] border-r-[10px] border-b-[10px] border-l-[10px];
-    border-color: var(--theme-accent);
+    border-color: var(--theme-background);
     border-radius: 0;
     position: relative;
     background: var(--theme-background);
@@ -489,7 +558,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -509,7 +578,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -535,7 +604,7 @@
   /* Header navigation section: sharp outside, rounded inside */
   .header-nav-outline {
     @apply border-t-[5px] border-r-[10px] border-b-[5px] border-l-[10px];
-    border-color: var(--theme-accent);
+    border-color: var(--theme-background);
     border-radius: 0;
     position: relative;
     background: var(--theme-background);
@@ -548,7 +617,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -568,7 +637,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: var(--theme-accent);
+    background: var(--theme-background);
     z-index: 0;
     transition: background-color 0.3s ease;
   }
@@ -724,9 +793,10 @@
 
   .marquee-track {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     gap: 32px;
     width: max-content;
+    min-height: 250px;
   }
 
   .marquee-reverse {

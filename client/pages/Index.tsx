@@ -1,10 +1,9 @@
-import { ArrowRight, Mail, Linkedin, Phone, MapPin, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Mail, Linkedin, Phone, MapPin, Volume2, VolumeX, ArrowDown } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import MobileMessage from "@/components/MobileMessage";
 import { FlipButton } from "@/components/FlipButton";
-import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
+import { gsap } from "@/lib/gsap";
 
 // SVG file names from /public/svgs
 const svgFiles = [
@@ -23,29 +22,41 @@ const svgFiles = [
 export default function Index() {
   const heroRef = useRef<HTMLElement>(null);
   const videoSectionRef = useRef<HTMLElement>(null);
-  const watchVideoSectionRef = useRef<HTMLElement>(null);
   const aboutSectionRef = useRef<HTMLElement>(null);
   const expertiseSectionRef = useRef<HTMLElement>(null);
   const expertiseCardRefs = useRef<(HTMLElement | null)[]>([null, null, null, null]);
   const lastScrollYRef = useRef(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
-  const [watchVideoProgress, setWatchVideoProgress] = useState(0);
   const [aboutSectionProgress, setAboutSectionProgress] = useState(0);
   const [expertiseSectionProgress, setExpertiseSectionProgress] = useState(0);
   const [expertiseCardProgress, setExpertiseCardProgress] = useState<number[]>([0, 0, 0, 0]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [circlePosition, setCirclePosition] = useState({ x: 0, y: 0 });
-  const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const marketInsightsVideoRef = useRef<HTMLVideoElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const heroVideoContainerRef = useRef<HTMLDivElement>(null);
+  const heroVideoContainerRef = useRef<HTMLVideoElement>(null);
   const aboutUsRef = useRef<HTMLDivElement>(null);
   const [revealedWordCount, setRevealedWordCount] = useState(0);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHoveringHero, setIsHoveringHero] = useState(false);
+
+  // Detect mobile devices and skip loading on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+      setIsMobile(mobile);
+      // Skip loading animation on mobile
+      if (mobile && isLoading) {
+        setIsLoading(false);
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isLoading]);
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -71,17 +82,6 @@ export default function Index() {
             setVideoProgress(local);
           }
 
-          // Compute local progress for the watch video section (0..1 within that section)
-          if (watchVideoSectionRef.current) {
-            const sectionTop = watchVideoSectionRef.current.offsetTop;
-            const sectionHeight = watchVideoSectionRef.current.offsetHeight || 1;
-            const windowHeight = window.innerHeight;
-            // Start animation much earlier - well before section enters viewport
-            const startOffset = windowHeight * 0.5; // Positive offset to start earlier
-            const scrollRange = sectionHeight * 0.4; // Animation happens quickly over 40% of section
-            const local = Math.min(Math.max((scrollY - sectionTop + startOffset) / scrollRange, 0), 1);
-            setWatchVideoProgress(local);
-          }
 
           // Compute local progress for the about section (0..1 within that section)
           if (aboutSectionRef.current) {
@@ -138,21 +138,31 @@ export default function Index() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (!isMobile) {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
+    if (!isMobile) {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      if (!isMobile) {
+        window.removeEventListener('mousemove', handleMouseMove);
+      }
     };
-  }, []);
+  }, [isMobile]);
 
   // Removed IntersectionObserver in favor of a simpler, stable rAF-based tracker
 
   useEffect(() => {
+    if (isMobile) {
+      setCirclePosition({ x: 0, y: 0 });
+      return;
+    }
     const damping = 0.3; // 30% damping
     const animationFrame = requestAnimationFrame(() => {
       setCirclePosition(prev => ({
@@ -162,7 +172,7 @@ export default function Index() {
     });
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [mousePosition]);
+  }, [mousePosition, isMobile]);
 
   // Helper functions for video shape morphing (based on videoProgress within grey section)
   const getVideoBorderRadius = (progress: number) => {
@@ -436,27 +446,49 @@ export default function Index() {
   }, []);
 
 
-  // Ensure Market Insights video plays when visible
+  // Set video thumbnail to 0.1 seconds
   useEffect(() => {
-    if (!marketInsightsVideoRef.current) return;
-
-    const video = marketInsightsVideoRef.current;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            video.play().catch((err) => {
-              console.log('Video autoplay prevented:', err);
-            });
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    observer.observe(video);
-    return () => observer.unobserve(video);
+    const video = heroVideoRef.current;
+    if (!video) return;
+    
+    const handleLoadedMetadata = () => {
+      video.currentTime = 0.1;
+    };
+    
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    
+    // If metadata is already loaded, set it immediately
+    if (video.readyState >= 1) {
+      video.currentTime = 0.1;
+    }
+    
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
   }, []);
+
+  // Start video playback just before loading is complete
+  useEffect(() => {
+    if (isLoading && heroVideoRef.current) {
+      // Start video 0.4 seconds before loading completes
+      // Loading takes: 3 morphs (3.6s) + 1s hold = 4.6s, exit = 1s, total ~5.6s
+      // Start at ~5.2s (0.4s before completion)
+      const startVideoTimeout = setTimeout(() => {
+        if (heroVideoRef.current && isLoading) {
+          heroVideoRef.current.play().catch((error) => {
+            console.log('Video autoplay prevented:', error);
+          });
+        }
+      }, 5200); // 5.2 seconds
+
+      return () => clearTimeout(startVideoTimeout);
+    } else if (!isLoading && heroVideoRef.current) {
+      // Fallback: if loading already finished, start immediately
+      heroVideoRef.current.play().catch((error) => {
+        console.log('Video autoplay prevented:', error);
+      });
+    }
+  }, [isLoading]);
 
   // Hero video sound enable and custom cursor
   useEffect(() => {
@@ -486,49 +518,64 @@ export default function Index() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
+      if (!isMobile) {
+        targetX = e.clientX;
+        targetY = e.clientY;
 
-      if (rafId === null) {
-        rafId = requestAnimationFrame(animate);
+        if (rafId === null) {
+          rafId = requestAnimationFrame(animate);
+        }
       }
     };
 
     const handleMouseEnter = () => {
-      setIsHoveringHero(true);
+      if (!isMobile) {
+        setIsHoveringHero(true);
+      }
     };
 
     const handleMouseLeave = () => {
-      setIsHoveringHero(false);
+      if (!isMobile) {
+        setIsHoveringHero(false);
+      }
     };
 
-    const handleClick = () => {
-      if (heroVideoRef.current) {
+    const handleClick = (e: MouseEvent) => {
+      // Only handle clicks on the container itself, not on video (video has its own handler)
+      if (heroVideoRef.current && e.target === container) {
         heroVideoRef.current.muted = !heroVideoRef.current.muted;
         setIsSoundEnabled(!heroVideoRef.current.muted);
       }
     };
 
-    container.addEventListener('mousemove', handleMouseMove, { passive: true });
-    container.addEventListener('mouseenter', handleMouseEnter);
-    container.addEventListener('mouseleave', handleMouseLeave);
-    container.addEventListener('click', handleClick);
+    if (!isMobile) {
+      container.addEventListener('mousemove', handleMouseMove, { passive: true });
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
+      // Don't add container click handler on desktop - video has its own onClick handler
+    } else {
+      // On mobile, add container click handler as fallback
+      container.addEventListener('click', handleClick);
+    }
 
     return () => {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseenter', handleMouseEnter);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-      container.removeEventListener('click', handleClick);
+      if (!isMobile) {
+        container.removeEventListener('mousemove', handleMouseMove);
+        container.removeEventListener('mouseenter', handleMouseEnter);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+      } else {
+        container.removeEventListener('click', handleClick);
+      }
     };
-  }, []);
+  }, [isMobile]);
 
   // Scroll animation for About Us word reveal
   useEffect(() => {
     const storySegments = [
-      "At CDC Global Solutions Ltd, we're all about people – not just filling roles.",
+      "At CDC Global Solutions, we're all about people – not just filling roles.",
       "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
     ];
     const allWords = storySegments.flatMap(segment => segment.split(' '));
@@ -565,8 +612,12 @@ export default function Index() {
       const scrollDistance = animationEnd - animationStart;
       const currentScroll = window.scrollY;
       
+      // Delay the start of animation - add offset to delay when words start revealing
+      const startDelay = scrollDistance * 0.15; // Delay start by 15% of scroll distance
+      const adjustedAnimationStart = animationStart + startDelay;
+      
       // Spread word reveal over more scroll distance for smoother word-by-word effect
-      let progress = (currentScroll - animationStart) / (scrollDistance * 0.8);
+      let progress = (currentScroll - adjustedAnimationStart) / (scrollDistance * 0.8);
       targetProgress = Math.max(0, Math.min(1, progress));
       
       if (rafId) {
@@ -587,135 +638,157 @@ export default function Index() {
     };
   }, []);
 
+  // Arrow hover animations
+  useEffect(() => {
+    const arrowClient = document.querySelector('.arrow-client');
+    const arrowCandidate = document.querySelector('.arrow-candidate');
+    const containerClient = document.querySelector('.arrow-container-client');
+    const containerCandidate = document.querySelector('.arrow-container-candidate');
+
+    if (!arrowClient || !arrowCandidate || !containerClient || !containerCandidate) return;
+
+    // Client arrow animation
+    const handleClientEnter = () => {
+      gsap.to(arrowClient, {
+        y: 10,
+        scale: 1.2,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    const handleClientLeave = () => {
+      gsap.to(arrowClient, {
+        y: 0,
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    // Candidate arrow animation
+    const handleCandidateEnter = () => {
+      gsap.to(arrowCandidate, {
+        y: 10,
+        scale: 1.2,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    const handleCandidateLeave = () => {
+      gsap.to(arrowCandidate, {
+        y: 0,
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    containerClient.addEventListener('mouseenter', handleClientEnter);
+    containerClient.addEventListener('mouseleave', handleClientLeave);
+    containerCandidate.addEventListener('mouseenter', handleCandidateEnter);
+    containerCandidate.addEventListener('mouseleave', handleCandidateLeave);
+
+    return () => {
+      containerClient.removeEventListener('mouseenter', handleClientEnter);
+      containerClient.removeEventListener('mouseleave', handleClientLeave);
+      containerCandidate.removeEventListener('mouseenter', handleCandidateEnter);
+      containerCandidate.removeEventListener('mouseleave', handleCandidateLeave);
+    };
+  }, []);
+
   return (
     <div className="overflow-x-hidden bg-white relative">
-      {/* Mobile message - shows on mobile devices */}
-      <MobileMessage onMobileDetected={() => setIsMobile(true)} />
+      {/* Loading screen overlay */}
+      {isLoading && !isMobile && (
+        <LoadingScreen onComplete={() => setIsLoading(false)} />
+      )}
       
-      {/* Only show content on desktop */}
-      {!isMobile && (
-        <>
-          {/* Loading screen overlay */}
-          {isLoading && (
-            <LoadingScreen onComplete={() => setIsLoading(false)} />
-          )}
-          
-          {/* Main content area - only on desktop */}
-          <div>
+      {/* Main content area */}
+      <div>
 
       {/* Hero Section */}
-        <section 
-          ref={heroRef} 
-          id="home" 
-          className={`w-full hero-outline h-screen relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
-          style={{
-            transform: `translateY(${-scrollProgress * 200}px) rotate(${scrollProgress * 90}deg)`,
-            transformOrigin: 'right bottom'
-          }}
-        >
-          <div className="hero-corner bl"></div>
-          <div className="hero-corner br"></div>
-          <div 
-            ref={heroVideoContainerRef}
-            className="hero-inner h-full flex flex-col justify-center relative overflow-hidden"
-            style={{ cursor: 'none' }}
+        {isMobile ? (
+          /* Mobile Hero Section - Unique Design */
+          <section 
+            ref={heroRef} 
+            id="home" 
+            className="w-full relative z-10"
+            style={{
+              minHeight: 'calc(100vh - clamp(50px, 4vw, 63px))',
+              paddingTop: 'clamp(50px, 4vw, 63px)',
+              backgroundColor: 'var(--theme-background)'
+            }}
           >
-            {/* Video background */}
-            <video
-              ref={heroVideoRef}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
+            <div 
+              ref={heroVideoContainerRef}
+              className="relative w-full flex flex-col"
+              style={{ 
+                height: 'calc(100vh - clamp(50px, 4vw, 63px))',
+                minHeight: '500px'
+              }}
             >
-              <source
-                src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                type="video/mp4"
-              />
-              Your browser does not support the video tag.
-            </video>
-
-            {/* Custom sound cursor */}
-            {isHoveringHero && (
-              <div
-                className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
+              {/* Video background - Mobile */}
+              <video
+                ref={heroVideoRef}
+                className="w-full h-full object-cover cursor-pointer"
                 style={{
-                  left: `${cursorPosition.x}px`,
-                  top: `${cursorPosition.y}px`,
-                  transform: 'translate(-50%, -50%)',
-                  willChange: 'transform'
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: '0 0 24px 24px'
+                }}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                onClick={(e) => {
+                  const video = e.currentTarget;
+                  video.muted = !video.muted;
+                  setIsSoundEnabled(!video.muted);
                 }}
               >
-                {isSoundEnabled ? (
-                  <VolumeX 
-                    className="w-10 h-10 text-white"
-                  />
-                ) : (
-                  <Volume2 
-                    className="w-10 h-10 text-white"
-                  />
-                )}
-                <div
-                  className="px-3 py-1.5 rounded-lg bg-white shadow-lg whitespace-nowrap"
-                  style={{
-                    fontFamily: 'TexGyreAdventor',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    color: 'var(--color-blue)'
-                  }}
-                >
-                  {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
-                </div>
-              </div>
-            )}
-
-            {/* Work with us button */}
-            <div 
-              className="absolute left-1/2 z-40"
-              style={{
-                bottom: 'clamp(120px, 15vw, 180px)',
-                transform: 'translateX(-50%)',
-                width: '90%',
-                maxWidth: '1400px'
-              }}
-            >
-              <div className="flex items-center justify-center w-full">
-                <FlipButton
-                  href="/work-with-us#client"
-                  frontText="Work with us"
-                  backText="Work with us"
-                  from="top"
-                  className="pointer-events-auto"
-                  frontClassName="bg-[var(--color-peach)] text-white font-bold text-xl rounded-lg"
-                  backClassName="bg-[var(--color-white)] text-[var(--color-peach)] font-bold text-xl rounded-lg"
-                  style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '24px', paddingBottom: '24px' }}
+                <source
+                  src="/vids/HERO.mp4"
+                  type="video/mp4"
                 />
-              </div>
-            </div>
+                Your browser does not support the video tag.
+              </video>
 
-            {/* Text with blend effect */}
-          <div 
-              className="absolute left-1/2 z-40"
-          style={{
-            bottom: 'clamp(16px, 5vw, 120px)',
-            transform: 'translateX(-50%)',
-                width: '90%',
-                maxWidth: '1400px'
-              }}
-            >
-              <div
-                className="flex items-center justify-center w-full px-6 py-3 md:px-8 md:py-4"
+              {/* Sound toggle button - Mobile */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (heroVideoRef.current) {
+                    heroVideoRef.current.muted = !heroVideoRef.current.muted;
+                    setIsSoundEnabled(!heroVideoRef.current.muted);
+                  }
+                }}
+                className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg"
+                aria-label={isSoundEnabled ? "Mute video" : "Unmute video"}
               >
+                {isSoundEnabled ? (
+                  <Volume2 className="w-5 h-5 text-[var(--color-blue)]" />
+                ) : (
+                  <VolumeX className="w-5 h-5 text-[var(--color-blue)]" />
+                )}
+              </button>
+
+              {/* Content overlay - Mobile - Centered Vertically */}
+              <div className="absolute top-1/2 left-0 right-0 z-40 flex flex-col items-center justify-center px-4 transform -translate-y-1/2">
+                {/* CDMO • Diagnostics • CRO Text - Mobile */}
                 <div 
-                  className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
+                  className="mb-6 flex flex-wrap items-center justify-center font-bold leading-none tracking-wide"
                   style={{ 
                     fontFamily: 'TexGyreAdventor',
-                    color: 'var(--color-peach)',
-                    fontSize: 'clamp(20px, 2.5vw, 48px)',
+                    color: 'white',
+                    fontSize: 'clamp(18px, 4vw, 28px)',
                     textAlign: 'center',
-                    gap: '0.6em'
+                    gap: '0.5em',
+                    textShadow: '0 2px 8px rgba(0,0,0,0.3)'
                   }}
                 >
                   <span>CDMO</span>
@@ -728,46 +801,236 @@ export default function Index() {
                   </span>
                   <span>CRO</span>
                 </div>
+
+                {/* Work with us button - Mobile */}
+                <FlipButton
+                  href="/work-with-us#client"
+                  frontText="Work with us"
+                  backText="Work with us"
+                  from="top"
+                  className="pointer-events-auto w-full max-w-[280px]"
+                  frontClassName="bg-[var(--color-blue)] text-white font-bold rounded-xl shadow-xl"
+                  backClassName="bg-white text-[var(--color-blue)] font-bold rounded-xl shadow-xl"
+                  style={{ 
+                    paddingLeft: 'clamp(32px, 6vw, 48px)', 
+                    paddingRight: 'clamp(32px, 6vw, 48px)', 
+                    paddingTop: 'clamp(16px, 3vw, 20px)', 
+                    paddingBottom: 'clamp(16px, 3vw, 20px)', 
+                    fontSize: 'clamp(16px, 3vw, 20px)' 
+                  }}
+                />
               </div>
-          </div>
-            
-          </div>
-        </section>
+            </div>
+          </section>
+        ) : (
+          /* Desktop Hero Section - Original Design */
+          <section 
+            ref={heroRef} 
+            id="home" 
+            className={`w-full hero-outline h-screen relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
+            style={{
+              transform: `translateY(${-scrollProgress * 200}px) rotate(${scrollProgress * 90}deg)`,
+              transformOrigin: 'right bottom'
+            }}
+          >
+            <div className="hero-corner bl"></div>
+            <div className="hero-corner br"></div>
+            <div 
+              ref={heroVideoContainerRef}
+              className="hero-inner h-full flex flex-col justify-center relative"
+              style={{ 
+                overflow: 'visible',
+                margin: 0,
+                padding: 0,
+                border: 'none'
+              }}
+            >
+              {/* Video background */}
+              <video
+                ref={heroVideoRef}
+                className="absolute w-full object-cover cursor-pointer"
+                style={{
+                  top: 'clamp(50px, 4vw, 63px)',
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  border: 'none',
+                  borderRadius: 0,
+                  outline: 'none',
+                  boxShadow: 'none'
+                }}
+                muted
+                loop
+                autoPlay
+                playsInline
+                preload="metadata"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent container click handler from firing
+                  const video = e.currentTarget;
+                  const wasMuted = video.muted;
+                  video.muted = !video.muted;
+                  setIsSoundEnabled(!video.muted);
+                  // Ensure video plays when unmuted
+                  if (!wasMuted && video.paused) {
+                    video.play().catch(() => {
+                      // Ignore play errors (autoplay restrictions)
+                    });
+                  } else if (wasMuted && !video.muted) {
+                    // When unmuting, ensure video is playing
+                    video.play().catch(() => {
+                      // Ignore play errors
+                    });
+                  }
+                }}
+              >
+                <source
+                  src="/vids/HERO.mp4"
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+
+              {/* Custom sound cursor - Desktop only */}
+              {isHoveringHero && (
+                <div
+                  className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
+                  style={{
+                    left: `${cursorPosition.x + 20}px`,
+                    top: `${cursorPosition.y}px`,
+                    transform: 'translateY(-50%)',
+                    willChange: 'transform'
+                  }}
+                >
+                  {isSoundEnabled ? (
+                    <VolumeX 
+                      className="w-10 h-10 text-white"
+                    />
+                  ) : (
+                    <Volume2 
+                      className="w-10 h-10 text-white"
+                    />
+                  )}
+                  <div
+                    className="px-3 py-1.5 rounded-lg bg-white shadow-lg whitespace-nowrap"
+                    style={{
+                      fontFamily: 'TexGyreAdventor',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      color: 'var(--color-blue)'
+                    }}
+                  >
+                    {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
+                  </div>
+                </div>
+              )}
+
+              {/* Work with us button */}
+              <div 
+                className="absolute left-1/2 z-40"
+                style={{
+                  bottom: 'clamp(120px, 15vw, 180px)',
+                  transform: 'translateX(-50%)',
+                  width: '90%',
+                  maxWidth: '1400px'
+                }}
+              >
+                <div className="flex items-center justify-center w-full">
+                  <FlipButton
+                    href="/work-with-us#client"
+                    frontText="Work with us"
+                    backText="Work with us"
+                    from="top"
+                    className="pointer-events-auto"
+                    frontClassName="bg-[var(--color-blue)] text-white font-bold text-xl rounded-lg"
+                    backClassName="bg-[var(--color-peach)] text-[var(--color-blue)] font-bold text-xl rounded-lg"
+                    style={{ paddingLeft: 'clamp(24px, 3vw, 48px)', paddingRight: 'clamp(24px, 3vw, 48px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1.25vw, 20px)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Text with blend effect */}
+              <div 
+                className="absolute left-1/2 z-40"
+                style={{
+                  bottom: 'clamp(16px, 5vw, 120px)',
+                  transform: 'translateX(-50%)',
+                  width: '90%',
+                  maxWidth: '1400px'
+                }}
+              >
+                <div
+                  className="flex items-center justify-center w-full"
+                  style={{ paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)', paddingTop: 'clamp(8px, 1vw, 16px)', paddingBottom: 'clamp(8px, 1vw, 16px)' }}
+                >
+                  <div 
+                    className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
+                    style={{ 
+                      fontFamily: 'TexGyreAdventor',
+                      color: 'var(--color-blue)',
+                      fontSize: 'clamp(20px, 2.5vw, 48px)',
+                      textAlign: 'center',
+                      gap: '0.6em'
+                    }}
+                  >
+                    <span>CDMO</span>
+                    <span className="text-[var(--color-peach)]" aria-hidden="true">
+                      &bull;
+                    </span>
+                    <span>Diagnostics</span>
+                    <span className="text-[var(--color-peach)]" aria-hidden="true">
+                      &bull;
+                    </span>
+                    <span>CRO</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Circle Expansion Section */}
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: scrollProgress >= 0.85 ? '100vh' : '200vh',
+            height: isMobile 
+              ? '120vh' // Smaller height on mobile
+              : scrollProgress >= 0.85 ? '100vh' : '200vh',
             opacity: scrollProgress > 0.2 ? 1 : 1,
-            transition: scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none'
+            transition: isMobile ? 'none' : (scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none')
           }}
         >
-          {/* Life Sciences Icons */}
-          <LifeSciencesIcons count={12} side="both" size={65} />
-          
           {/* Expanding shape - positioned within section */}
           <div 
             className="absolute rounded-full relative"
             style={{
               backgroundColor: 'var(--color-peach)',
               filter: 'none',
-              width: scrollProgress < 0.75 
-                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                : scrollProgress < 0.85
-                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                : '100%', // Full rectangle at the very end
-              height: scrollProgress < 0.75 
-                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                : scrollProgress < 0.85
-                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                : '100%', // Full rectangle at the very end
+              width: isMobile
+                ? scrollProgress < 0.75 
+                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                  : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion, but stay as circle
+                : scrollProgress < 0.75 
+                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                  : scrollProgress < 0.85
+                  ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                  : '100%', // Full rectangle at the very end (desktop only)
+              height: isMobile
+                ? scrollProgress < 0.75 
+                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                  : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion, but stay as circle
+                : scrollProgress < 0.75 
+                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                  : scrollProgress < 0.85
+                  ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                  : '100%', // Full rectangle at the very end (desktop only)
               opacity: 1, // Always visible
               transition: 'border-radius 0.1s linear', // Only transition border-radius, much faster
               top: '2%', // Position at 2%
               left: '50%',
               transform: 'translateX(-50%)',
-              borderRadius: scrollProgress < 0.85 ? '50%' : '0%', // Keep circle shape longer
+              borderRadius: isMobile 
+                ? '50%' // Always keep circle shape on mobile
+                : (scrollProgress < 0.85 ? '50%' : '0%'), // Desktop: circle until 0.85, then rectangle
               zIndex: 10,
               willChange: 'width, height, border-radius' // Optimize for performance
             }}
@@ -776,252 +1039,19 @@ export default function Index() {
           
         </div>
 
-      {/* Video Section under WHAT WE DO */}
-      <section 
-        ref={watchVideoSectionRef as any}
-        className="w-full relative bg-brand-orange flex flex-col items-center justify-center"
-            style={{
-          minHeight: '100vh',
-          paddingTop: 0,
-          paddingBottom: '160px',
-          marginTop: '-80px' // Move section higher, closer to section above
-        }}
-      >
-        {/* Life Sciences Icons */}
-        <LifeSciencesIcons count={12} side="both" size={70} />
-        
-        <div className="container mx-auto px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center gap-12" style={{ paddingTop: 0 }}>
-          {/* Heading */}
-          <h2 
-            className="text-[48px] sm:text-[64px] md:text-[80px] lg:text-[96px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-2"
-            style={{ marginTop: 0, paddingTop: 0 }}
-          >
-            Watch Our Story
-            </h2>
-          <div 
-            className="relative w-full max-w-7xl rounded-lg overflow-hidden shadow-2xl"
-                  style={{
-              height: watchVideoProgress > 0 
-                ? `${2 + watchVideoProgress * 650}px`
-                : '2px',
-              transition: 'none',
-              willChange: 'height'
-            }}
-          >
-                    <video
-              id="main-video"
-                      className="w-full h-full object-cover"
-              preload="metadata"
-              style={{ 
-                backgroundColor: '#000',
-                width: '100%',
-                height: '650px',
-                display: 'block'
-              }}
-                    >
-                      <source
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        type="video/mp4"
-                      />
-                      Your browser does not support the video tag.
-                    </video>
-            {/* Play button overlay */}
-            <div 
-              id="play-button-overlay"
-              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black bg-opacity-30 hover:bg-opacity-20 transition-all duration-300"
-              style={{
-                opacity: watchVideoProgress > 0.5 ? 1 : watchVideoProgress * 2
-              }}
-              onClick={() => {
-                const video = document.getElementById('main-video') as HTMLVideoElement;
-                const overlay = document.getElementById('play-button-overlay');
-                if (video && overlay) {
-                  video.play();
-                  video.controls = true;
-                  overlay.style.display = 'none';
-                }
-              }}
-            >
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white bg-opacity-90 flex items-center justify-center hover:bg-opacity-100 transition-all duration-300 hover:scale-110">
-                <svg className="w-12 h-12 md:w-16 md:h-16 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-                  </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Videos Section with Peach Background */}
-      <section 
-        className="w-full relative"
-        style={{
-          backgroundColor: 'var(--color-peach)',
-          paddingTop: '96px',
-          paddingBottom: '64px',
-          paddingLeft: '48px',
-          paddingRight: '48px',
-          minHeight: '100vh'
-        }}
-      >
-        {/* Life Sciences Icons */}
-        <LifeSciencesIcons count={12} side="both" size={70} />
-        
-        <div className="container mx-auto relative z-10">
-          <div className="flex flex-col gap-12 lg:gap-16">
-            {/* Item 1 */}
-            <div className="relative flex flex-col lg:flex-row items-center gap-4 lg:gap-12 lg:mt-0">
-              <div 
-                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
-                data-animate
-                style={{
-                  aspectRatio: '9/16',
-                  backgroundColor: '#000',
-                  width: 'clamp(220px, 22vw, 360px)',
-                  maxWidth: '360px',
-                  opacity: 0,
-                  transform: 'translateX(-40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      autoPlay
-                  muted
-                      loop
-                      playsInline
-                    >
-                      <source
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        type="video/mp4"
-                      />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                  <div
-                className="text-white space-y-4 max-w-2xl"
-                data-animate
-                    style={{
-                  opacity: 0,
-                  transform: 'translateX(40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                }}
-              >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
-                  Outstanding candidates
-                </h3>
-              </div>
-                  </div>
-
-            {/* Item 2 */}
-            <div className="relative flex flex-col lg:flex-row-reverse items-center gap-4 lg:gap-12 lg:mt-12">
-                  <div
-                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
-                data-animate
-                    style={{
-                  aspectRatio: '9/16',
-                  backgroundColor: '#000',
-                  width: 'clamp(220px, 22vw, 360px)',
-                  maxWidth: '360px',
-                  opacity: 0,
-                  transform: 'translateX(40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                    }}
-                  >
-                    <video
-                  ref={marketInsightsVideoRef}
-                      className="w-full h-full object-cover"
-                      autoPlay
-                  muted
-                      loop
-                      playsInline
-                  preload="auto"
-                    >
-                  <source
-                    src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                    type="video/mp4"
-                  />
-                      Your browser does not support the video tag.
-                    </video>
-              </div>
-              <div
-                className="text-white space-y-4 max-w-2xl"
-                data-animate
-                style={{
-                  opacity: 0,
-                  transform: 'translateX(-40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                }}
-              >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
-                  World-leading clients
-                </h3>
-              </div>
-                  </div>
-
-            {/* Item 3 */}
-            <div className="relative flex flex-col lg:flex-row items-center gap-4 lg:gap-12 lg:mt-8">
-                  <div
-                className="w-full relative overflow-hidden rounded-lg shadow-2xl"
-                data-animate
-                    style={{
-                  aspectRatio: '9/16',
-                  backgroundColor: '#000',
-                  width: 'clamp(220px, 22vw, 360px)',
-                  maxWidth: '360px',
-                  opacity: 0,
-                  transform: 'translateX(-40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                    }}
-                  >
-                    <video
-                      className="w-full h-full object-cover"
-                      autoPlay
-                  muted
-                      loop
-                      playsInline
-                    >
-                      <source
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        type="video/mp4"
-                      />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-              <div
-                className="text-white space-y-4 max-w-2xl"
-                data-animate
-                        style={{
-                  opacity: 0,
-                  transform: 'translateX(40px)',
-                  transition: 'opacity 700ms ease, transform 700ms ease'
-                }}
-              >
-                <h3 className="text-4xl lg:text-5xl xl:text-6xl font-bold">
-                  Tailored to your needs
-                </h3>
-          </div>
-              </div>
-          </div>
-        </div>
-      </section>
-
       {/* About Us */}
           <section 
         ref={aboutUsRef as any}
         className="w-full relative bg-brand-orange"
-        style={{ paddingTop: '120px', paddingBottom: '60px' }}
+        style={{ paddingTop: 'clamp(60px, 8vw, 120px)', paddingBottom: 'clamp(40px, 4vw, 60px)' }}
       >
-        {/* Life Sciences Icons */}
-        <LifeSciencesIcons count={12} side="both" size={72} />
-        
-        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-24">About Us</h2>
+        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
+          <div className="mx-auto" style={{ maxWidth: '1400px' }}>
+            <h2 className="font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center" style={{ fontSize: 'clamp(32px, 4vw, 64px)', marginBottom: 'clamp(40px, 6vw, 96px)' }}>About Us</h2>
             
             {(() => {
               const storySegments = [
-                "At CDC Global Solutions Ltd, we're all about people – not just filling roles.",
+                "At CDC Global Solutions, we're all about people – not just filling roles.",
                 "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
               ];
 
@@ -1038,9 +1068,10 @@ export default function Index() {
                     return (
                       <p
                         key={segmentIndex}
-                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-white ${segmentIndex === 1 ? 'text-right' : ''}`}
+                        className={`leading-tight text-[var(--color-white)] ${segmentIndex === 1 ? 'md:text-right' : ''}`}
                         style={{
-                          fontWeight: 600
+                          fontWeight: 600,
+                          fontSize: 'clamp(20px, 3vw, 48px)'
                         }}
                       >
                         {segmentWords.map((word, i) => {
@@ -1049,7 +1080,7 @@ export default function Index() {
                           return (
                             <span
                               key={i}
-                              className={isRevealed ? 'text-white' : 'text-white/40'}
+                              className={isRevealed ? 'text-[var(--color-white)]' : 'text-[var(--color-white)]/40'}
                               style={{
                                 transition: 'all 0.3s ease-out',
                                 opacity: isRevealed ? 1 : 0.4
@@ -1070,21 +1101,15 @@ export default function Index() {
       </section>
 
       {/* Meet Our Founders */}
-      <section className="w-full relative bg-brand-orange py-24 overflow-visible">
-        {/* Life Sciences Icons - extend into next section (halfway) */}
-        <div className="absolute inset-0" style={{ bottom: '-50%' }}>
-          <LifeSciencesIcons count={12} side="both" size={68} />
-        </div>
-        
-        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-white text-center mb-16">Meet Our Founders</h2>
+      <section className="w-full relative bg-brand-orange overflow-visible" style={{ paddingTop: 'clamp(60px, 6vw, 96px)', paddingBottom: 'clamp(60px, 6vw, 96px)' }}>
+        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
+          <div className="mx-auto" style={{ maxWidth: '1400px' }}>
+            <h2 className="font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center" style={{ fontSize: 'clamp(32px, 4vw, 64px)', marginBottom: 'clamp(32px, 4vw, 64px)' }}>Meet Our Founders</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 'clamp(32px, 4vw, 64px)' }}>
               {/* Harriet */}
               <div className="group relative cursor-pointer">
-                <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-                  <div className="bg-white rounded-xl overflow-hidden">
+                <div className="rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
                     <img 
                       src="/optimised/Harriet Headshot 8.jpg" 
                       alt="Harriet" 
@@ -1092,18 +1117,19 @@ export default function Index() {
                       loading="lazy"
                 />
               </div>
-              </div>
-                <div className="mt-6 text-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Harriet Wheat</h3>
-                  <p className="text-white/90 text-lg md:text-xl font-semibold">Co-Founder</p>
-                  <p className="text-white/80 text-base md:text-lg mt-3">CDMO/CRO Recruitment</p>
+                <div className="text-center" style={{ marginTop: 'clamp(16px, 2vw, 24px)' }}>
+                  <h3 className="font-bold text-[var(--color-white)]" style={{ fontSize: 'clamp(20px, 2vw, 30px)', marginBottom: 'clamp(8px, 1vw, 12px)' }}>Harriet Wheat</h3>
+                  <p className="text-[var(--color-white)]/90 font-semibold" style={{ fontSize: 'clamp(14px, 1.25vw, 20px)' }}>Co-Founder</p>
+                  <p className="text-[var(--color-white)]/80" style={{ fontSize: 'clamp(14px, 1vw, 18px)', marginTop: 'clamp(8px, 0.75vw, 12px)' }}>CDMO/CRO Recruitment</p>
+                  <p className="text-[var(--color-white)]/70 mx-auto leading-relaxed" style={{ fontSize: 'clamp(12px, 1vw, 16px)', marginTop: 'clamp(12px, 1vw, 16px)', maxWidth: '448px' }}>
+                    With over a decade of experience in pharmaceutical recruitment, Harriet brings deep industry knowledge and a passion for connecting top talent with leading organizations. Her expertise spans across CDMO and CRO sectors, helping companies build exceptional teams.
+                  </p>
             </div>
         </div>
 
               {/* Adam */}
               <div className="group relative cursor-pointer">
-                <div className="bg-white rounded-2xl p-1 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-                  <div className="bg-white rounded-xl overflow-hidden">
+                <div className="rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
                     <img 
                       src="/optimised/Adam Headshot 4.jpg" 
                       alt="Adam" 
@@ -1111,11 +1137,13 @@ export default function Index() {
                       loading="lazy"
                 />
               </div>
-              </div>
-                <div className="mt-6 text-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Adam Hargreaves</h3>
-                  <p className="text-white/90 text-lg md:text-xl font-semibold">Co-Founder</p>
-                  <p className="text-white/80 text-base md:text-lg mt-3">Diagnostics Recruitment</p>
+                <div className="text-center" style={{ marginTop: 'clamp(16px, 2vw, 24px)' }}>
+                  <h3 className="font-bold text-[var(--color-white)]" style={{ fontSize: 'clamp(20px, 2vw, 30px)', marginBottom: 'clamp(8px, 1vw, 12px)' }}>Adam Hargreaves</h3>
+                  <p className="text-[var(--color-white)]/90 font-semibold" style={{ fontSize: 'clamp(14px, 1.25vw, 20px)' }}>Co-Founder</p>
+                  <p className="text-[var(--color-white)]/80" style={{ fontSize: 'clamp(14px, 1vw, 18px)', marginTop: 'clamp(8px, 0.75vw, 12px)' }}>Diagnostics Recruitment</p>
+                  <p className="text-[var(--color-white)]/70 mx-auto leading-relaxed" style={{ fontSize: 'clamp(12px, 1vw, 16px)', marginTop: 'clamp(12px, 1vw, 16px)', maxWidth: '448px' }}>
+                    Adam specializes in diagnostics recruitment, bringing years of experience in identifying and placing exceptional professionals. His strategic approach and extensive network help candidates find their ideal roles and companies discover the perfect talent.
+                  </p>
         </div>
           </div>
         </div>
@@ -1124,32 +1152,88 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section id="contact" className="bg-brand-orange w-full relative py-32 overflow-visible">
-        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
-          <div className="text-center max-w-6xl mx-auto">
-            <h2 className="text-[72px] md:text-[96px] lg:text-[120px] xl:text-[140px] font-bold leading-[0.95] tracking-[0.02em] text-white mb-16">
-              Let's Work Together!
+      <section id="contact" className="bg-brand-orange w-full relative overflow-visible" style={{ paddingTop: 'clamp(60px, 8vw, 128px)', paddingBottom: 'clamp(60px, 8vw, 128px)' }}>
+        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
+          <div className="text-center mx-auto" style={{ maxWidth: '1400px' }}>
+            <h2 className="font-bold leading-[0.95] tracking-[0.02em] text-[var(--color-white)]" style={{ fontSize: 'clamp(32px, 6vw, 96px)', marginBottom: 'clamp(32px, 4vw, 64px)' }}>
+              Choose Your Path
             </h2>
             
-            <div className="flex justify-center items-center max-w-4xl mx-auto">
-              <FlipButton
-                href="/contact"
-                frontText="Yes!"
-                backText="Yes!"
-                from="top"
-                className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
-                frontClassName="bg-brand-red text-white rounded-[25px]"
-                backClassName="bg-white text-brand-red rounded-[25px]"
-              />
+            {/* Arrows and Buttons Container */}
+            <div className="flex flex-col items-center mx-auto" style={{ gap: 'clamp(24px, 4vw, 48px)', maxWidth: '1120px' }}>
+              {/* Container with arrows above buttons, properly aligned */}
+              <div className="flex flex-row justify-center items-start" style={{ gap: 'clamp(24px, 4vw, 64px)' }}>
+                {/* Left Column: Arrow + Client Button */}
+                <div className="flex flex-col items-center" style={{ gap: 'clamp(24px, 3vw, 48px)' }}>
+                  <div 
+                    className="arrow-container-client"
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <ArrowDown 
+                      className="arrow-client text-[var(--color-white)]"
+                      style={{ 
+                        width: 'clamp(32px, 3vw, 48px)', 
+                        height: 'clamp(32px, 3vw, 48px)',
+                        transition: 'transform 0.3s ease'
+                      }}
+                    />
+                  </div>
+                  <FlipButton
+                    href="/work-with-us#client"
+                    frontText="Client"
+                    backText="Client"
+                    from="top"
+                    className="rounded-[25px] font-bold"
+                    frontClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
+                    backClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
+                    style={{ paddingLeft: 'clamp(32px, 4vw, 64px)', paddingRight: 'clamp(32px, 4vw, 64px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(18px, 2vw, 32px)' }}
+                  />
+                </div>
+
+                {/* Right Column: Arrow + Candidate Button */}
+                <div className="flex flex-col items-center" style={{ gap: 'clamp(24px, 3vw, 48px)' }}>
+                  <div 
+                    className="arrow-container-candidate"
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <ArrowDown 
+                      className="arrow-candidate text-[var(--color-white)]"
+                      style={{ 
+                        width: 'clamp(32px, 3vw, 48px)', 
+                        height: 'clamp(32px, 3vw, 48px)',
+                        transition: 'transform 0.3s ease'
+                      }}
+                    />
+                  </div>
+                  <FlipButton
+                    href="/work-with-us#candidate"
+                    frontText="Candidate"
+                    backText="Candidate"
+                    from="top"
+                    className="rounded-[25px] font-bold"
+                    frontClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
+                    backClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
+                    style={{ paddingLeft: 'clamp(32px, 4vw, 64px)', paddingRight: 'clamp(32px, 4vw, 64px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(18px, 2vw, 32px)' }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
+      </div>
 
       <Footer />
-          </div>
-        </>
-      )}
     </div>
   );
 }

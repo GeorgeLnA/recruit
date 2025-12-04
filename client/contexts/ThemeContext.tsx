@@ -8,33 +8,18 @@ export interface ThemeColors {
 
 interface ThemeContextType {
   colors: ThemeColors;
-  setColor: (type: keyof ThemeColors, color: string) => void;
-  setColors: (colors: Partial<ThemeColors>) => void;
-  resetColors: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const DEFAULT_COLORS: ThemeColors = {
-  peach: "#FF914D",
-  blue: "#00BFFF",
-  white: "#FFFFFF",
+  peach: "#FFF5E5",  // Cream/coconut background
+  blue: "#FF9752",   // Orange highlight
+  white: "#464C53",  // Dark base for text
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [colors, setColorsState] = useState<ThemeColors>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("custom-theme-colors");
-      if (saved) {
-        try {
-          return { ...DEFAULT_COLORS, ...JSON.parse(saved) };
-        } catch {
-          return DEFAULT_COLORS;
-        }
-      }
-    }
-    return DEFAULT_COLORS;
-  });
+  const colors = DEFAULT_COLORS;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -57,29 +42,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--color-white-rgb", hexToRgb(colors.white));
 
     // Legacy aliases (existing CSS references)
-    root.style.setProperty("--theme-accent", colors.peach);
-    root.style.setProperty("--theme-accent-hover", darkenColor(colors.peach, 10));
-    root.style.setProperty("--theme-background", colors.white);
-    root.style.setProperty("--theme-dark", "#2a2a2a");
+    root.style.setProperty("--theme-accent", colors.blue); // Orange for accents
+    root.style.setProperty("--theme-accent-hover", darkenColor(colors.blue, 10));
+    root.style.setProperty("--theme-background", colors.peach); // Cream background
+    root.style.setProperty("--theme-dark", colors.white); // Dark base for text
     root.style.setProperty("--theme-scrollbar", colors.blue);
-
-    localStorage.setItem("custom-theme-colors", JSON.stringify(colors));
   }, [colors]);
 
-  const setColor = (type: keyof ThemeColors, color: string) => {
-    setColorsState((prev) => ({ ...prev, [type]: color }));
-  };
-
-  const setColors = (newColors: Partial<ThemeColors>) => {
-    setColorsState((prev) => ({ ...prev, ...newColors }));
-  };
-
-  const resetColors = () => {
-    setColorsState(DEFAULT_COLORS);
-  };
-
   return (
-    <ThemeContext.Provider value={{ colors, setColor, setColors, resetColors }}>
+    <ThemeContext.Provider value={{ colors }}>
       {children}
     </ThemeContext.Provider>
   );

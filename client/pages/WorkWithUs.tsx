@@ -3,9 +3,8 @@ import Footer from "@/components/Footer";
 import AnimatedSwitch from "@/components/AnimatedSwitch";
 import VideoPlayer from "@/components/VideoPlayer";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
-import AmbientOrbs from "@/components/AmbientOrbs";
-import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 import { Hand } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function WorkWithUs() {
   // Helper function to get checked state from hash
@@ -27,6 +26,46 @@ export default function WorkWithUs() {
   const [candidateCardProgress, setCandidateCardProgress] = useState<number[]>([0, 0, 0, 0]);
   const [enableTransforms, setEnableTransforms] = useState(true);
   const isInitialMount = useRef(true);
+  const isMobile = useIsMobile();
+  
+  // Video refs for performance optimization
+  const clientVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
+  const candidateVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
+
+  // Optimize video playback - only play when visible
+  useEffect(() => {
+    const allVideoRefs = [...clientVideoRefs.current, ...candidateVideoRefs.current].filter(Boolean) as HTMLVideoElement[];
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.25) {
+            video.play().catch(() => {
+              // Autoplay prevented, that's okay
+            });
+          } else {
+            video.pause();
+          }
+        });
+      },
+      {
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+        rootMargin: '100px'
+      }
+    );
+
+    allVideoRefs.forEach((video) => {
+      if (video) observer.observe(video);
+    });
+
+    return () => {
+      allVideoRefs.forEach((video) => {
+        if (video) observer.unobserve(video);
+      });
+      observer.disconnect();
+    };
+  }, [checked]);
 
   // Listen for hash changes (when navigating via menu)
   useEffect(() => {
@@ -57,14 +96,10 @@ export default function WorkWithUs() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Disable heavy transforms on small screens for stability
+  // Enable transforms on all screen sizes for scroll animations
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(min-width: 768px)');
-    const update = () => setEnableTransforms(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
+    // Keep transforms enabled on all devices for scroll animations
+    setEnableTransforms(true);
   }, []);
 
   useEffect(() => {
@@ -110,31 +145,22 @@ export default function WorkWithUs() {
     }
   }, [checked]);
 
-  // Update background color when checked state changes
+  // Update background color when checked state changes - simple CSS transition
   useEffect(() => {
     if (!pageRef.current) return;
-    
-    // On initial mount, set immediately without animation
-    const isInitial = isInitialMount.current;
-    if (isInitial) {
-      pageRef.current.style.backgroundColor = checked ? 'var(--color-blue)' : 'var(--color-peach)';
-    } else {
-      // On subsequent changes, animate the color transition
-      gsap.to(pageRef.current, {
-        backgroundColor: checked ? 'var(--color-blue)' : 'var(--color-peach)',
-        duration: 0.5,
-        ease: 'power2.out'
-      });
-    }
+    pageRef.current.style.transition = 'background-color 0.5s ease';
+    pageRef.current.style.backgroundColor = checked ? 'var(--color-blue)' : 'var(--color-peach)';
   }, [checked]);
 
   // Transform helper for client cards (stable, progress-based)
   function getCardTransform(direction: 'left' | 'right', progress: number) {
     const dir = direction === 'left' ? -1 : 1;
-    const dx = dir * progress * 120; // vw
+    // Reduce transform intensity on mobile for better performance
+    const isMobileDevice = window.innerWidth < 768;
+    const dx = dir * progress * (isMobileDevice ? 60 : 120); // vw - reduced on mobile
     const dy = -80 * progress; // px
-    const rot = dir * 20 * progress; // deg
-    const scale = 1 - 0.4 * progress;
+    const rot = dir * (isMobileDevice ? 10 : 20) * progress; // deg - reduced on mobile
+    const scale = 1 - (isMobileDevice ? 0.2 : 0.4) * progress; // Less scale reduction on mobile
     return `translateX(${dx}vw) translateY(${dy}px) rotate(${rot}deg) scale(${scale})`;
   }
 
@@ -157,13 +183,19 @@ export default function WorkWithUs() {
             const cardCenter = rect.top + rect.height / 2;
             // Positive when card center is above viewport center
             let distance = viewportCenter - cardCenter;
+            // Add threshold so cards don't start moving until scrolled further past center
+            // This gives users more time to read before animation begins
+            const startThreshold = windowHeight * 0.25; // Cards won't move until 25% viewport height past center
+            distance -= startThreshold;
+            
             // Return earlier when scrolling up (bias by ~25% viewport height)
             const returnBiasPx = windowHeight * 0.25;
             if (isScrollingUp) {
               distance -= returnBiasPx;
             }
-            // Map distance to 0..1; slightly tighter when scrolling up so it returns earlier
-            const mappingDenom = windowHeight * (isScrollingUp ? 0.45 : 0.5);
+            // Map distance to 0..1; increased denominator for slower progress (cards stay longer)
+            // Require more scroll distance before cards fly away
+            const mappingDenom = windowHeight * (isScrollingUp ? 1.0 : 1.5);
             const raw = distance / mappingDenom;
             const clamped = Math.min(Math.max(raw, 0), 1);
             // Ease out for nicer start and end motion
@@ -210,13 +242,19 @@ export default function WorkWithUs() {
             const cardCenter = rect.top + rect.height / 2;
             // Positive when card center is above viewport center
             let distance = viewportCenter - cardCenter;
+            // Add threshold so cards don't start moving until scrolled further past center
+            // This gives users more time to read before animation begins
+            const startThreshold = windowHeight * 0.25; // Cards won't move until 25% viewport height past center
+            distance -= startThreshold;
+            
             // Return earlier when scrolling up (bias by ~25% viewport height)
             const returnBiasPx = windowHeight * 0.25;
             if (isScrollingUp) {
               distance -= returnBiasPx;
             }
-            // Map distance to 0..1; slightly tighter when scrolling up so it returns earlier
-            const mappingDenom = windowHeight * (isScrollingUp ? 0.45 : 0.5);
+            // Map distance to 0..1; increased denominator for slower progress (cards stay longer)
+            // Require more scroll distance before cards fly away
+            const mappingDenom = windowHeight * (isScrollingUp ? 1.0 : 1.5);
             const raw = distance / mappingDenom;
             const clamped = Math.min(Math.max(raw, 0), 1);
             // Ease out for nicer start and end motion
@@ -409,49 +447,51 @@ export default function WorkWithUs() {
 
   return (
     <>
-    <div ref={pageRef} className="relative min-h-screen pt-48 px-8 overflow-hidden" style={{ backgroundColor: checked ? 'var(--color-blue)' : 'var(--color-peach)' }}>
-      {/* Life Sciences Icons - only show on orange background */}
-      {!checked && <LifeSciencesIcons count={12} side="both" size={70} />}
-      {/* Grain effect overlay */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-[0.22]"
-        style={{
-          zIndex: 1,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '150px 150px',
-          mixBlendMode: 'multiply'
-        }}
-      />
-      <div className="max-w-7xl mx-auto relative" style={{ zIndex: 2 }}>
-        <AmbientOrbs tone={checked ? 'red' : 'peach'} />
-        
-        <div className="mt-16 mb-32 flex flex-col items-center justify-center">
+    <div ref={pageRef} className="relative min-h-screen overflow-hidden" style={{ backgroundColor: checked ? 'var(--color-blue)' : 'var(--color-peach)', paddingTop: 'clamp(120px, 12vw, 192px)', paddingLeft: 'clamp(24px, 3vw, 48px)', paddingRight: 'clamp(24px, 3vw, 48px)' }}>
+      <div className="mx-auto relative" style={{ zIndex: 2, maxWidth: '1400px' }}>
+        <div className="flex flex-col items-center justify-center" style={{ marginTop: 'clamp(40px, 4vw, 64px)', marginBottom: 'clamp(80px, 8vw, 128px)' }}>
           <div className="relative">
             <AnimatedSwitch
               checked={checked}
               onCheckedChange={(next) => setChecked(next)}
-              leftLabel={<>Solve my<br />hiring<br />headaches</>}
-              rightLabel={<>Find my<br />dream role</>}
+              leftLabel={<>Solve My<br />Hiring<br />Headaches</>}
+              rightLabel={<>Find My<br />Dream Role</>}
               leftActive={true}
+              borderColor={checked ? 'var(--color-white)' : 'var(--color-blue)'}
+              switchBgColor={checked ? '#464C53' : 'var(--color-blue)'}
+              sliderColor={checked ? 'var(--color-blue)' : 'var(--color-peach)'}
             />
-            <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white pointer-events-none">
-              <Hand
-                className="w-8 h-8 md:w-10 md:h-10 animate-bounce"
-                style={{ transform: 'rotate(90deg)', animationDuration: '1.8s' }}
-              />
-              <span className="text-xs md:text-sm font-bold uppercase tracking-wider animate-pulse" style={{ fontFamily: 'TexGyreAdventor' }}>
-                Click Me
-              </span>
-            </div>
+            {!isMobile && (
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none" style={{ marginTop: 'clamp(2px, 0.25vw, 4px)', gap: 'clamp(4px, 0.5vw, 8px)' }}>
+                <Hand
+                  className="animate-bounce"
+                  style={{ 
+                    transform: 'rotate(90deg)', 
+                    animationDuration: '1.8s',
+                    color: checked ? 'var(--color-white)' : 'var(--color-blue)',
+                    width: 'clamp(28px, 2.5vw, 40px)',
+                    height: 'clamp(28px, 2.5vw, 40px)'
+                  }}
+                />
+                <span 
+                  className="font-bold uppercase tracking-wider animate-pulse" 
+                  style={{ 
+                    fontFamily: 'TexGyreAdventor',
+                    color: checked ? 'var(--color-white)' : 'var(--color-blue)',
+                    fontSize: 'clamp(10px, 0.875vw, 14px)'
+                  }}
+                >
+                  Click Me
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Video Section */}
-        <div className="mb-48 max-w-5xl mx-auto relative" style={{ zIndex: 10 }}>
-          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/20 blur-xl" />
-          <div className="absolute -bottom-6 -left-8 w-28 h-28 rounded-full bg-white/10 blur-2xl" />
+        <div className="mx-auto relative" style={{ zIndex: 10, marginBottom: 'clamp(120px, 12vw, 192px)', maxWidth: '1120px' }}>
           <VideoPlayer
-            src="/CDC Website - ROUGH CUT 1 (1).mp4"
+            src={checked ? "/vids/CLIENTS.mp4" : "/vids/COMPANIES.mp4"}
             title="Work With Us Introduction"
             className="w-full"
           />
@@ -466,36 +506,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { clientCardRefs.current[0] = el; }}
-                className="client-card-01 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('left', clientCardProgress[0] || 0) : undefined }}
+                className="client-card-01 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#ff9752',
+                  transform: enableTransforms ? getCardTransform('left', clientCardProgress[0] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col md:flex-col lg:flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Deep Industry Expertise
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:left-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">01</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ left: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>01</span>
                   </div>
 
-                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { clientVideoRefs.current[0] = el; }}
+                        src="/vids/SHORT 1.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
+                {!isMobile && (
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
                     We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
-                </p>
+                  </p>
+                )}
               </div>
               </div>
 
@@ -503,36 +562,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { clientCardRefs.current[1] = el; }}
-                className="client-card-02 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('right', clientCardProgress[1] || 0) : undefined }}
+                className="client-card-02 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#ff3632',
+                  transform: enableTransforms ? getCardTransform('right', clientCardProgress[1] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row-reverse gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-end text-right pr-0 lg:pr-12">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Global Network, Personal Approach
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:right-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">02</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ right: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>02</span>
                   </div>
 
-                  <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { clientVideoRefs.current[1] = el; }}
+                        src="/vids/SHORT 2.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute right-8 md:right-12 lg:right-16 xl:right-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl text-right">
+                {!isMobile && (
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
                     With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
-                </p>
+                  </p>
+                )}
               </div>
               </div>
 
@@ -540,36 +618,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { clientCardRefs.current[2] = el; }}
-                className="client-card-03 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('left', clientCardProgress[2] || 0) : undefined }}
+                className="client-card-03 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#fdcc69',
+                  transform: enableTransforms ? getCardTransform('left', clientCardProgress[2] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Precision Recruitment
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:left-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">03</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ left: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>03</span>
                   </div>
 
-                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { clientVideoRefs.current[2] = el; }}
+                        src="/vids/SHORT 3.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
-                  We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
-                </p>
+                {!isMobile && (
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                    We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
+                  </p>
+                )}
                 </div>
               </div>
 
@@ -577,36 +674,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { clientCardRefs.current[3] = el; }}
-                className="client-card-04 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-red p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('right', clientCardProgress[3] || 0) : undefined }}
+                className="client-card-04 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#aa95de',
+                  transform: enableTransforms ? getCardTransform('right', clientCardProgress[3] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row-reverse gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-end text-right pr-0 lg:pr-12">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Speed, Transparency & Trust
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:right-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">04</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ right: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>04</span>
                   </div>
 
-                  <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                  src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { clientVideoRefs.current[3] = el; }}
+                        src="/vids/SHORT 4.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute right-8 md:right-12 lg:right-16 xl:right-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl text-right">
-                  We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
-                </p>
+                {!isMobile && (
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                    We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
+                  </p>
+                )}
               </div>
               </div>
             </div>
@@ -619,36 +735,47 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { candidateCardRefs.current[0] = el; }}
-                className="candidate-card-01 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('left', candidateCardProgress[0] || 0) : undefined }}
+                className="candidate-card-01 md:sticky top-0 z-30 bg-brand-orange relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ borderRadius: 'clamp(36px, 3vw, 50px)', padding: 'clamp(32px, 3vw, 80px)', height: 'clamp(520px, 40vw, 640px)', width: 'clamp(94%, 90%, 1152px)', maxWidth: '1152px', transform: enableTransforms ? getCardTransform('left', candidateCardProgress[0] || 0) : undefined }}
               >
-                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Industry Insiders, Not Generalists
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:left-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">01</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ left: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>01</span>
                   </div>
 
-                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { candidateVideoRefs.current[0] = el; }}
+                        src="/vids/SHORT 1.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
-                  We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
-                </p>
+                {!isMobile && (
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                    We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
+                  </p>
+                )}
               </div>
               </div>
 
@@ -656,36 +783,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { candidateCardRefs.current[1] = el; }}
-                className="candidate-card-02 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined }}
+                className="candidate-card-02 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#ff3632',
+                  transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row-reverse gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-end text-right pr-0 lg:pr-12">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Real Opportunities, Not Random Roles
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:right-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">02</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ right: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>02</span>
                   </div>
 
-                  <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { candidateVideoRefs.current[1] = el; }}
+                        src="/vids/SHORT 2.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute right-8 md:right-12 lg:right-16 xl:right-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl text-right">
+                {!isMobile && (
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
                     We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
-                </p>
+                  </p>
+                )}
               </div>
               </div>
 
@@ -693,36 +839,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { candidateCardRefs.current[2] = el; }}
-                className="candidate-card-03 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('left', candidateCardProgress[2] || 0) : undefined }}
+                className="candidate-card-03 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#fdcc69',
+                  transform: enableTransforms ? getCardTransform('left', candidateCardProgress[2] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col pr-0 lg:pr-40">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Guidance That Adds Value
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:left-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">03</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ left: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>03</span>
                   </div>
 
-                  <div className="lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                        src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { candidateVideoRefs.current[2] = el; }}
+                        src="/vids/SHORT 3.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute left-8 md:left-12 lg:left-16 xl:left-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl">
-                  From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
-                </p>
+                {!isMobile && (
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                    From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
+                  </p>
+                )}
                 </div>
               </div>
 
@@ -730,36 +895,55 @@ export default function WorkWithUs() {
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
               <div 
                 ref={(el) => { candidateCardRefs.current[3] = el; }}
-                className="candidate-card-04 md:sticky top-0 z-30 rounded-[36px] md:rounded-[44px] lg:rounded-[50px] bg-brand-orange p-8 md:p-12 lg:p-16 xl:p-20 relative overflow-hidden h-[520px] sm:h-[560px] md:h-[600px] lg:h-[640px] w-[94%] md:w-[90%] max-w-6xl mx-auto transition-all duration-500 ease-out"
-                style={{ transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined }}
+                className="candidate-card-04 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
+                style={{ 
+                  borderRadius: 'clamp(36px, 3vw, 50px)', 
+                  padding: 'clamp(32px, 3vw, 80px)', 
+                  height: 'clamp(520px, 40vw, 640px)', 
+                  width: 'clamp(94%, 90%, 1152px)', 
+                  maxWidth: '1152px',
+                  backgroundColor: '#aa95de',
+                  transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined 
+                }}
               >
-                <div className="flex flex-col lg:flex-row-reverse gap-12 md:gap-20 lg:gap-28 xl:gap-40 h-full">
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-end text-right pr-0 lg:pr-12">
-                    <h2 className="text-[40px] sm:text-[48px] md:text-[56px] lg:text-[64px] xl:text-[72px] font-bold leading-[0.95] text-white mb-8 md:mb-16 lg:mb-20">
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Confidentiality & Honesty Always
                     </h2>
+                    {isMobile && (
+                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                        Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
+                      </p>
+                    )}
                   </div>
 
-                  <div className="lg:absolute lg:right-8 lg:-top-8">
-                    <span className="text-[160px] md:text-[220px] lg:text-[280px] xl:text-[320px] font-bold leading-none text-white/20">04</span>
+                  <div className="hidden md:block lg:absolute lg:-top-8" style={{ right: 'clamp(32px, 2.5vw, 32px)' }}>
+                    <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>04</span>
                   </div>
 
-                  <div className="lg:absolute lg:left-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[220px] lg:max-w-[250px] xl:max-w-[280px] aspect-[9/16] rounded-[20px] md:rounded-[22px] lg:rounded-[24px] overflow-hidden">
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
-                  src="/CDC Website - ROUGH CUT 1 (1).mp4"
-                        autoPlay
+                        ref={(el) => { candidateVideoRefs.current[3] = el; }}
+                        src="/vids/SHORT 5.mp4"
                         loop
                         muted
                         playsInline
+                        preload="none"
                         className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-                <p className="absolute right-8 md:right-12 lg:right-16 xl:right-20 bottom-10 md:bottom-14 lg:bottom-16 text-lg md:text-xl lg:text-2xl text-white max-w-2xl text-right">
-                  Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
-                </p>
+                {!isMobile && (
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                    Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
+                  </p>
+                )}
               </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ interface IconProps {
   size?: number;
   delay?: number;
   iconIndex?: number;
+  isRight?: boolean;
 }
 
 // SVG file names from /public/svgs
@@ -21,7 +22,7 @@ const svgFiles = [
   'blood-drop.svg',
 ];
 
-function LifeSciencesIcon({ position, size = 60, delay = 0, iconIndex = 0 }: IconProps) {
+function LifeSciencesIcon({ position, size = 60, delay = 0, iconIndex = 0, isRight = false }: IconProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -75,13 +76,18 @@ function LifeSciencesIcon({ position, size = 60, delay = 0, iconIndex = 0 }: Ico
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={`/svgs/${svgFile}`}
-        alt=""
+      <div 
         className="w-full h-full"
-        style={{ 
-          filter: 'brightness(0) invert(1)',
-          objectFit: 'contain'
+        style={{
+          backgroundColor: '#FF9752',
+          maskImage: `url(/svgs/${svgFile})`,
+          WebkitMaskImage: `url(/svgs/${svgFile})`,
+          maskSize: 'contain',
+          WebkitMaskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          WebkitMaskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskPosition: 'center',
         }}
       />
     </div>
@@ -155,15 +161,19 @@ export default function LifeSciencesIcons({
 
   return (
     <>
-      {positions.map((pos, index) => (
-        <LifeSciencesIcon
-          key={index}
-          position={pos}
-          size={size}
-          delay={index * 100}
-          iconIndex={index}
-        />
-      ))}
+      {positions.map((pos, index) => {
+        const isRight = pos.right !== undefined;
+        return (
+          <LifeSciencesIcon
+            key={index}
+            position={pos}
+            size={size}
+            delay={index * 100}
+            iconIndex={index}
+            isRight={isRight}
+          />
+        );
+      })}
     </>
   );
 }

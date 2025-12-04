@@ -2,15 +2,11 @@ import { ArrowLeft } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import Footer from "@/components/Footer";
 import AnimatedSwitch from "@/components/AnimatedSwitch";
-import LifeSciencesIcons from "@/components/LifeSciencesIcons";
 
 export default function AsAClient() {
   return (
     <>
-    <div className="min-h-screen pt-48 px-8 relative" style={{ backgroundColor: 'var(--color-peach)' }}>
-      {/* Life Sciences Icons */}
-      <LifeSciencesIcons count={12} side="both" size={70} />
-      
+    <div className="min-h-screen relative" style={{ backgroundColor: 'var(--color-peach)', paddingTop: 'clamp(120px, 12vw, 192px)', paddingLeft: 'clamp(24px, 3vw, 48px)', paddingRight: 'clamp(24px, 3vw, 48px)' }}>
       {/* Grain effect overlay */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-[0.22]"
@@ -24,15 +20,16 @@ export default function AsAClient() {
       {/* Back Button */}
       <a
         href="/work-with-us"
-        className="fixed left-6 top-24 z-[2147483645] inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow hover:shadow-md transition"
+        className="fixed z-[2147483645] inline-flex items-center gap-2 rounded-lg bg-white border border-gray-200 shadow hover:shadow-md transition"
+        style={{ left: 'clamp(24px, 3vw, 48px)', top: 'clamp(96px, 6vw, 144px)', paddingLeft: 'clamp(12px, 1.5vw, 16px)', paddingRight: 'clamp(12px, 1.5vw, 16px)', paddingTop: 'clamp(8px, 1vw, 12px)', paddingBottom: 'clamp(8px, 1vw, 12px)' }}
         aria-label="Back to Work With Us"
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span className="font-bold">Back</span>
+        <ArrowLeft style={{ width: 'clamp(14px, 1vw, 16px)', height: 'clamp(14px, 1vw, 16px)' }} />
+        <span className="font-bold" style={{ fontSize: 'clamp(12px, 1vw, 16px)' }}>Back</span>
       </a>
 
-      <div className="max-w-7xl mx-auto relative" style={{ zIndex: 2 }}>
-        <div className="mb-24 flex items-center justify-center">
+      <div className="mx-auto relative" style={{ zIndex: 2, maxWidth: '1400px' }}>
+        <div className="flex items-center justify-center" style={{ marginBottom: 'clamp(60px, 6vw, 96px)' }}>
           <AnimatedSwitch
             checked={true}
             onCheckedChange={(checked) => {
@@ -44,19 +41,19 @@ export default function AsAClient() {
           />
         </div>
 
-        <h1 className="text-8xl font-bold mb-16 text-center">
+        <h1 className="font-bold text-center" style={{ fontSize: 'clamp(48px, 5vw, 96px)', marginBottom: 'clamp(40px, 4vw, 64px)' }}>
           Work With Us: As a Client
         </h1>
-        <p className="text-xl text-white mb-20">
+        <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', marginBottom: 'clamp(60px, 5vw, 80px)' }}>
           CDC Global specialises in global recruitment across CDMO, CRO and diagnostics —
           covering commercial, technical and operational roles among others.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-16">
+        <div className="grid md:grid-cols-2" style={{ gap: 'clamp(48px, 4vw, 64px)' }}>
           <div>
-            <h2 className="text-3xl font-bold mb-8">Positions we recruit for</h2>
-            <p className="text-white mb-8">Executive and senior leadership through functional heads and managers:</p>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-white">
+            <h2 className="font-bold" style={{ fontSize: 'clamp(24px, 2vw, 32px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>Positions we recruit for</h2>
+            <p className="text-white" style={{ fontSize: 'clamp(14px, 1vw, 18px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>Executive and senior leadership through functional heads and managers:</p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 text-white" style={{ gap: 'clamp(16px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1vw, 18px)' }}>
               <li>CEO, COO, CSO, CFO, CCO, CTO</li>
               <li>VP Commercial, VP Operations, VP Quality</li>
               <li>Head of Regulatory Affairs</li>
@@ -67,17 +64,17 @@ export default function AsAClient() {
               <li>Clinical & Laboratory Leadership</li>
             </ul>
 
-            <h2 className="text-3xl font-bold mt-16 mb-8">Search solutions</h2>
-            <ul className="space-y-6 text-white">
+            <h2 className="font-bold" style={{ fontSize: 'clamp(24px, 2vw, 32px)', marginTop: 'clamp(48px, 4vw, 64px)', marginBottom: 'clamp(24px, 2vw, 32px)' }}>Search solutions</h2>
+            <ul className="text-white" style={{ gap: 'clamp(16px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1vw, 18px)', display: 'flex', flexDirection: 'column' }}>
               <li><strong>Executive search:</strong> discreet, curated shortlists for critical hires</li>
               <li><strong>Volume search:</strong> scalable hiring for multi-role or multi-region growth</li>
               <li><strong>Marketing support:</strong> brand and talent marketing to accelerate outcomes</li>
             </ul>
 
-            <h3 className="text-2xl font-bold mt-16 mb-6">Cost‑effective marketing to grow your business</h3>
-            <div className="flex flex-wrap gap-2 text-sm">
+            <h3 className="font-bold" style={{ fontSize: 'clamp(20px, 1.75vw, 28px)', marginTop: 'clamp(48px, 4vw, 64px)', marginBottom: 'clamp(16px, 1.5vw, 24px)' }}>Cost‑effective marketing to grow your business</h3>
+            <div className="flex flex-wrap" style={{ gap: 'clamp(8px, 0.75vw, 12px)' }}>
               {['strategy','social media','training','copywriting','lead generation','website design'].map((tag) => (
-                <span key={tag} className="px-3 py-1 rounded-full bg-gray-100 text-white border border-gray-200">{tag}</span>
+                <span key={tag} className="rounded-full bg-gray-100 text-white border border-gray-200" style={{ paddingLeft: 'clamp(12px, 1vw, 16px)', paddingRight: 'clamp(12px, 1vw, 16px)', paddingTop: 'clamp(4px, 0.5vw, 8px)', paddingBottom: 'clamp(4px, 0.5vw, 8px)', fontSize: 'clamp(11px, 0.875vw, 14px)' }}>{tag}</span>
               ))}
             </div>
           </div>
@@ -88,15 +85,15 @@ export default function AsAClient() {
               title="What we offer to clients"
               className="w-full"
             />
-            <p className="text-sm text-white mt-3">Short explainer from Harriet and Adam. Click Play to start.</p>
+            <p className="text-white" style={{ fontSize: 'clamp(12px, 0.875vw, 14px)', marginTop: 'clamp(12px, 1vw, 16px)' }}>Short explainer from Harriet and Adam. Click Play to start.</p>
           </div>
         </div>
 
-        <div className="mt-32 text-center">
+        <div className="text-center" style={{ marginTop: 'clamp(80px, 8vw, 128px)' }}>
           <a 
             href="/contact"
-            className="inline-block px-8 py-4 text-white font-bold rounded-lg hover:scale-105 transition-all duration-300"
-            style={{ backgroundColor: 'var(--color-blue)', fontSize: '1.25rem' }}
+            className="inline-block text-white font-bold rounded-lg hover:scale-105 transition-all duration-300"
+            style={{ backgroundColor: 'var(--color-blue)', paddingLeft: 'clamp(32px, 2.5vw, 32px)', paddingRight: 'clamp(32px, 2.5vw, 32px)', paddingTop: 'clamp(16px, 1.25vw, 16px)', paddingBottom: 'clamp(16px, 1.25vw, 16px)', fontSize: 'clamp(16px, 1.25vw, 20px)' }}
           >
             Get Started Today
           </a>

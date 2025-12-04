@@ -16,8 +16,10 @@ import GlobalReach from "./pages/GlobalReach";
 import ProofInThePeople from "./pages/ProofInThePeople";
 import CandidMoments from "./pages/CandidMoments";
 import Contact from "./pages/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ColorThemeSwitcher } from "@/components/ColorThemeSwitcher";
+import { FontProvider } from "@/contexts/FontContext";
+import { FontTester } from "@/components/FontTester";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +32,8 @@ const navigationItems = [
     label: "Work With Us",
     href: "/work-with-us",
     submenu: [
-      { label: "Solve my hiring headaches", href: "/work-with-us#client" },
-      { label: "Find my dream role", href: "/work-with-us#candidate" }
+      { label: "Solve My Hiring Headaches", href: "/work-with-us#client" },
+      { label: "Find My Dream Role", href: "/work-with-us#candidate" }
     ]
   },
   {
@@ -40,7 +42,11 @@ const navigationItems = [
   },
   {
     label: "Proof in the People",
-    href: "/proof-in-the-people"
+    href: "/proof-in-the-people",
+    submenu: [
+      { label: "Read Our Testimonials", href: "/proof-in-the-people#testimonials" },
+      { label: "Check Out Our Case Studies", href: "/proof-in-the-people#case-studies" }
+    ]
   },
   {
     label: "Candid Moments",
@@ -51,13 +57,14 @@ const navigationItems = [
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollTracker />
-          <ColorThemeSwitcher />
-          <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
+      <FontProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollTracker />
+            <FontTester />
+            <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/gsap-demo" element={<GSAPExample />} />
@@ -66,11 +73,13 @@ const App = () => (
             <Route path="/proof-in-the-people" element={<ProofInThePeople />} />
             <Route path="/candid-moments" element={<CandidMoments />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </FontProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

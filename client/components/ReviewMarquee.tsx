@@ -78,37 +78,55 @@ function MarqueeRow({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragVelocity, setDragVelocity] = useState(0);
+  const loopWidthRef = useRef<number | null>(null);
 
-  // Calculate loop width (half the track width since items are duplicated)
-  const getLoopWidth = useCallback(() => {
-    if (!trackRef.current) return null;
-    return trackRef.current.scrollWidth / 2;
+  // Calculate and cache loop width (one set of items)
+  const updateLoopWidth = useCallback(() => {
+    if (!trackRef.current) return;
+    const totalWidth = trackRef.current.scrollWidth;
+    const setWidth = totalWidth / 2; // Since we have 2 sets
+    loopWidthRef.current = setWidth;
   }, []);
 
-  // Wrap offset to create seamless loop
+  // Wrap offset to stay within one loop width - prevents gaps
   const wrapOffset = useCallback((offset: number): number => {
-    const loopWidth = getLoopWidth();
-    if (!loopWidth) return offset;
+    const loopWidth = loopWidthRef.current;
+    if (!loopWidth || loopWidth <= 0) return offset;
     
-    // Wrap around when offset exceeds loop bounds
-    let wrapped = offset % loopWidth;
-    if (wrapped > loopWidth / 2) {
+    // Wrap to keep offset within [-loopWidth, 0] range for seamless loop
+    let wrapped = offset;
+    
+    // If offset goes beyond loop width, wrap it back
+    while (wrapped > 0) {
       wrapped -= loopWidth;
-    } else if (wrapped < -loopWidth / 2) {
+    }
+    while (wrapped <= -loopWidth) {
       wrapped += loopWidth;
     }
+    
     return wrapped;
-  }, [getLoopWidth]);
+  }, []);
 
   const baseOffsetRef = useRef(0);
   const prevTimeRef = useRef<number | null>(null);
   const hoverRef = useRef(false);
   const rafRef = useRef<number | null>(null);
 
+  // Update loop width when track is ready
+  useEffect(() => {
+    if (trackRef.current) {
+      // Wait for layout
+      setTimeout(() => {
+        updateLoopWidth();
+      }, 100);
+    }
+  }, [updateLoopWidth, duplicated.length]);
+
   const applyTransform = useCallback(() => {
     if (!dragWrapRef.current) return;
-    const totalOffset = wrapOffset(baseOffsetRef.current + dragOffset);
-    dragWrapRef.current.style.transform = `translateX(${totalOffset}px)`;
+    const totalOffset = baseOffsetRef.current + dragOffset;
+    const wrapped = wrapOffset(totalOffset);
+    dragWrapRef.current.style.transform = `translateX(${wrapped}px)`;
   }, [dragOffset, wrapOffset]);
 
   useEffect(() => {
@@ -121,7 +139,7 @@ function MarqueeRow({
     setIsDragging(true);
     hoverRef.current = false;
     startXRef.current = e.clientX;
-    startOffsetRef.current = dragOffset;
+    startOffsetRef.current = baseOffsetRef.current + dragOffset;
     lastMoveXRef.current = e.clientX;
     lastMoveTimeRef.current = Date.now();
     smoothedVelocityRef.current = 0;
@@ -131,18 +149,11 @@ function MarqueeRow({
   const onPointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const dx = e.clientX - startXRef.current;
-    let newOffset = startOffsetRef.current + dx;
+    const newOffset = startOffsetRef.current + dx;
     
-    // Wrap offset to create seamless loop
-    const wrappedOffset = wrapOffset(newOffset);
-    
-    // If wrapping occurred, adjust start position to prevent jump
-    if (Math.abs(wrappedOffset - newOffset) > 100) {
-      startOffsetRef.current = wrappedOffset;
-      startXRef.current = e.clientX;
-    }
-    
-    setDragOffset(wrappedOffset);
+    // Apply wrapping during drag to prevent going too far
+    const wrapped = wrapOffset(newOffset);
+    setDragOffset(wrapped - baseOffsetRef.current);
     
     // Calculate velocity with exponential smoothing to reduce jitter
     const now = Date.now();
@@ -172,13 +183,11 @@ function MarqueeRow({
 
   const endDrag = (e?: React.PointerEvent) => {
     setIsDragging(false);
+    const finalOffset = baseOffsetRef.current + dragOffset;
+    baseOffsetRef.current = wrapOffset(finalOffset);
+    setDragOffset(0);
     smoothedVelocityRef.current = 0;
     setDragVelocity(0);
-    setDragOffset((prev) => {
-      baseOffsetRef.current = wrapOffset(baseOffsetRef.current + prev);
-      applyTransform();
-      return 0;
-    });
     if (e && containerRef.current) {
       try { containerRef.current.releasePointerCapture(e.pointerId); } catch {}
     }
@@ -193,14 +202,17 @@ function MarqueeRow({
       prevTimeRef.current = timestamp;
 
       if (!isDragging) {
-        const loopWidth = getLoopWidth();
-        if (loopWidth) {
+        const loopWidth = loopWidthRef.current;
+        if (loopWidth && loopWidth > 0) {
           const directionMultiplier = direction === "left" ? -1 : 1;
           const secondsPerLoop = duration;
           const pxPerMs = loopWidth / (secondsPerLoop * 1000);
           const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
           const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
-          baseOffsetRef.current = wrapOffset(baseOffsetRef.current + deltaOffset);
+          
+          // Update base offset and wrap immediately
+          baseOffsetRef.current += deltaOffset;
+          baseOffsetRef.current = wrapOffset(baseOffsetRef.current);
           applyTransform();
         }
       }
@@ -215,7 +227,7 @@ function MarqueeRow({
       rafRef.current = null;
       prevTimeRef.current = null;
     };
-  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover, getLoopWidth]);
+  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover]);
 
   return (
     <div
@@ -286,31 +298,36 @@ function MarqueeItem({
   const dragTiltDeg = isDragging ? Math.max(-6, Math.min(6, dragVelocity * 0.12)) : 0;
   const tiltDeg = baseTiltDeg + dragTiltDeg;
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   const card = (
     <div
-      className="mx-5 w-[500px] lg:w-[580px] shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] p-8 shadow-lg will-change-transform review-card"
+      className="mx-5 shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] shadow-lg will-change-transform review-card flex flex-col"
       style={{ 
+        width: isMobile ? 'clamp(280px, 75vw, 400px)' : 'clamp(500px, 40vw, 580px)',
+        height: isMobile ? 'clamp(400px, 100vh, 500px)' : '800px',
+        padding: isMobile ? 'clamp(16px, 4vw, 24px)' : 'clamp(32px, 2.5vw, 32px)',
         transform: `rotate(${tiltDeg}deg)`,
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
         // @ts-expect-error CSS custom property
         '--card-tilt': `rotate(${tiltDeg}deg)`,
       }}
     >
-      <div className="flex items-center gap-5 mb-8">
-        <Avatar className="h-28 w-28 shadow-none ring-2 ring-white/40">
+      <div className="flex items-center gap-5 flex-shrink-0" style={{ gap: isMobile ? 'clamp(12px, 3vw, 16px)' : 'clamp(20px, 1.25vw, 20px)', marginBottom: isMobile ? 'clamp(12px, 3vw, 16px)' : 'clamp(32px, 2vw, 32px)' }}>
+        <Avatar className="shadow-none ring-2 ring-white/40" style={{ width: isMobile ? 'clamp(60px, 15vw, 80px)' : '112px', height: isMobile ? 'clamp(60px, 15vw, 80px)' : '112px' }}>
           <AvatarImage src={avatarUrl} alt={authorName} className="shadow-none object-cover" />
-          <AvatarFallback className="shadow-none text-[var(--color-blue)] bg-white">{initials(authorName)}</AvatarFallback>
+          <AvatarFallback className="shadow-none text-[var(--color-blue)] bg-white" style={{ fontSize: isMobile ? 'clamp(18px, 4.5vw, 24px)' : 'clamp(28px, 1.75vw, 28px)' }}>{initials(authorName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="font-semibold text-white truncate text-2xl">{authorName}</div>
+          <div className="font-semibold text-white truncate" style={{ fontSize: isMobile ? 'clamp(16px, 4vw, 20px)' : 'clamp(24px, 1.5vw, 24px)' }}>{authorName}</div>
           {(authorTitle || company) && (
-            <div className="text-lg text-white/70 truncate">
+            <div className="text-white/70 truncate" style={{ fontSize: isMobile ? 'clamp(12px, 3vw, 14px)' : 'clamp(18px, 1.125vw, 18px)' }}>
               {[authorTitle, company].filter(Boolean).join(" · ")}
             </div>
           )}
         </div>
       </div>
-      <blockquote className="text-white/90 leading-relaxed text-2xl min-h-[360px] flex items-start">"{quote}"</blockquote>
+      <blockquote className="text-white/90 leading-relaxed flex-1 flex items-start overflow-y-auto" style={{ fontSize: isMobile ? 'clamp(14px, 3.5vw, 18px)' : 'clamp(24px, 1.5vw, 24px)' }}>"{quote}"</blockquote>
     </div>
   );
 

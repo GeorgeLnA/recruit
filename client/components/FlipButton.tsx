@@ -13,6 +13,12 @@ import { cn } from '@/lib/utils';
 
 type FlipDirection = 'top' | 'bottom' | 'left' | 'right';
 
+// Detect mobile devices
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+};
+
 type FlipButtonBaseProps = {
   frontText: string;
   backText: string;
@@ -76,9 +82,10 @@ const FlipButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, FlipB
       hover: buildVariant(1, 0, '0%'),
     };
 
+    const isMobile = isMobileDevice();
     const commonProps = {
       initial: "initial" as const,
-      whileHover: "hover" as const,
+      whileHover: isMobile ? undefined : "hover" as const,
       whileTap: { scale: 0.95 },
       className: cn(
         'relative inline-block px-4 py-2 text-sm font-medium cursor-pointer perspective-[1000px] focus:outline-none',

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as d3 from "d3";
 import { gsap } from "@/lib/gsap";
+import { cn } from "@/lib/utils";
+import { Volume2, VolumeX } from "lucide-react";
 
 export interface EarthPin {
   id: string;
@@ -10,7 +12,9 @@ export interface EarthPin {
   lat: number;
   lon: number;
   image?: string;
+  video?: string;
   description?: string;
+  labelPosition?: 'top' | 'right' | 'bottom' | 'left';
 }
 
 interface RotatingEarthProps {
@@ -37,16 +41,66 @@ export default function RotatingEarth({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isHoveringGlobe, setIsHoveringGlobe] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [smoothedCursorPosition, setSmoothedCursorPosition] = useState({ x: 0, y: 0 });
+  const dragLabelRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
+  const cardContainerRefs = useRef<Record<string, HTMLDivElement>>({});
+  const [isHoveringCard, setIsHoveringCard] = useState<Record<string, boolean>>({});
+  const [isSoundEnabled, setIsSoundEnabled] = useState<Record<string, boolean>>({});
+  
+  // Simple mute toggle function
+  const toggleMute = useCallback((pinId: string) => {
+    const video = videoRefs.current[pinId];
+    if (!video) return;
+    
+    const newMutedState = !video.muted;
+    video.muted = newMutedState;
+    setIsSoundEnabled(prev => ({
+      ...prev,
+      [pinId]: !newMutedState
+    }));
+    
+    // If unmuting, ensure video plays (required for sound on mobile)
+    if (!newMutedState) {
+      video.play().catch((error) => {
+        console.log('Video play prevented:', error);
+        // If play fails, mute it back
+        video.muted = true;
+        setIsSoundEnabled(prev => ({
+          ...prev,
+          [pinId]: false
+        }));
+      });
+    }
+  }, []);
+  const [cardCursorPosition, setCardCursorPosition] = useState<Record<string, { x: number; y: number }>>({});
+  const [isMobile, setIsMobile] = useState(false);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 800 });
+
+  // Detect mobile devices
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  const isHoveringPinOrCard = useRef<Record<string, boolean>>({});
+  const hoverTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
   
   const autoRotateRef = useRef<boolean>(true);
   const renderRef = useRef<() => void>();
   const projectionRef = useRef<d3.GeoProjection | null>(null);
-  const rotationRef = useRef<[number, number]>([0, 0]);
+  const rotationRef = useRef<[number, number]>([0, -45]);
   const rafRef = useRef<number | null>(null);
   const isDraggingRef = useRef<boolean>(false);
   const landFeaturesRef = useRef<any>(null);
   const pinPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
   const positionUpdateRafRef = useRef<number | null>(null);
+  const canvasSizeRef = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
 
   // Update pin positions directly via DOM (no React re-renders)
   const updatePinPositions = useCallback(() => {
@@ -62,7 +116,10 @@ export default function RotatingEarth({
 
       const projected = projection([pin.lon, pin.lat]);
       if (!projected) {
-        pinEl.style.display = 'none';
+        // Only hide if not dragging to prevent flickering
+        if (!isDraggingRef.current) {
+          pinEl.style.display = 'none';
+        }
         return;
       }
 
@@ -70,12 +127,34 @@ export default function RotatingEarth({
       const distance = d3.geoDistance([pin.lon, pin.lat], center as [number, number]);
       const isVisible = distance <= Math.PI / 2;
 
-      if (!isVisible) {
-        pinEl.style.display = 'none';
+      // During dragging, keep pins visible to prevent blinking
+      if (!isVisible && !isDraggingRef.current) {
+        // Only hide if currently visible to avoid repeated animations
+        if (pinEl.style.display !== 'none') {
+          pinEl.style.opacity = '0';
+          pinEl.style.transition = 'opacity 0.2s ease-out';
+          setTimeout(() => {
+            if (pinEl.style.opacity === '0') {
+              pinEl.style.display = 'none';
+            }
+          }, 200);
+        }
         return;
       }
 
-      pinEl.style.display = 'block';
+      // Always show during drag, or if visible
+      if (isDraggingRef.current || isVisible) {
+        if (pinEl.style.display === 'none') {
+          pinEl.style.display = 'block';
+          pinEl.style.opacity = '0';
+          pinEl.style.transition = 'opacity 0.2s ease-out';
+          requestAnimationFrame(() => {
+            pinEl.style.opacity = '1';
+          });
+        } else {
+          pinEl.style.opacity = '1';
+        }
+      }
       
       // Use sub-pixel precision during auto-rotation for smoother movement
       const x = autoRotateRef.current && !isDraggingRef.current 
@@ -104,10 +183,19 @@ export default function RotatingEarth({
     const rootStyles = getComputedStyle(document.documentElement);
     const peachColor = rootStyles.getPropertyValue("--color-peach")?.trim() || "#FF914D";
     const whiteColor = rootStyles.getPropertyValue("--color-white")?.trim() || "#FFFFFF";
+    const orangeColor = rootStyles.getPropertyValue("--color-blue")?.trim() || "#FF9752";
 
-    const containerWidth = Math.min(width, window.innerWidth - 40);
-    const containerHeight = Math.min(height, window.innerHeight - 120);
-    const radius = Math.min(containerWidth, containerHeight) / 2.1;
+    // Ensure globe is always circular - use the smaller dimension to maintain perfect circle
+    const availableWidth = window.innerWidth - 40;
+    const availableHeight = window.innerHeight - 120;
+    const containerSize = Math.min(availableWidth, availableHeight, width, height);
+    const containerWidth = containerSize;
+    const containerHeight = containerSize;
+    const radius = containerSize / 2.1;
+
+    // Store canvas size for pin positioning
+    canvasSizeRef.current = { width: containerWidth, height: containerHeight };
+    setCanvasSize({ width: containerWidth, height: containerHeight });
 
     // Update projection scale and translate if dimensions changed
     const projection = projectionRef.current;
@@ -119,16 +207,13 @@ export default function RotatingEarth({
 
       context.clearRect(0, 0, containerWidth, containerHeight);
 
-    const scaleFactor = radius / Math.min(containerWidth, containerHeight) * 2.1;
+    const scaleFactor = radius / containerSize * 2.1;
 
-      // Ocean background (peach) + white outline
+      // Ocean background (peach)
       context.beginPath();
     context.arc(containerWidth / 2, containerHeight / 2, radius, 0, 2 * Math.PI);
       context.fillStyle = peachColor;
       context.fill();
-      context.strokeStyle = whiteColor;
-      context.lineWidth = 2 * scaleFactor;
-      context.stroke();
 
     const path = d3.geoPath().projection(projection).context(context as any);
 
@@ -144,13 +229,13 @@ export default function RotatingEarth({
         context.stroke();
         context.globalAlpha = 1;
 
-        // Land filled white
+        // Land filled orange
       landFeaturesRef.current.features.forEach((feature: any) => {
           context.beginPath();
           path(feature);
-          context.fillStyle = whiteColor;
+          context.fillStyle = orangeColor;
           context.fill();
-          context.strokeStyle = whiteColor;
+          context.strokeStyle = orangeColor;
           context.lineWidth = 1 * scaleFactor;
           context.stroke();
         });
@@ -164,9 +249,17 @@ export default function RotatingEarth({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const containerWidth = Math.min(width, window.innerWidth - 40);
-    const containerHeight = Math.min(height, window.innerHeight - 120);
-    const radius = Math.min(containerWidth, containerHeight) / 2.1;
+    // Ensure globe is always circular - use the smaller dimension to maintain perfect circle
+    const availableWidth = window.innerWidth - 40;
+    const availableHeight = window.innerHeight - 120;
+    const containerSize = Math.min(availableWidth, availableHeight, width, height);
+    const containerWidth = containerSize;
+    const containerHeight = containerSize;
+    const radius = containerSize / 2.1;
+    
+    // Store canvas size for pin positioning
+    canvasSizeRef.current = { width: containerWidth, height: containerHeight };
+    setCanvasSize({ width: containerWidth, height: containerHeight });
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = containerWidth * dpr;
@@ -184,6 +277,9 @@ export default function RotatingEarth({
       .scale(radius)
       .translate([containerWidth / 2, containerHeight / 2])
       .clipAngle(90);
+    
+    // Apply initial rotation with default -20 degree tilt
+    projection.rotate(rotationRef.current as any);
     
     projectionRef.current = projection;
 
@@ -213,7 +309,8 @@ export default function RotatingEarth({
     const rotationSpeed = 0.08;
 
     const animate = () => {
-      if (autoRotateRef.current && !isDraggingRef.current) {
+      // Auto-rotate when enabled, not dragging, and no pin is selected
+      if (autoRotateRef.current && !isDraggingRef.current && !selectedId) {
         rotationRef.current[0] += rotationSpeed;
         projection.rotate(rotationRef.current as any);
         
@@ -240,7 +337,12 @@ export default function RotatingEarth({
         return;
       }
 
-      setSelectedId(null);
+      // Close pin if open when starting to drag
+      if (selectedId) {
+        setSelectedId(null);
+      }
+
+      setIsHoveringGlobe(false);
       autoRotateRef.current = false;
       isDraggingRef.current = true;
       
@@ -264,7 +366,7 @@ export default function RotatingEarth({
         // Throttle renders using requestAnimationFrame
         if (rafId === null) {
           rafId = requestAnimationFrame(() => {
-        render();
+            render();
             updatePinPositions();
             rafId = null;
           });
@@ -278,13 +380,16 @@ export default function RotatingEarth({
           cancelAnimationFrame(rafId);
           rafId = null;
         }
-        isDraggingRef.current = false;
         // Final render to ensure positions are updated
         render();
         updatePinPositions();
+        // Delay setting isDragging to false to prevent blink
         setTimeout(() => {
+          isDraggingRef.current = false;
+          // Update positions again after delay to apply visibility checks
+          updatePinPositions();
           autoRotateRef.current = true;
-        }, 200);
+        }, 300);
       };
 
       document.addEventListener("mousemove", handleMouseMove);
@@ -292,6 +397,86 @@ export default function RotatingEarth({
     };
 
     canvas.addEventListener("mousedown", handleMouseDown as any);
+    
+    // Mobile touch interaction - attach immediately
+    const handleTouchStart = (event: TouchEvent) => {
+      // Don't start drag if clicking on a pin
+      if ((event.target as HTMLElement).closest('.pin-button')) {
+        return;
+      }
+
+      // Close pin if open when starting to drag
+      if (selectedId) {
+        setSelectedId(null);
+      }
+
+      setIsHoveringGlobe(false);
+      autoRotateRef.current = false;
+      isDraggingRef.current = true;
+      
+      const touch = event.touches[0];
+      const startX = touch.clientX;
+      const startY = touch.clientY;
+      const startRotation = [...rotationRef.current] as [number, number];
+      
+      let rafId: number | null = null;
+
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        if (moveEvent.touches.length === 0) return;
+        
+        const touch = moveEvent.touches[0];
+        const sensitivity = 0.5;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        rotationRef.current[0] = startRotation[0] + dx * sensitivity;
+        rotationRef.current[1] = startRotation[1] - dy * sensitivity;
+        rotationRef.current[1] = Math.max(-90, Math.min(90, rotationRef.current[1]));
+
+        projection.rotate(rotationRef.current as any);
+        
+        // Throttle renders using requestAnimationFrame
+        if (rafId === null) {
+          rafId = requestAnimationFrame(() => {
+            render();
+            updatePinPositions();
+            rafId = null;
+          });
+        }
+      };
+
+      const handleTouchEnd = () => {
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+        document.removeEventListener("touchcancel", handleTouchEnd);
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        // Final render to ensure positions are updated
+        render();
+        updatePinPositions();
+        // Delay setting isDragging to false to prevent blink
+        setTimeout(() => {
+          isDraggingRef.current = false;
+          // Update positions again after delay to apply visibility checks
+          updatePinPositions();
+          // Resume auto-rotation on mobile after 1 second of no touch
+          setTimeout(() => {
+            if (!isDraggingRef.current && !selectedId) {
+              autoRotateRef.current = true;
+            }
+          }, 1000);
+        }, 300);
+      };
+
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd);
+      document.addEventListener("touchcancel", handleTouchEnd);
+    };
+
+    // Always attach touch handler (works on all devices, but only processes on mobile)
+    canvas.addEventListener("touchstart", handleTouchStart as any, { passive: false });
 
     renderRef.current = render;
 
@@ -299,9 +484,16 @@ export default function RotatingEarth({
     const handleResize = () => {
       if (!canvas || !projectionRef.current) return;
       
-      const containerWidth = Math.min(width, window.innerWidth - 40);
-      const containerHeight = Math.min(height, window.innerHeight - 120);
-      const radius = Math.min(containerWidth, containerHeight) / 2.1;
+      // Ensure globe is always circular - use the smaller dimension to maintain perfect circle
+      const availableWidth = window.innerWidth - 40;
+      const availableHeight = window.innerHeight - 120;
+      const containerSize = Math.min(availableWidth, availableHeight, width, height);
+      const containerWidth = containerSize;
+      const containerHeight = containerSize;
+      const radius = containerSize / 2.1;
+      
+      // Store canvas size for pin positioning
+      canvasSizeRef.current = { width: containerWidth, height: containerHeight };
       
       const dpr = window.devicePixelRatio || 1;
       canvas.width = containerWidth * dpr;
@@ -334,8 +526,13 @@ export default function RotatingEarth({
       if (positionUpdateRafRef.current) {
         cancelAnimationFrame(positionUpdateRafRef.current);
       }
+      // Clean up hover timeouts
+      Object.values(hoverTimeoutRef.current).forEach(timeout => {
+        clearTimeout(timeout);
+      });
       window.removeEventListener("resize", handleResize);
       canvas.removeEventListener("mousedown", handleMouseDown as any);
+      canvas.removeEventListener("touchstart", handleTouchStart as any);
     };
   }, [width, height, render]);
 
@@ -372,7 +569,9 @@ export default function RotatingEarth({
       
       // Calculate target rotation to center the pin
       // To center a point at [lon, lat], we rotate by [-lon, -lat]
-      const targetRotation: [number, number] = [-pin.lon, -pin.lat];
+      // Add extra downward tilt (subtract from lat) to position dot higher on screen
+      const extraTilt = -50; // degrees of additional downward tilt
+      const targetRotation: [number, number] = [-pin.lon, -pin.lat - extraTilt];
       const startRotation: [number, number] = [...rotationRef.current];
       
       // Animate rotation
@@ -402,6 +601,18 @@ export default function RotatingEarth({
           // Open new card after rotation completes
           setSelectedId(pinId);
           onSelectPin?.(pinId);
+          // Start video playback if it's a video pin
+          const pin = pins.find(p => p.id === pinId);
+          if (pin?.video) {
+            setTimeout(() => {
+              const video = videoRefs.current[pinId];
+              if (video) {
+                video.play().catch((error) => {
+                  console.log('Video autoplay prevented:', error);
+                });
+              }
+            }, 100);
+          }
         }
       });
     } else {
@@ -424,6 +635,100 @@ export default function RotatingEarth({
     }
   }, [selectedId, pins, onSelectPin]);
 
+  // Smooth cursor position with damping - disabled on mobile
+  useEffect(() => {
+    if (isMobile || !isHoveringGlobe || selectedId) {
+      // Reset smoothed position when not hovering or on mobile
+      setSmoothedCursorPosition(cursorPosition);
+      return;
+    }
+    
+    const damping = 0.2; // Lower = smoother, slower response
+    let rafId: number | null = null;
+    
+    const animate = () => {
+      setSmoothedCursorPosition(prev => ({
+        x: prev.x + (cursorPosition.x - prev.x) * damping,
+        y: prev.y + (cursorPosition.y - prev.y) * damping
+      }));
+      
+      rafId = requestAnimationFrame(animate);
+    };
+    
+    rafId = requestAnimationFrame(animate);
+    
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [cursorPosition, isHoveringGlobe, selectedId, isMobile]);
+
+  // Fade in/out animation for drag label
+  useEffect(() => {
+    const label = dragLabelRef.current;
+    if (!label) return;
+
+    // Don't show drag label if a card is selected or hovering over pin/card
+    const isHoveringPinOrCardAny = Object.values(isHoveringPinOrCard.current).some(v => v);
+    
+    if (isHoveringGlobe && !selectedId && !isHoveringPinOrCardAny) {
+      label.style.display = 'block';
+      gsap.killTweensOf(label);
+      gsap.to(label, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    } else {
+      gsap.killTweensOf(label);
+      gsap.to(label, {
+        opacity: 0,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: () => {
+          if (label) {
+            label.style.display = 'none';
+          }
+        }
+      });
+    }
+  }, [isHoveringGlobe, selectedId]);
+
+  // Ensure videos play when their cards become visible
+  useEffect(() => {
+    if (selectedId) {
+      const pin = pins.find(p => p.id === selectedId);
+      if (pin?.video) {
+        const video = videoRefs.current[selectedId];
+        if (video) {
+          // Sync muted state with React state
+          video.muted = isSoundEnabled[selectedId] === undefined ? true : !isSoundEnabled[selectedId];
+          // Small delay to ensure card animation has started
+          setTimeout(() => {
+            video.play().catch((error) => {
+              console.log('Video autoplay prevented:', error);
+            });
+          }, 350); // Slightly after card animation starts
+        }
+      }
+    }
+  }, [selectedId, pins, isSoundEnabled]);
+  
+  // Sync video muted state when isSoundEnabled changes
+  useEffect(() => {
+    pins.forEach((pin) => {
+      if (pin.video) {
+        const video = videoRefs.current[pin.id];
+        if (video) {
+          // Default to muted if state is undefined, otherwise use state
+          const shouldBeMuted = isSoundEnabled[pin.id] === undefined ? true : !isSoundEnabled[pin.id];
+          video.muted = shouldBeMuted;
+        }
+      }
+    });
+  }, [isSoundEnabled, pins]);
+
   if (error) {
     return (
       <div className={`flex items-center justify-center rounded-2xl p-8 ${className}`}>
@@ -435,20 +740,122 @@ export default function RotatingEarth({
     );
   }
 
+  // Close pin when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (selectedId) {
+        const target = event.target as Node;
+        // Check if click is outside the card and not on a pin button
+        const cardEl = cardRefs.current[selectedId];
+        const isClickOnPinButton = target instanceof Element && target.closest('.pin-button');
+        const isClickOnCard = cardEl && cardEl.contains(target);
+        
+        if (!isClickOnCard && !isClickOnPinButton) {
+          setSelectedId(null);
+          // Resume auto-rotation when pin is closed
+          if (isMobile) {
+            setTimeout(() => {
+              if (!selectedId) {
+                autoRotateRef.current = true;
+              }
+            }, 1000);
+          } else {
+            autoRotateRef.current = true;
+          }
+        }
+      }
+    };
+
+    if (selectedId) {
+      // Add event listeners with a small delay to avoid immediate closure
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+      }, 100);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [selectedId]);
+
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative ${className}`} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
       <canvas 
         ref={canvasRef} 
-        className="w-full h-auto"
         style={{ 
-          maxWidth: "100%", 
-          height: "auto",
-          display: "block"
-        }} 
+          width: '100%',
+          aspectRatio: '1 / 1',
+          maxWidth: '100%',
+          height: 'auto',
+          display: "block",
+          margin: '0 auto'
+        }}
+        onMouseEnter={() => {
+          if (!isMobile) {
+            // Don't set hovering globe if a card is selected or hovering over pin/card
+            if (!selectedId && !Object.values(isHoveringPinOrCard.current).some(v => v)) {
+              setIsHoveringGlobe(true);
+            }
+          }
+        }}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            // Don't reset hovering globe if a card is selected or hovering over pin/card
+            if (!selectedId && !Object.values(isHoveringPinOrCard.current).some(v => v)) {
+              setIsHoveringGlobe(false);
+            }
+          }
+        }}
+        onMouseMove={(e) => {
+          if (!isMobile) {
+            setCursorPosition({
+              x: e.clientX,
+              y: e.clientY
+            });
+          }
+        }}
       />
       
-      {/* Pins overlay */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Drag label that follows cursor - hidden on mobile */}
+      {!isMobile && (
+        <div
+          ref={dragLabelRef}
+          className="fixed pointer-events-none z-50"
+          style={{
+            left: `${smoothedCursorPosition.x + 8}px`,
+            top: `${smoothedCursorPosition.y + 8}px`,
+          transform: 'translate(0, 0)',
+          backgroundColor: '#464C53',
+          color: '#FF9752',
+          padding: '4px 8px',
+          borderRadius: '6px',
+          fontSize: '10px',
+          fontFamily: 'TexGyreAdventor',
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          opacity: 0,
+          display: 'none'
+        }}
+      >
+        Drag to rotate
+      </div>
+      )}
+      
+      {/* Pins overlay - positioned to match canvas exactly */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: `${canvasSize.width}px`,
+          height: `${canvasSize.height}px`,
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          margin: '0 auto'
+        }}
+      >
         {pins.map((pin) => {
           return (
             <div
@@ -486,6 +893,74 @@ export default function RotatingEarth({
                 onClick={() => handlePinClick(pin.id)}
                 className="pin-button relative flex items-center group -translate-y-1/2"
                 aria-label={`Select ${pin.name}`}
+                onMouseEnter={(e) => {
+                  // Mark that we're hovering over pin or card
+                  if (hoverTimeoutRef.current[pin.id]) {
+                    clearTimeout(hoverTimeoutRef.current[pin.id]);
+                    delete hoverTimeoutRef.current[pin.id];
+                  }
+                  isHoveringPinOrCard.current[pin.id] = true;
+                  // Prevent drag label from showing when hovering over pin/card
+                  setIsHoveringGlobe(false);
+                  
+                  // Keep card visible when hovering pin
+                  if (selectedId === pin.id) {
+                    return;
+                  }
+                  if (selectedId !== pin.id) {
+                    const pinDot = e.currentTarget.querySelector('.pin-dot') as HTMLElement;
+                    const pinLabel = e.currentTarget.querySelector('.pin-label') as HTMLElement;
+                    if (pinDot) {
+                      gsap.to(pinDot, {
+                        scale: 1.5,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                      });
+                    }
+                    if (pinLabel) {
+                      gsap.to(pinLabel, {
+                        scale: 1.2,
+                        backgroundColor: '#464C53',
+                        color: '#FF9752',
+                        duration: 0.3,
+                        ease: 'power2.out'
+                      });
+                    }
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  // Add delay before marking as not hovering to prevent flicker
+                  isHoveringPinOrCard.current[pin.id] = false;
+                  hoverTimeoutRef.current[pin.id] = setTimeout(() => {
+                    // Only allow globe hover state to change if not hovering over any pin/card
+                    if (!isHoveringPinOrCard.current[pin.id] && 
+                        !Object.values(isHoveringPinOrCard.current).some(v => v) &&
+                        !selectedId) {
+                      // Can safely reset globe hover state
+                    }
+                  }, 150);
+                  
+                  if (selectedId !== pin.id) {
+                    const pinDot = e.currentTarget.querySelector('.pin-dot') as HTMLElement;
+                    const pinLabel = e.currentTarget.querySelector('.pin-label') as HTMLElement;
+                    if (pinDot) {
+                      gsap.to(pinDot, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                      });
+                    }
+                    if (pinLabel) {
+                      gsap.to(pinLabel, {
+                        scale: 1,
+                        backgroundColor: '#FFF5E5',
+                        color: '#464C53',
+                        duration: 0.3,
+                        ease: 'power2.out'
+                      });
+                    }
+                  }
+                }}
               >
                 {/* Pin dot container */}
                 <div className="relative w-4 h-4">
@@ -509,23 +984,38 @@ export default function RotatingEarth({
                         });
                       }
                     }}
-                    className="absolute top-0 left-0 w-4 h-4 rounded-full bg-[var(--color-blue)] opacity-30"
-                    style={{ transformOrigin: 'center center' }}
+                    className="absolute top-0 left-0 w-4 h-4 rounded-full opacity-30"
+                    style={{ backgroundColor: '#464C53', transformOrigin: 'center center' }}
                   />
                   
                   {/* Pin dot */}
                   <span
-                    className={`absolute top-0 left-0 w-4 h-4 rounded-full shadow-lg transition-all duration-300 ${
-                      selectedId === pin.id 
-                        ? 'bg-[var(--color-blue)] ring-4 ring-[rgb(var(--color-blue-rgb)_/_0.3)] scale-125' 
-                        : 'bg-[var(--color-blue)] ring-2 ring-white/70 hover:scale-110'
+                    className={`pin-dot absolute top-0 left-0 w-4 h-4 rounded-full shadow-lg ${
+                      selectedId === pin.id ? 'scale-125' : ''
                     }`}
-                    style={{ transformOrigin: 'center center' }}
+                    style={{ backgroundColor: '#464C53', transformOrigin: 'center center' }}
                   />
                 </div>
                 
-                {/* Pin label - positioned absolutely to the right */}
-                <div className="absolute left-full ml-2 px-2 py-0.5 rounded text-xs font-semibold text-white/90 bg-black/50 whitespace-nowrap transition-opacity duration-300" style={{ fontFamily: "Milker" }}>
+                {/* Pin label - positioned based on labelPosition prop */}
+                <div 
+                  className={cn(
+                    "pin-label absolute px-2 py-0.5 rounded font-semibold whitespace-nowrap",
+                    isMobile ? "text-[10px]" : "text-xs",
+                    {
+                      'bottom-full mb-2 left-1/2 -translate-x-1/2': pin.labelPosition === 'top' || !pin.labelPosition,
+                      'left-full ml-2 top-1/2 -translate-y-1/2': pin.labelPosition === 'right',
+                      'top-full mt-2 left-1/2 -translate-x-1/2': pin.labelPosition === 'bottom',
+                      'right-full mr-2 top-1/2 -translate-y-1/2': pin.labelPosition === 'left',
+                    }
+                  )}
+                  style={{ 
+                    fontFamily: "TexGyreAdventor", 
+                    backgroundColor: '#FFF5E5', 
+                    color: '#464C53',
+                    transformOrigin: 'center center'
+                  }}
+                >
                   {pin.name}
                 </div>
               </button>
@@ -534,7 +1024,8 @@ export default function RotatingEarth({
               {selectedId === pin.id && (
                 <div
                   ref={(el) => {
-                    if (el) {
+                    if (el && !cardRefs.current[pin.id]) {
+                      // Only animate on first mount, not on re-renders
                       cardRefs.current[pin.id] = el;
                       // Set initial styles before animation
                       gsap.set(el, { opacity: 0, y: 20, scale: 0.9 });
@@ -548,29 +1039,163 @@ export default function RotatingEarth({
                           ease: "power2.out"
                         });
                       });
+                    } else if (el) {
+                      // On subsequent renders, just update the ref without re-animating
+                      cardRefs.current[pin.id] = el;
                     }
                   }}
-                  className="absolute left-1/2 w-[600px] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden"
+                  className="absolute rounded-xl shadow-xl overflow-hidden pin-card"
                   style={{ 
+                    width: isMobile ? 'clamp(280px, 85vw, 400px)' : '600px',
                     transformOrigin: 'center top',
-                    transform: 'translateX(-50%) translateY(20px) scale(0.9)',
-                    opacity: 0,
-                    top: 'calc(50% + 2rem)'
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    top: 'calc(50% + 12px)',
+                    backgroundColor: '#FF9752',
+                    pointerEvents: 'auto'
+                  }}
+                  onMouseEnter={() => {
+                    // Mark that we're hovering over pin or card
+                    if (hoverTimeoutRef.current[pin.id]) {
+                      clearTimeout(hoverTimeoutRef.current[pin.id]);
+                      delete hoverTimeoutRef.current[pin.id];
+                    }
+                    isHoveringPinOrCard.current[pin.id] = true;
+                    // Prevent drag label from showing when hovering over card
+                    setIsHoveringGlobe(false);
+                  }}
+                  onMouseLeave={() => {
+                    // Add delay before marking as not hovering to prevent flicker
+                    isHoveringPinOrCard.current[pin.id] = false;
+                    hoverTimeoutRef.current[pin.id] = setTimeout(() => {
+                      // Only allow globe hover state to change if not hovering over any pin/card
+                      if (!isHoveringPinOrCard.current[pin.id] && 
+                          !Object.values(isHoveringPinOrCard.current).some(v => v) &&
+                          !selectedId) {
+                        // Can safely reset globe hover state
+                      }
+                    }, 150);
                   }}
                 >
-                  {pin.image && (
+                  {pin.video ? (
+                    <div 
+                      ref={(el) => {
+                        if (el && pin.id) {
+                          cardContainerRefs.current[pin.id] = el;
+                        }
+                      }}
+                      className="relative w-full cursor-pointer overflow-hidden"
+                      style={{ height: isMobile ? 'clamp(160px, 40vw, 200px)' : '256px' }}
+                      onMouseEnter={() => setIsHoveringCard(prev => ({ ...prev, [pin.id]: true }))}
+                      onMouseLeave={() => setIsHoveringCard(prev => ({ ...prev, [pin.id]: false }))}
+                      onMouseMove={(e) => {
+                        setCardCursorPosition(prev => ({
+                          ...prev,
+                          [pin.id]: { x: e.clientX, y: e.clientY }
+                        }));
+                      }}
+                      onClick={(e) => {
+                        // On desktop only: clicking video toggles mute
+                        if (!isMobile) {
+                          toggleMute(pin.id);
+                        }
+                      }}
+                    >
+                      <video
+                        ref={(el) => {
+                          if (el && pin.id) {
+                            videoRefs.current[pin.id] = el;
+                            // Initialize as muted if state not set (for autoplay)
+                            if (isSoundEnabled[pin.id] === undefined) {
+                              setIsSoundEnabled(prev => ({ ...prev, [pin.id]: false }));
+                              el.muted = true;
+                            } else {
+                              el.muted = !isSoundEnabled[pin.id];
+                            }
+                            // Try to play
+                            el.play().catch(() => {});
+                          }
+                        }}
+                        src={pin.video}
+                        autoPlay
+                        loop
+                        muted={isSoundEnabled[pin.id] === undefined ? true : !isSoundEnabled[pin.id]}
+                        playsInline
+                        preload="metadata"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ display: 'block' }}
+                        onLoadedMetadata={(e) => {
+                          e.currentTarget.currentTime = 0.1;
+                          // Sync muted state
+                          if (isSoundEnabled[pin.id] === undefined) {
+                            e.currentTarget.muted = true;
+                          } else {
+                            e.currentTarget.muted = !isSoundEnabled[pin.id];
+                          }
+                          // Try to play
+                          e.currentTarget.play().catch(() => {});
+                        }}
+                      />
+                      {/* Mute/Unmute Toggle Button - only for Dubai videos */}
+                      {(pin.id === 'dubai' || pin.id === 'medlab-dubai' || pin.video?.includes('DUBAI')) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            toggleMute(pin.id);
+                          }}
+                          className="absolute top-2 right-2 z-20 p-1.5 rounded-full transition-colors touch-manipulation"
+                          style={{ 
+                            backgroundColor: '#FF9752', 
+                            color: 'white',
+                            minWidth: isMobile ? '44px' : 'auto',
+                            minHeight: isMobile ? '44px' : 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.backgroundColor = '#e6823a';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.backgroundColor = '#FF9752';
+                            }
+                          }}
+                          onTouchStart={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e6823a';
+                          }}
+                          onTouchEnd={(e) => {
+                            setTimeout(() => {
+                              e.currentTarget.style.backgroundColor = '#FF9752';
+                            }, 150);
+                          }}
+                          aria-label={isSoundEnabled[pin.id] ? "Mute" : "Unmute"}
+                        >
+                          {isSoundEnabled[pin.id] ? (
+                            <VolumeX className={isMobile ? "w-5 h-5 text-white" : "w-4 h-4 text-white"} />
+                          ) : (
+                            <Volume2 className={isMobile ? "w-5 h-5 text-white" : "w-4 h-4 text-white"} />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  ) : pin.image ? (
                     <img 
                       src={pin.image} 
                       alt={pin.name} 
-                      className="w-full h-64 object-cover" 
+                      className="w-full object-cover" 
+                      style={{ height: isMobile ? 'clamp(160px, 40vw, 200px)' : '256px' }}
                     />
-                  )}
-                  <div className="p-8">
-                    <div className="text-3xl font-bold mb-4 text-gray-900" style={{ fontFamily: "Milker" }}>
+                  ) : null}
+                  <div style={{ padding: isMobile ? 'clamp(16px, 4vw, 24px)' : 'clamp(32px, 2vw, 32px)' }}>
+                    <div className="font-bold mb-4 text-white" style={{ fontFamily: "TexGyreAdventor", fontSize: isMobile ? 'clamp(18px, 4.5vw, 24px)' : 'clamp(24px, 1.875vw, 30px)' }}>
                       {pin.name}
                     </div>
                     {pin.description && (
-                      <p className="text-lg text-gray-700 leading-relaxed">{pin.description}</p>
+                      <p className="text-white leading-relaxed" style={{ fontSize: isMobile ? 'clamp(12px, 3vw, 14px)' : 'clamp(18px, 1.125vw, 18px)' }}>{pin.description}</p>
                     )}
                   </div>
                 </div>

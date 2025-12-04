@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { gsap } from '@/lib/gsap';
 
 export default function ScrollTracker() {
   const [scrollPercentage, setScrollPercentage] = useState(0);
+  const counterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,18 +21,56 @@ export default function ScrollTracker() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Hover expand animation
+  useEffect(() => {
+    const counter = counterRef.current;
+    if (!counter) return;
+
+    const handleMouseEnter = () => {
+      gsap.to(counter, {
+        scale: 1.3,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to(counter, {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    };
+
+    counter.addEventListener('mouseenter', handleMouseEnter);
+    counter.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      counter.removeEventListener('mouseenter', handleMouseEnter);
+      counter.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
   return (
-    <div className="fixed top-1/2 transform -translate-y-1/2 z-50 pointer-events-none" style={{ right: '32px' }}>
+    <div className="fixed top-1/2 transform -translate-y-1/2 z-50 pointer-events-none" style={{ right: 'clamp(16px, 4vw, 32px)' }}>
       <div className="flex flex-col items-center space-y-3">
         {/* Percentage display - matching loading screen style */}
-        <div className="relative">
+        <div 
+          ref={counterRef}
+          className="relative pointer-events-auto cursor-pointer"
+        >
           {/* Background circle with brand colors */}
           <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg bg-[var(--color-blue)]"
+            className="rounded-full flex items-center justify-center shadow-lg bg-[var(--color-blue)]"
+            style={{ 
+              width: 'clamp(48px, 6vw, 64px)',
+              height: 'clamp(48px, 6vw, 64px)'
+            }}
           >
             <div 
-              className="text-white font-bold text-base"
+              className="text-white font-bold"
               style={{ 
+                fontSize: 'clamp(12px, 1.5vw, 16px)',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore - vendor property not in TS CSS types
                 fontFeatureSettings: '"tnum" 1'

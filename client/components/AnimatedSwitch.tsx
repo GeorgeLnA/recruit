@@ -7,6 +7,10 @@ interface AnimatedSwitchProps {
   leftLabel: ReactNode;
   rightLabel: ReactNode;
   leftActive?: boolean;
+  borderColor?: string; // Allow dynamic border color
+  switchBgColor?: string; // Allow dynamic switch background color
+  sliderColor?: string; // Allow dynamic slider color
+  className?: string; // Allow custom className
 }
 
 export default function AnimatedSwitch({
@@ -15,6 +19,10 @@ export default function AnimatedSwitch({
   leftLabel,
   rightLabel,
   leftActive = false,
+  borderColor = 'var(--color-blue)',
+  switchBgColor = 'white',
+  sliderColor = 'var(--color-blue)',
+  className = '',
 }: AnimatedSwitchProps) {
   const switchRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -52,26 +60,29 @@ export default function AnimatedSwitch({
   return (
     <div 
       ref={switchRef}
-      className="relative flex items-center cursor-pointer gap-16 flex-wrap justify-center"
+      className={`relative flex items-center cursor-pointer gap-16 flex-wrap justify-center ${className}`}
       onClick={() => onCheckedChange(!checked)}
     >
       <span 
         ref={leftLabelRef}
-        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight"
+        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight flex-1"
+        style={{ minWidth: '400px', maxWidth: '600px' }}
       >
         {leftLabel}
       </span>
       
-      <div className="relative w-40 h-20 bg-white rounded-full border-4 border-gray-200 overflow-hidden shadow-inner flex-shrink-0">
+      <div className="relative w-40 h-20 rounded-full border-4 overflow-hidden shadow-inner flex-shrink-0" style={{ borderColor, backgroundColor: switchBgColor }}>
         <div
           ref={sliderRef}
-          className="absolute top-0 left-0 w-1/2 h-full bg-[var(--color-blue)] rounded-full transition-transform duration-600 ease-out will-change-transform"
+          className="absolute top-0 left-0 w-1/2 h-full rounded-full transition-transform duration-600 ease-out will-change-transform"
+          style={{ backgroundColor: sliderColor }}
         />
       </div>
       
       <span 
         ref={rightLabelRef}
-        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight"
+        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight flex-1"
+        style={{ minWidth: '400px', maxWidth: '600px' }}
       >
         {rightLabel}
       </span>
