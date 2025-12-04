@@ -893,28 +893,28 @@ export default function Index() {
               {/* Custom sound cursor - Desktop only */}
               {isHoveringHero && (
                 <div
-                  className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
+                  className="fixed pointer-events-none z-50 flex flex-col items-center gap-1"
                   style={{
-                    left: `${cursorPosition.x + 20}px`,
-                    top: `${cursorPosition.y}px`,
-                    transform: 'translateY(-50%)',
+                    left: `${cursorPosition.x + 15}px`,
+                    top: `${cursorPosition.y + 30}px`,
+                    transform: 'translate(-50%, -50%)',
                     willChange: 'transform'
                   }}
                 >
                   {isSoundEnabled ? (
                     <VolumeX 
-                      className="w-10 h-10 text-white"
+                      className="w-6 h-6 text-white"
                     />
                   ) : (
                     <Volume2 
-                      className="w-10 h-10 text-white"
+                      className="w-6 h-6 text-white"
                     />
                   )}
                   <div
-                    className="px-3 py-1.5 rounded-lg bg-white shadow-lg whitespace-nowrap"
+                    className="px-2 py-1 rounded-lg bg-white shadow-lg whitespace-nowrap"
                     style={{
                       fontFamily: 'TexGyreAdventor',
-                      fontSize: '12px',
+                      fontSize: '10px',
                       fontWeight: 'bold',
                       color: 'var(--color-blue)'
                     }}

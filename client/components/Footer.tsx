@@ -93,6 +93,9 @@ export default function Footer() {
     if (!button) return;
 
     const handleMouseEnter = () => {
+      // Scale up on hover
+      button.style.transform = 'scale(1.1)';
+      // Shake animation with rotation
       gsap.to(button, {
         rotation: -20,
         duration: 0.015,
@@ -104,10 +107,15 @@ export default function Footer() {
 
     const handleMouseLeave = () => {
       gsap.killTweensOf(button);
+      // Reset scale and rotation
       gsap.to(button, {
         rotation: 0,
+        scale: 1,
         duration: 0.1,
-        ease: 'power2.out'
+        ease: 'power2.out',
+        onComplete: () => {
+          button.style.transform = 'scale(1)';
+        }
       });
     };
 
@@ -125,8 +133,8 @@ export default function Footer() {
   return (
     <>
       {/* Client Logo Marquee Section */}
-      <section className="w-full bg-[var(--color-blue)] overflow-visible" style={{ paddingTop: '120px', paddingBottom: '40px' }}>
-        <div className="container mx-auto px-6 lg:px-8 overflow-visible">
+      <section className="w-full bg-[var(--color-blue)] overflow-visible" style={{ paddingTop: 'clamp(60px, 8vw, 120px)', paddingBottom: 'clamp(20px, 3vw, 40px)' }}>
+        <div className="container mx-auto px-6 lg:px-8 overflow-visible" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
           <ClientLogoMarquee 
             speedSeconds={50}
             pauseOnHover={true}
@@ -138,43 +146,44 @@ export default function Footer() {
 
       <footer
         ref={footerRef}
-        className="relative overflow-hidden text-white min-h-screen"
-        style={{ backgroundColor: "var(--color-blue)" }}
+        className="relative overflow-hidden text-white"
+        style={{ backgroundColor: "var(--color-blue)", minHeight: 'clamp(400px, 50vh, 100vh)' }}
       >
       {/* Main Content Columns */}
-      <div className="relative z-10 px-6 lg:px-12 pb-32 pt-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-[98vw] mx-auto" style={{ alignItems: 'start' }}>
+      <div className="relative z-10 px-6 lg:px-12" style={{ paddingTop: 'clamp(40px, 6vw, 80px)', paddingBottom: 'clamp(40px, 6vw, 80px)' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-full mx-auto" style={{ alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
           {/* Column 1: CDC Global Address */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm tracking-wider mb-4">CDC Global</h4>
-            <div className="text-white text-sm">
+            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>CDC Global</h4>
+            <div className="text-white" style={{ fontSize: 'clamp(11px, 1vw, 14px)', lineHeight: '1.5' }}>
               <p>Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
             </div>
           </div>
 
           {/* Column 2: Navigation */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Navigation</h4>
+            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Navigation</h4>
             <div className="space-y-2">
-              <a href="/" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Home
               </a>
-              <a href="/work-with-us" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/work-with-us" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Work With Us
               </a>
-              <a href="/global-reach" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/global-reach" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Global Reach
               </a>
               <a
                 href="/proof-in-the-people"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
               >
                 Proof in the People
               </a>
-              <a href="/candid-moments" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/candid-moments" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Candid Moments
               </a>
-              <a href="/contact" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/contact" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Contact
               </a>
             </div>
@@ -182,14 +191,15 @@ export default function Footer() {
 
  	    {/* Column 3: Work With Us */}
           <div data-footer-col>
-            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Work With Us</h4>
+            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Work With Us</h4>
             <div className="space-y-2">
-              <a href="/work-with-us#client" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="/work-with-us#client" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 As a Client
               </a>
               <a
                 href="/work-with-us#candidate"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
               >
                 As a Candidate
               </a>
@@ -204,34 +214,40 @@ export default function Footer() {
                 ref={backToTopRef}
                 data-footer-top
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+                className="rounded-lg bg-white text-black flex items-center justify-center shadow-lg"
                 aria-label="Back to top"
+                style={{ 
+                  width: 'clamp(40px, 3vw, 48px)', 
+                  height: 'clamp(40px, 3vw, 48px)'
+                }}
               >
-                <ArrowUp className="w-5 h-5" />
+                <ArrowUp style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)' }} />
               </button>
             </div>
-            <h4 className="text-white font-bold text-sm tracking-wider mb-4">Contact</h4>
+            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Contact</h4>
             <div className="space-y-2 mb-6">
-              <a href="tel:+447554440299" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="tel:+447554440299" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)', wordBreak: 'break-all' }}>
                 07554 440 299
               </a>
               <a
                 href="mailto:harriet@cdcglobal.co.uk"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)', wordBreak: 'break-all' }}
               >
                 harriet@cdcglobal.co.uk
               </a>
-              <a href="mailto:adam@cdcglobal.co.uk" className="block text-white text-sm hover:opacity-70 transition-opacity">
+              <a href="mailto:adam@cdcglobal.co.uk" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)', wordBreak: 'break-all' }}>
                 adam@cdcglobal.co.uk
               </a>
             </div>
-            <h4 className="text-white font-bold text-sm tracking-wider mb-4 mt-6">Follow</h4>
+            <h4 className="text-white font-bold tracking-wider mb-4 mt-6" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Follow</h4>
             <div className="space-y-2">
               <a
                 href="https://www.linkedin.com/company/cdcglobal/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
               >
                 LinkedIn
               </a>
@@ -239,7 +255,8 @@ export default function Footer() {
                 href="https://www.linkedin.com/in/harriet-wheat/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
               >
                 Harriet's LinkedIn
               </a>
@@ -247,7 +264,8 @@ export default function Footer() {
                 href="https://www.linkedin.com/in/adam-hargreaves-ivd/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-white text-sm hover:opacity-70 transition-opacity"
+                className="block text-white hover:opacity-70 transition-opacity"
+                style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}
               >
                 Adam's LinkedIn
               </a>
@@ -257,37 +275,51 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="relative z-10 px-6 lg:px-12 py-6">
+      <div className="relative z-10 px-6 lg:px-12" style={{ paddingTop: 'clamp(24px, 3vw, 24px)', paddingBottom: 'clamp(24px, 3vw, 24px)' }}>
         {/* Back to Top Button - Mobile only, positioned at top of big text */}
         <div className="md:hidden flex justify-end mb-1">
           <button
-            ref={backToTopRef}
             data-footer-top
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+            className="rounded-lg bg-white text-black flex items-center justify-center shadow-lg"
             aria-label="Back to top"
+            style={{ 
+              width: 'clamp(40px, 3vw, 48px)', 
+              height: 'clamp(40px, 3vw, 48px)',
+              transition: 'transform 0.3s ease-out, scale 0.3s ease-out',
+              transform: 'scale(1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
           >
-            <ArrowUp className="w-5 h-5" />
+            <ArrowUp style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)' }} />
           </button>
         </div>
         <div
           data-footer-head
-          className="text-white font-bold leading-[0.9] mb-2 md:mb-6 w-full text-center"
+          className="text-white font-bold leading-[0.9] w-full text-center"
           style={{
-            fontSize: "clamp(4rem, 15vw, 18rem)",
-            padding: "0 1rem",
+            fontSize: "clamp(2.5rem, 12vw, 18rem)",
+            padding: "0 clamp(8px, 1vw, 16px)",
+            marginBottom: 'clamp(8px, 1vw, 24px)',
+            overflow: 'hidden',
+            wordBreak: 'break-word'
           }}
         >
           <div className="w-full flex justify-center">
-            <span className="whitespace-nowrap">Cdc Global</span>
+            <span className="whitespace-nowrap" style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>Cdc Global</span>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-1 md:gap-4 max-w-[98vw] mx-auto">
-          <div data-footer-bottom className="text-white text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-1 md:gap-4 max-w-full mx-auto" style={{ width: '100%', boxSizing: 'border-box' }}>
+          <div data-footer-bottom className="text-white" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
             <p className="font-bold">©{currentYear} CDC Global Solutions</p>
           </div>
-          <div data-footer-bottom className="flex gap-4 text-white text-sm">
+          <div data-footer-bottom className="flex gap-4 text-white" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
             <a href="/privacy-policy" className="hover:opacity-70 transition-opacity">
               Privacy Policy
             </a>

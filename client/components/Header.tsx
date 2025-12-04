@@ -233,18 +233,16 @@ export default function Header({
           // Start from left edge, extending smoothly to the right
           const innerPanel = dropdownEl.querySelector('div') as HTMLElement;
           
-          // Set initial hidden state
+          // Set initial hidden state - pure slide, no opacity
           gsap.set(dropdownEl, { 
-            opacity: 0,
             x: -targetWidth,
             transformOrigin: 'left center'
           });
           
-          // Animate to visible
+          // Animate to visible - pure slide animation
           gsap.to(dropdownEl, {
-            opacity: 1,
             x: 0,
-            duration: 0.9,
+            duration: 0.7,
             ease: 'power3.out'
           });
           
@@ -256,7 +254,7 @@ export default function Header({
             
             gsap.to(innerPanel, {
               scaleX: 1,
-              duration: 0.9,
+              duration: 0.7,
               ease: 'power3.out'
             });
           }
@@ -310,6 +308,8 @@ export default function Header({
             ease: 'power2.in'
           });
         }
+        // Note: Work With Us and Proof in the People exit animation is handled
+        // separately in the isAnimatingOut effect, so we don't interfere here
       }
     });
   }, [activeDropdown, items]);
@@ -324,12 +324,19 @@ export default function Header({
     const dropdownRect = dropdownEl.getBoundingClientRect();
     const innerPanel = dropdownEl.querySelector('div') as HTMLElement;
     
-    // Smooth slide to right for mega panel exit
+    // Pure slide to right for mega panel exit - no opacity fade
     gsap.to(dropdownEl, {
       x: window.innerWidth,
-      opacity: 0,
       duration: 0.7,
-      ease: 'power3.in'
+      ease: 'power3.in',
+      onComplete: () => {
+        // Reset position off-screen to the left for next slide-in
+        const targetWidth = dropdownRect.width;
+        gsap.set(dropdownEl, { x: -targetWidth });
+        if (innerPanel) {
+          gsap.set(innerPanel, { scaleX: 0, transformOrigin: 'left center' });
+        }
+      }
     });
     
     if (innerPanel) {
@@ -1027,7 +1034,7 @@ export default function Header({
               if (el) dropdownRefs.current.set('Work With Us', el);
             }}
             className="absolute left-0 right-0 top-full z-50"
-            style={{ paddingTop: '0px', opacity: 0, pointerEvents: activeDropdown === 'Work With Us' ? 'auto' : 'none' }}
+            style={{ paddingTop: '0px', pointerEvents: activeDropdown === 'Work With Us' ? 'auto' : 'none' }}
             onMouseEnter={() => handleDropdownEnter('Work With Us')}
             onMouseLeave={() => handleDropdownLeave('Work With Us')}
           >
@@ -1098,7 +1105,7 @@ export default function Header({
               if (el) dropdownRefs.current.set('Proof in the People', el);
             }}
             className="absolute left-0 right-0 top-full z-50"
-            style={{ paddingTop: '0px', opacity: 0, pointerEvents: activeDropdown === 'Proof in the People' ? 'auto' : 'none' }}
+            style={{ paddingTop: '0px', pointerEvents: activeDropdown === 'Proof in the People' ? 'auto' : 'none' }}
             onMouseEnter={() => handleDropdownEnter('Proof in the People')}
             onMouseLeave={() => handleDropdownLeave('Proof in the People')}
           >
