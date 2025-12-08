@@ -22,8 +22,11 @@ export default function VideoPlayer({
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -106,6 +109,43 @@ export default function VideoPlayer({
     }
   };
 
+  // Handle mouse move for cursor label
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !hasStarted) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      // Calculate mouse position in viewport coordinates (for fixed positioning)
+      const x = e.clientX;
+      const y = e.clientY;
+      
+      // Constrain to container bounds
+      const constrainedX = Math.max(rect.left, Math.min(x, rect.right));
+      const constrainedY = Math.max(rect.top, Math.min(y, rect.bottom));
+      
+      setCursorPosition({ x: constrainedX, y: constrainedY });
+    };
+
+    const handleMouseEnter = () => {
+      setIsHovering(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsHovering(false);
+    };
+
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [hasStarted]);
+
   // Check if video is horizontal (default aspect-video is 16:9, which is horizontal)
   const isHorizontal = aspectRatio === "aspect-video" || aspectRatio.includes("video") || !aspectRatio.includes("9/16");
   
@@ -115,6 +155,7 @@ export default function VideoPlayer({
   return (
     <div className={`relative w-full ${aspectRatio} overflow-visible ${videoRounded} ${className}`}>
       <div 
+        ref={containerRef}
         className={`relative w-full h-full overflow-hidden ${videoRounded} cursor-pointer`}
         onClick={handleVideoClick}
       >
@@ -154,6 +195,36 @@ export default function VideoPlayer({
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </button>
+        )}
+
+        {/* Cursor-following pause/play label */}
+        {hasStarted && isHovering && (
+          <div
+            className="fixed pointer-events-none z-50 flex flex-col items-center gap-1"
+            style={{
+              left: `calc(${cursorPosition.x + 14}px)`,
+              top: `calc(${cursorPosition.y + 30}px)`,
+              transform: 'translate(-50%, -50%)',
+              willChange: 'transform'
+            }}
+          >
+            {isPlaying ? (
+              <Pause className="w-6 h-6 text-white" />
+            ) : (
+              <Play className="w-6 h-6 text-white" />
+            )}
+            <div
+              className="px-2 py-1 rounded-lg bg-white shadow-lg whitespace-nowrap"
+              style={{
+                fontFamily: 'TexGyreAdventor',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'var(--color-blue)'
+              }}
+            >
+              {isPlaying ? 'Click to pause' : 'Click to play'}
+            </div>
+          </div>
         )}
       </div>
 
