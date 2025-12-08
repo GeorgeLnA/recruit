@@ -509,16 +509,16 @@ export default function WorkWithUs() {
                 className="client-card-01 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#ff9752',
                   transform: enableTransforms ? getCardTransform('left', clientCardProgress[0] || 0) : undefined 
                 }}
               >
-                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col md:flex-col lg:flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 200px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col md:flex-col lg:flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 200px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Deep Industry Expertise
                     </h2>
@@ -534,7 +534,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
                         src="/vids/SHORT 1.mp4"
@@ -551,7 +551,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
                   </p>
                 )}
@@ -565,16 +565,16 @@ export default function WorkWithUs() {
                 className="client-card-02 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#ff3632',
                   transform: enableTransforms ? getCardTransform('right', clientCardProgress[1] || 0) : undefined 
                 }}
               >
                 <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Global Network, Personal Approach
                     </h2>
@@ -590,7 +590,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
                         src="/vids/SHORT 2.mp4"
@@ -607,7 +607,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
                   </p>
                 )}
@@ -621,10 +621,10 @@ export default function WorkWithUs() {
                 className="client-card-03 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#fdcc69',
                   transform: enableTransforms ? getCardTransform('left', clientCardProgress[2] || 0) : undefined 
                 }}
@@ -646,7 +646,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
                         src="/vids/SHORT 3.mp4"
@@ -663,7 +663,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
                   </p>
                 )}
@@ -677,16 +677,16 @@ export default function WorkWithUs() {
                 className="client-card-04 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#aa95de',
                   transform: enableTransforms ? getCardTransform('right', clientCardProgress[3] || 0) : undefined 
                 }}
               >
                 <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Speed, Transparency & Trust
                     </h2>
@@ -702,7 +702,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
                         src="/vids/SHORT 4.mp4"
@@ -719,7 +719,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
                   </p>
                 )}
@@ -736,10 +736,10 @@ export default function WorkWithUs() {
               <div 
                 ref={(el) => { candidateCardRefs.current[0] = el; }}
                 className="candidate-card-01 md:sticky top-0 z-30 bg-brand-orange relative overflow-hidden mx-auto transition-all duration-500 ease-out"
-                style={{ borderRadius: 'clamp(36px, 3vw, 50px)', padding: 'clamp(32px, 3vw, 80px)', height: 'clamp(520px, 40vw, 640px)', width: 'clamp(94%, 90%, 1152px)', maxWidth: '1152px', transform: enableTransforms ? getCardTransform('left', candidateCardProgress[0] || 0) : undefined }}
+                style={{ borderRadius: 'clamp(36px, 3vw, 50px)', padding: 'clamp(32px, 3vw, 100px)', height: 'clamp(520px, 40vw, 720px)', width: 'clamp(94%, 90%, 1400px)', maxWidth: 'clamp(1152px, 90vw, 1400px)', transform: enableTransforms ? getCardTransform('left', candidateCardProgress[0] || 0) : undefined }}
               >
-                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 160px)' }}>
+                <div className="flex flex-col lg:flex-row h-full" style={{ gap: 'clamp(48px, 4vw, 200px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-start justify-center md:justify-start text-center md:text-left" style={{ paddingRight: 'clamp(0px, 0vw, 200px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Industry Insiders, Not Generalists
                     </h2>
@@ -755,7 +755,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
                         src="/vids/SHORT 1.mp4"
@@ -772,7 +772,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
                   </p>
                 )}
@@ -786,16 +786,16 @@ export default function WorkWithUs() {
                 className="candidate-card-02 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#ff3632',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined 
                 }}
               >
                 <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                  <div className="flex-1 w-full md:max-w-[65%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Real Opportunities, Not Random Roles
                     </h2>
@@ -811,7 +811,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
                         src="/vids/SHORT 2.mp4"
@@ -828,7 +828,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
                   </p>
                 )}
@@ -842,10 +842,10 @@ export default function WorkWithUs() {
                 className="candidate-card-03 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#fdcc69',
                   transform: enableTransforms ? getCardTransform('left', candidateCardProgress[2] || 0) : undefined 
                 }}
@@ -867,7 +867,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
                         src="/vids/SHORT 3.mp4"
@@ -884,7 +884,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
                   </p>
                 )}
@@ -898,16 +898,16 @@ export default function WorkWithUs() {
                 className="candidate-card-04 md:sticky top-0 z-30 relative overflow-hidden mx-auto transition-all duration-500 ease-out"
                 style={{ 
                   borderRadius: 'clamp(36px, 3vw, 50px)', 
-                  padding: 'clamp(32px, 3vw, 80px)', 
-                  height: 'clamp(520px, 40vw, 640px)', 
-                  width: 'clamp(94%, 90%, 1152px)', 
-                  maxWidth: '1152px',
+                  padding: 'clamp(32px, 3vw, 100px)', 
+                  height: 'clamp(520px, 40vw, 720px)', 
+                  width: 'clamp(94%, 90%, 1400px)', 
+                  maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#aa95de',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined 
                 }}
               >
                 <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)' }}>
                     <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
                       Confidentiality & Honesty Always
                     </h2>
@@ -923,7 +923,7 @@ export default function WorkWithUs() {
                   </div>
 
                   <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
-                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(180px, 14vw, 280px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
+                    <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
                         src="/vids/SHORT 5.mp4"
@@ -940,7 +940,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(40px, 3vw, 64px)', fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '672px' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
                   </p>
                 )}

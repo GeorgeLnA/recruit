@@ -162,23 +162,23 @@ export default function VideoPlayer({
         <>
           {/* Top-left corner */}
           <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none z-10">
-            <div className="absolute top-0 left-0 w-24 h-1.5" style={{ backgroundColor: '#464C53' }}></div>
-            <div className="absolute top-0 left-0 w-1.5 h-24" style={{ backgroundColor: '#464C53' }}></div>
+            <div className="absolute top-0 left-0 w-24 h-1.5" style={{ backgroundColor: 'var(--color-blue)' }}></div>
+            <div className="absolute top-0 left-0 w-1.5 h-24" style={{ backgroundColor: 'var(--color-blue)' }}></div>
           </div>
           {/* Top-right corner */}
           <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none z-10">
-            <div className="absolute top-0 right-0 w-24 h-1.5" style={{ backgroundColor: '#464C53' }}></div>
-            <div className="absolute top-0 right-0 w-1.5 h-24" style={{ backgroundColor: '#464C53' }}></div>
+            <div className="absolute top-0 right-0 w-24 h-1.5" style={{ backgroundColor: 'var(--color-blue)' }}></div>
+            <div className="absolute top-0 right-0 w-1.5 h-24" style={{ backgroundColor: 'var(--color-blue)' }}></div>
           </div>
           {/* Bottom-left corner */}
           <div className="absolute bottom-0 left-0 w-32 h-32 pointer-events-none z-10">
-            <div className="absolute bottom-0 left-0 w-24 h-1.5" style={{ backgroundColor: '#464C53' }}></div>
-            <div className="absolute bottom-0 left-0 w-1.5 h-24" style={{ backgroundColor: '#464C53' }}></div>
+            <div className="absolute bottom-0 left-0 w-24 h-1.5" style={{ backgroundColor: 'var(--color-blue)' }}></div>
+            <div className="absolute bottom-0 left-0 w-1.5 h-24" style={{ backgroundColor: 'var(--color-blue)' }}></div>
           </div>
           {/* Bottom-right corner */}
           <div className="absolute bottom-0 right-0 w-32 h-32 pointer-events-none z-10">
-            <div className="absolute bottom-0 right-0 w-24 h-1.5" style={{ backgroundColor: '#464C53' }}></div>
-            <div className="absolute bottom-0 right-0 w-1.5 h-24" style={{ backgroundColor: '#464C53' }}></div>
+            <div className="absolute bottom-0 right-0 w-24 h-1.5" style={{ backgroundColor: 'var(--color-blue)' }}></div>
+            <div className="absolute bottom-0 right-0 w-1.5 h-24" style={{ backgroundColor: 'var(--color-blue)' }}></div>
           </div>
         </>
       )}

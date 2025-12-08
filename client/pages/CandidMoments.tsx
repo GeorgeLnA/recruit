@@ -277,7 +277,7 @@ export default function CandidMoments() {
       >
         <div 
           ref={cardsSectionRef} 
-          className="relative min-h-screen flex items-center justify-center px-6 py-24 overflow-visible"
+          className="relative min-h-screen flex items-center justify-center px-6 pt-24 overflow-visible"
         >
           <div ref={sliderRef} className="max-w-7xl mx-auto w-full overflow-visible">
             <CurvedSlider 

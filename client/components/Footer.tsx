@@ -87,44 +87,70 @@ export default function Footer() {
     return () => observer.disconnect();
   }, []);
 
-  // Add shake animation on hover for back to top button
+  // Add shake animation and hover effects for back to top button
   useEffect(() => {
-    const button = backToTopRef.current;
-    if (!button) return;
+    const buttons = footerRef.current?.querySelectorAll('[data-footer-top]') as NodeListOf<HTMLElement>;
+    if (!buttons || buttons.length === 0) return;
 
-    const handleMouseEnter = () => {
-      // Scale up on hover
-      button.style.transform = 'scale(1.1)';
-      // Shake animation with rotation
-      gsap.to(button, {
-        rotation: -20,
-        duration: 0.015,
-        ease: 'power2.out',
-        yoyo: true,
-        repeat: 6
-      });
-    };
+    const handlers: Array<{ button: HTMLElement; enter: () => void; leave: () => void }> = [];
 
-    const handleMouseLeave = () => {
-      gsap.killTweensOf(button);
-      // Reset scale and rotation
-      gsap.to(button, {
-        rotation: 0,
-        scale: 1,
-        duration: 0.1,
-        ease: 'power2.out',
-        onComplete: () => {
-          button.style.transform = 'scale(1)';
+    buttons.forEach((button) => {
+      const icon = button.querySelector('svg') as SVGSVGElement;
+      
+      const handleMouseEnter = () => {
+        // Animate button
+        gsap.to(button, {
+          scale: 1.1,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+        
+        // Animate icon - bounce/rotate effect
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1.2,
+            rotation: 360,
+            duration: 0.6,
+            ease: 'back.out(1.7)'
+          });
         }
-      });
-    };
+      };
 
-    button.addEventListener('mouseenter', handleMouseEnter);
-    button.addEventListener('mouseleave', handleMouseLeave);
+      const handleMouseLeave = () => {
+        gsap.killTweensOf(button);
+        if (icon) {
+          gsap.killTweensOf(icon);
+        }
+        
+        // Reset button
+        gsap.to(button, {
+          scale: 1,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+        
+        // Reset icon
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        }
+      };
+
+      button.addEventListener('mouseenter', handleMouseEnter);
+      button.addEventListener('mouseleave', handleMouseLeave);
+      
+      handlers.push({ button, enter: handleMouseEnter, leave: handleMouseLeave });
+    });
 
     return () => {
-      button.removeEventListener('mouseenter', handleMouseEnter);
-      button.removeEventListener('mouseleave', handleMouseLeave);
+      handlers.forEach(({ button, enter, leave }) => {
+        button.removeEventListener('mouseenter', enter);
+        button.removeEventListener('mouseleave', leave);
+      });
     };
   }, []);
 
@@ -132,6 +158,12 @@ export default function Footer() {
 
   return (
     <>
+      <style>{`
+        [data-footer-heading] {
+          font-weight: 700 !important;
+          font-family: inherit !important;
+        }
+      `}</style>
       {/* Client Logo Marquee Section */}
       <section className="w-full bg-[var(--color-blue)] overflow-visible" style={{ paddingTop: 'clamp(60px, 8vw, 120px)', paddingBottom: 'clamp(20px, 3vw, 40px)' }}>
         <div className="container mx-auto px-6 lg:px-8 overflow-visible" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
@@ -154,7 +186,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-full mx-auto" style={{ alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
           {/* Column 1: CDC Global Address */}
           <div data-footer-col>
-            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>CDC Global</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>CDC Global</h4>
             <div className="text-white" style={{ fontSize: 'clamp(11px, 1vw, 14px)', lineHeight: '1.5' }}>
               <p>Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
             </div>
@@ -162,7 +194,7 @@ export default function Footer() {
 
           {/* Column 2: Navigation */}
           <div data-footer-col>
-            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Navigation</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Navigation</h4>
             <div className="space-y-2">
               <a href="/" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 Home
@@ -191,7 +223,7 @@ export default function Footer() {
 
  	    {/* Column 3: Work With Us */}
           <div data-footer-col>
-            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Work With Us</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Work With Us</h4>
             <div className="space-y-2">
               <a href="/work-with-us#client" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
                 As a Client
@@ -218,13 +250,14 @@ export default function Footer() {
                 aria-label="Back to top"
                 style={{ 
                   width: 'clamp(40px, 3vw, 48px)', 
-                  height: 'clamp(40px, 3vw, 48px)'
+                  height: 'clamp(40px, 3vw, 48px)',
+                  cursor: 'pointer'
                 }}
               >
-                <ArrowUp style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)' }} />
+                <ArrowUp className="text-[#FF9752]" style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)', color: '#FF9752' }} />
               </button>
             </div>
-            <h4 className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Contact</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Contact</h4>
             <div className="space-y-2 mb-6">
               <a href="tel:+447554440299" className="block text-white hover:opacity-70 transition-opacity" style={{ fontSize: 'clamp(11px, 1vw, 14px)', wordBreak: 'break-all' }}>
                 07554 440 299
@@ -240,7 +273,7 @@ export default function Footer() {
                 adam@cdcglobal.co.uk
               </a>
             </div>
-            <h4 className="text-white font-bold tracking-wider mb-4 mt-6" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Follow</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4 mt-6" style={{ fontSize: 'clamp(12px, 1.25vw, 14px)' }}>Follow</h4>
             <div className="space-y-2">
               <a
                 href="https://www.linkedin.com/company/cdcglobal/"
@@ -281,37 +314,39 @@ export default function Footer() {
           <button
             data-footer-top
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="rounded-lg bg-white text-black flex items-center justify-center shadow-lg"
+            className="w-12 h-12 rounded-lg bg-white text-black flex items-center justify-center shadow-lg"
             aria-label="Back to top"
             style={{ 
               width: 'clamp(40px, 3vw, 48px)', 
               height: 'clamp(40px, 3vw, 48px)',
-              transition: 'transform 0.3s ease-out, scale 0.3s ease-out',
-              transform: 'scale(1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
+              cursor: 'pointer'
             }}
           >
-            <ArrowUp style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)' }} />
+            <ArrowUp className="w-5 h-5 text-[#FF9752]" style={{ width: 'clamp(16px, 1.5vw, 20px)', height: 'clamp(16px, 1.5vw, 20px)', color: '#FF9752' }} />
           </button>
         </div>
         <div
           data-footer-head
-          className="text-white font-bold leading-[0.9] w-full text-center"
+          className="text-white font-bold leading-[0.9] text-center"
           style={{
-            fontSize: "clamp(2.5rem, 12vw, 18rem)",
-            padding: "0 clamp(8px, 1vw, 16px)",
+            fontSize: "clamp(3.5rem, 16vw, 24rem)",
+            marginLeft: 'clamp(-24px, -3vw, -48px)',
+            marginRight: 'clamp(-24px, -3vw, -48px)',
             marginBottom: 'clamp(8px, 1vw, 24px)',
+            paddingLeft: 'clamp(24px, 3vw, 48px)',
+            paddingRight: 'clamp(24px, 3vw, 48px)',
             overflow: 'hidden',
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            width: '100vw',
+            position: 'relative',
+            left: 'calc(50% - 7px)',
+            right: '50%',
+            marginLeft: '-50vw',
+            marginRight: '-50vw'
           }}
         >
           <div className="w-full flex justify-center">
-            <span className="whitespace-nowrap" style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>Cdc Global</span>
+            <span className="whitespace-nowrap" style={{ width: '100%', display: 'block', textAlign: 'center' }}>CDC Global</span>
           </div>
         </div>
 

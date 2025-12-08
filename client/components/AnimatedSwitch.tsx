@@ -34,28 +34,68 @@ export default function AnimatedSwitch({
 
     const isChecked = leftActive ? !checked : checked;
 
-    // Animate the slider position
-    gsap.to(sliderRef.current, {
+    // Kill any running animations first to prevent conflicts
+    gsap.killTweensOf([sliderRef.current, leftLabelRef.current, rightLabelRef.current]);
+
+    // Use a timeline to synchronize all animations for smooth performance
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+    // Animate the slider position with hardware acceleration
+    tl.to(sliderRef.current, {
       x: isChecked ? "0%" : "100%",
-      duration: 0.6,
+      duration: 0.5,
       ease: "power2.out",
-    });
+      force3D: true, // Force hardware acceleration
+    }, 0);
 
-    // Animate label emphasis (keep both labels white)
-    gsap.to(leftLabelRef.current, {
+    // Animate label emphasis simultaneously (keep both labels white)
+    tl.to(leftLabelRef.current, {
       opacity: isChecked ? 1 : 0.5,
-      color: "var(--color-white)",
       duration: 0.4,
       ease: "power1.out",
-    });
+    }, 0);
 
-    gsap.to(rightLabelRef.current, {
+    tl.to(rightLabelRef.current, {
       opacity: isChecked ? 0.5 : 1,
-      color: "var(--color-white)",
       duration: 0.4,
       ease: "power1.out",
-    });
+    }, 0);
   }, [checked, leftActive]);
+
+  // Add hover animation for the switch container
+  useEffect(() => {
+    const switchContainer = switchRef.current?.querySelector('.switch-container') as HTMLElement;
+    if (!switchContainer) return;
+
+    const handleMouseEnter = () => {
+      gsap.killTweensOf(switchContainer); // Kill any running animations
+      gsap.to(switchContainer, {
+        scale: 1.05,
+        duration: 0.3,
+        ease: 'power2.out',
+        force3D: true // Force hardware acceleration
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.killTweensOf(switchContainer); // Kill any running animations
+      gsap.to(switchContainer, {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        force3D: true // Force hardware acceleration
+      });
+    };
+
+    switchContainer.addEventListener('mouseenter', handleMouseEnter);
+    switchContainer.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      switchContainer.removeEventListener('mouseenter', handleMouseEnter);
+      switchContainer.removeEventListener('mouseleave', handleMouseLeave);
+      gsap.killTweensOf(switchContainer); // Clean up on unmount
+    };
+  }, []);
 
   return (
     <div 
@@ -65,24 +105,46 @@ export default function AnimatedSwitch({
     >
       <span 
         ref={leftLabelRef}
-        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight flex-1"
-        style={{ minWidth: '400px', maxWidth: '600px' }}
+        className="text-7xl font-bold whitespace-normal text-center text-white leading-tight flex-1"
+        style={{ 
+          minWidth: '400px', 
+          maxWidth: '600px',
+          willChange: 'opacity',
+          transform: 'translateZ(0)' // Force hardware acceleration
+        }}
       >
         {leftLabel}
       </span>
       
-      <div className="relative w-40 h-20 rounded-full border-4 overflow-hidden shadow-inner flex-shrink-0" style={{ borderColor, backgroundColor: switchBgColor }}>
+      <div 
+        className="switch-container relative w-40 h-20 rounded-full border-4 overflow-hidden shadow-inner flex-shrink-0" 
+        style={{ 
+          borderColor, 
+          backgroundColor: switchBgColor,
+          willChange: 'transform',
+          transform: 'translateZ(0)' // Force hardware acceleration
+        }}
+      >
         <div
           ref={sliderRef}
-          className="absolute top-0 left-0 w-1/2 h-full rounded-full transition-transform duration-600 ease-out will-change-transform"
-          style={{ backgroundColor: sliderColor }}
+          className="absolute top-0 left-0 w-1/2 h-full rounded-full"
+          style={{ 
+            backgroundColor: sliderColor,
+            willChange: 'transform',
+            transform: 'translateZ(0)' // Force hardware acceleration
+          }}
         />
       </div>
       
       <span 
         ref={rightLabelRef}
-        className="text-7xl font-bold transition-colors whitespace-normal text-center text-white leading-tight flex-1"
-        style={{ minWidth: '400px', maxWidth: '600px' }}
+        className="text-7xl font-bold whitespace-normal text-center text-white leading-tight flex-1"
+        style={{ 
+          minWidth: '400px', 
+          maxWidth: '600px',
+          willChange: 'opacity',
+          transform: 'translateZ(0)' // Force hardware acceleration
+        }}
       >
         {rightLabel}
       </span>

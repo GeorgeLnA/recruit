@@ -83,6 +83,68 @@ export default function Contact() {
     });
   };
 
+  // Add hover animations for icon containers
+  useGSAP(() => {
+    const iconContainers = pageRef.current?.querySelectorAll('[data-icon-container]') as NodeListOf<HTMLElement>;
+    if (!iconContainers || iconContainers.length === 0) return;
+
+    const handlers: Array<{ container: HTMLElement; enter: () => void; leave: () => void }> = [];
+
+    iconContainers.forEach((container) => {
+      const icon = container.querySelector('svg') as SVGSVGElement;
+      
+      const handleMouseEnter = () => {
+        // Animate container
+        gsap.to(container, {
+          scale: 1.1,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+        
+        // Animate icon - bounce/rotate effect
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1.2,
+            rotation: 360,
+            duration: 0.6,
+            ease: 'back.out(1.7)'
+          });
+        }
+      };
+
+      const handleMouseLeave = () => {
+        // Reset container
+        gsap.to(container, {
+          scale: 1,
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+        
+        // Reset icon
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        }
+      };
+
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
+      
+      handlers.push({ container, enter: handleMouseEnter, leave: handleMouseLeave });
+    });
+
+    return () => {
+      handlers.forEach(({ container, enter, leave }) => {
+        container.removeEventListener('mouseenter', enter);
+        container.removeEventListener('mouseleave', leave);
+      });
+    };
+  }, []);
+
   return (
     <>
       <div 
@@ -197,7 +259,11 @@ export default function Contact() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 1.5vw, 24px)' }}>
                   {/* Address */}
                   <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
-                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                    <div 
+                      data-icon-container
+                      className="flex-shrink-0 rounded-lg flex items-center justify-center cursor-pointer" 
+                      style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}
+                    >
                       <MapPin className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>
@@ -214,7 +280,11 @@ export default function Contact() {
 
                   {/* Email */}
                   <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
-                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                    <div 
+                      data-icon-container
+                      className="flex-shrink-0 rounded-lg flex items-center justify-center cursor-pointer" 
+                      style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}
+                    >
                       <Mail className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>
@@ -242,7 +312,11 @@ export default function Contact() {
 
                   {/* Phone */}
                   <div className="flex items-start" style={{ gap: 'clamp(12px, 1vw, 16px)' }}>
-                    <div className="flex-shrink-0 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}>
+                    <div 
+                      data-icon-container
+                      className="flex-shrink-0 rounded-lg flex items-center justify-center cursor-pointer" 
+                      style={{ backgroundColor: '#FF9752', width: 'clamp(40px, 3vw, 48px)', height: 'clamp(40px, 3vw, 48px)' }}
+                    >
                       <Phone className="text-white" style={{ width: 'clamp(20px, 1.5vw, 24px)', height: 'clamp(20px, 1.5vw, 24px)' }} />
                     </div>
                     <div>

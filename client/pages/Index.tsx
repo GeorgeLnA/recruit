@@ -1,5 +1,6 @@
 import { ArrowRight, Mail, Linkedin, Phone, MapPin, Volume2, VolumeX, ArrowDown } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
+import MobileMessage from "@/components/MobileMessage";
 import { FlipButton } from "@/components/FlipButton";
 import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
@@ -33,30 +34,15 @@ export default function Index() {
   const [expertiseCardProgress, setExpertiseCardProgress] = useState<number[]>([0, 0, 0, 0]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [circlePosition, setCirclePosition] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const heroVideoContainerRef = useRef<HTMLVideoElement>(null);
+  const heroVideoContainerRef = useRef<HTMLDivElement>(null);
   const aboutUsRef = useRef<HTMLDivElement>(null);
   const [revealedWordCount, setRevealedWordCount] = useState(0);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHoveringHero, setIsHoveringHero] = useState(false);
-
-  // Detect mobile devices and skip loading on mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-      setIsMobile(mobile);
-      // Skip loading animation on mobile
-      if (mobile && isLoading) {
-        setIsLoading(false);
-      }
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, [isLoading]);
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -138,31 +124,21 @@ export default function Index() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isMobile) {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-      }
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    if (!isMobile) {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
+    window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (!isMobile) {
-        window.removeEventListener('mousemove', handleMouseMove);
-      }
+      window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [isMobile]);
+  }, []);
 
   // Removed IntersectionObserver in favor of a simpler, stable rAF-based tracker
 
   useEffect(() => {
-    if (isMobile) {
-      setCirclePosition({ x: 0, y: 0 });
-      return;
-    }
     const damping = 0.3; // 30% damping
     const animationFrame = requestAnimationFrame(() => {
       setCirclePosition(prev => ({
@@ -172,7 +148,7 @@ export default function Index() {
     });
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [mousePosition, isMobile]);
+  }, [mousePosition]);
 
   // Helper functions for video shape morphing (based on videoProgress within grey section)
   const getVideoBorderRadius = (progress: number) => {
@@ -518,59 +494,44 @@ export default function Index() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isMobile) {
-        targetX = e.clientX;
-        targetY = e.clientY;
+      targetX = e.clientX;
+      targetY = e.clientY;
 
-        if (rafId === null) {
-          rafId = requestAnimationFrame(animate);
-        }
+      if (rafId === null) {
+        rafId = requestAnimationFrame(animate);
       }
     };
 
     const handleMouseEnter = () => {
-      if (!isMobile) {
-        setIsHoveringHero(true);
-      }
+      setIsHoveringHero(true);
     };
 
     const handleMouseLeave = () => {
-      if (!isMobile) {
-        setIsHoveringHero(false);
-      }
+      setIsHoveringHero(false);
     };
 
-    const handleClick = (e: MouseEvent) => {
-      // Only handle clicks on the container itself, not on video (video has its own handler)
-      if (heroVideoRef.current && e.target === container) {
+    const handleClick = () => {
+      if (heroVideoRef.current) {
         heroVideoRef.current.muted = !heroVideoRef.current.muted;
         setIsSoundEnabled(!heroVideoRef.current.muted);
       }
     };
 
-    if (!isMobile) {
-      container.addEventListener('mousemove', handleMouseMove, { passive: true });
-      container.addEventListener('mouseenter', handleMouseEnter);
-      container.addEventListener('mouseleave', handleMouseLeave);
-      // Don't add container click handler on desktop - video has its own onClick handler
-    } else {
-      // On mobile, add container click handler as fallback
-      container.addEventListener('click', handleClick);
-    }
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('click', handleClick);
 
     return () => {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }
-      if (!isMobile) {
-        container.removeEventListener('mousemove', handleMouseMove);
-        container.removeEventListener('mouseenter', handleMouseEnter);
-        container.removeEventListener('mouseleave', handleMouseLeave);
-      } else {
-        container.removeEventListener('click', handleClick);
-      }
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('click', handleClick);
     };
-  }, [isMobile]);
+  }, []);
 
   // Scroll animation for About Us word reveal
   useEffect(() => {
@@ -700,95 +661,155 @@ export default function Index() {
 
   return (
     <div className="overflow-x-hidden bg-white relative">
-      {/* Loading screen overlay */}
-      {isLoading && !isMobile && (
-        <LoadingScreen onComplete={() => setIsLoading(false)} />
-      )}
+      {/* Mobile message - shows on mobile devices */}
+      <MobileMessage onMobileDetected={() => setIsMobile(true)} />
       
-      {/* Main content area */}
-      <div>
+      {/* Only show content on desktop */}
+      {!isMobile && (
+        <>
+          {/* Loading screen overlay */}
+          {isLoading && (
+            <LoadingScreen onComplete={() => setIsLoading(false)} />
+          )}
+          
+          {/* Main content area - only on desktop */}
+          <div>
 
       {/* Hero Section */}
-        {isMobile ? (
-          /* Mobile Hero Section - Unique Design */
-          <section 
-            ref={heroRef} 
-            id="home" 
-            className="w-full relative z-10"
-            style={{
-              minHeight: 'calc(100vh - clamp(50px, 4vw, 63px))',
-              paddingTop: 'clamp(50px, 4vw, 63px)',
-              backgroundColor: 'var(--theme-background)'
+        <section 
+          ref={heroRef} 
+          id="home" 
+          className={`w-full hero-outline h-screen relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
+          style={{
+            transform: `translateY(${-scrollProgress * 200}px) rotate(${scrollProgress * 90}deg)`,
+            transformOrigin: 'right bottom'
+          }}
+        >
+          <div className="hero-corner bl"></div>
+          <div className="hero-corner br"></div>
+          <div 
+            ref={heroVideoContainerRef}
+            className="hero-inner h-full flex flex-col justify-center relative"
+            style={{ 
+              overflow: 'visible',
+              margin: 0,
+              padding: 0,
+              border: 'none'
             }}
           >
-            <div 
-              ref={heroVideoContainerRef}
-              className="relative w-full flex flex-col"
-              style={{ 
-                height: 'calc(100vh - clamp(50px, 4vw, 63px))',
-                minHeight: '500px'
+            {/* Video background */}
+            <video
+              ref={heroVideoRef}
+              className="absolute w-full object-cover cursor-pointer"
+              style={{
+                top: '63px', // Start exactly at bottom of header offset
+                left: 0,
+                right: 0,
+                bottom: 0, // Extend to bottom of viewport, filling remaining height
+                border: 'none',
+                borderRadius: 0,
+                outline: 'none',
+                boxShadow: 'none'
+              }}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              onClick={(e) => {
+                const video = e.currentTarget;
+                if (video.paused) {
+                  video.play();
+                } else {
+                  video.pause();
+                }
               }}
             >
-              {/* Video background - Mobile */}
-              <video
-                ref={heroVideoRef}
-                className="w-full h-full object-cover cursor-pointer"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: '0 0 24px 24px'
-                }}
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                onClick={(e) => {
-                  const video = e.currentTarget;
-                  video.muted = !video.muted;
-                  setIsSoundEnabled(!video.muted);
-                }}
-              >
-                <source
-                  src="/vids/HERO.mp4"
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
+              <source
+                src="/vids/HERO.mp4"
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
 
-              {/* Sound toggle button - Mobile */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (heroVideoRef.current) {
-                    heroVideoRef.current.muted = !heroVideoRef.current.muted;
-                    setIsSoundEnabled(!heroVideoRef.current.muted);
-                  }
+            {/* Custom sound cursor */}
+            {isHoveringHero && (
+              <div
+                className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
+                style={{
+                  left: `${cursorPosition.x + 20}px`,
+                  top: `${cursorPosition.y}px`,
+                  transform: 'translateY(-50%)',
+                  willChange: 'transform'
                 }}
-                className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg"
-                aria-label={isSoundEnabled ? "Mute video" : "Unmute video"}
               >
                 {isSoundEnabled ? (
-                  <Volume2 className="w-5 h-5 text-[var(--color-blue)]" />
+                  <VolumeX 
+                    className="w-10 h-10 text-white"
+                  />
                 ) : (
-                  <VolumeX className="w-5 h-5 text-[var(--color-blue)]" />
+                  <Volume2 
+                    className="w-10 h-10 text-white"
+                  />
                 )}
-              </button>
+                <div
+                  className="px-3 py-1.5 rounded-lg bg-white shadow-lg whitespace-nowrap"
+                  style={{
+                    fontFamily: 'TexGyreAdventor',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: 'var(--color-blue)'
+                  }}
+                >
+                  {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
+                </div>
+              </div>
+            )}
 
-              {/* Content overlay - Mobile - Centered Vertically */}
-              <div className="absolute top-1/2 left-0 right-0 z-40 flex flex-col items-center justify-center px-4 transform -translate-y-1/2">
-                {/* CDMO • Diagnostics • CRO Text - Mobile */}
+            {/* Work with us button */}
+            <div 
+              className="absolute left-1/2 z-40"
+              style={{
+                bottom: 'clamp(120px, 15vw, 180px)',
+                transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '1400px'
+              }}
+            >
+              <div className="flex items-center justify-center w-full">
+                <FlipButton
+                  href="/work-with-us#client"
+                  frontText="Work with us"
+                  backText="Work with us"
+                  from="top"
+                  className="pointer-events-auto"
+                  frontClassName="bg-[var(--color-blue)] text-white font-bold text-xl rounded-lg"
+                  backClassName="bg-[var(--color-peach)] text-[var(--color-blue)] font-bold text-xl rounded-lg"
+                  style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '24px', paddingBottom: '24px' }}
+                />
+              </div>
+            </div>
+
+            {/* Text with blend effect */}
+          <div 
+              className="absolute left-1/2 z-40"
+          style={{
+            bottom: 'clamp(16px, 5vw, 120px)',
+            transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '1400px'
+              }}
+            >
+              <div
+                className="flex items-center justify-center w-full px-6 py-3 md:px-8 md:py-4"
+              >
                 <div 
-                  className="mb-6 flex flex-wrap items-center justify-center font-bold leading-none tracking-wide"
+                  className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
                   style={{ 
                     fontFamily: 'TexGyreAdventor',
-                    color: 'white',
-                    fontSize: 'clamp(18px, 4vw, 28px)',
+                    color: 'var(--color-blue)',
+                    fontSize: 'clamp(20px, 2.5vw, 48px)',
                     textAlign: 'center',
-                    gap: '0.5em',
-                    textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    gap: '0.6em'
                   }}
                 >
                   <span>CDMO</span>
@@ -801,202 +822,19 @@ export default function Index() {
                   </span>
                   <span>CRO</span>
                 </div>
-
-                {/* Work with us button - Mobile */}
-                <FlipButton
-                  href="/work-with-us#client"
-                  frontText="Work with us"
-                  backText="Work with us"
-                  from="top"
-                  className="pointer-events-auto w-full max-w-[280px]"
-                  frontClassName="bg-[var(--color-blue)] text-white font-bold rounded-xl shadow-xl"
-                  backClassName="bg-white text-[var(--color-blue)] font-bold rounded-xl shadow-xl"
-                  style={{ 
-                    paddingLeft: 'clamp(32px, 6vw, 48px)', 
-                    paddingRight: 'clamp(32px, 6vw, 48px)', 
-                    paddingTop: 'clamp(16px, 3vw, 20px)', 
-                    paddingBottom: 'clamp(16px, 3vw, 20px)', 
-                    fontSize: 'clamp(16px, 3vw, 20px)' 
-                  }}
-                />
               </div>
-            </div>
-          </section>
-        ) : (
-          /* Desktop Hero Section - Original Design */
-          <section 
-            ref={heroRef} 
-            id="home" 
-            className={`w-full hero-outline h-screen relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
-            style={{
-              transform: `translateY(${-scrollProgress * 200}px) rotate(${scrollProgress * 90}deg)`,
-              transformOrigin: 'right bottom'
-            }}
-          >
-            <div className="hero-corner bl"></div>
-            <div className="hero-corner br"></div>
-            <div 
-              ref={heroVideoContainerRef}
-              className="hero-inner h-full flex flex-col justify-center relative"
-              style={{ 
-                overflow: 'visible',
-                margin: 0,
-                padding: 0,
-                border: 'none'
-              }}
-            >
-              {/* Video background */}
-              <video
-                ref={heroVideoRef}
-                className="absolute w-full object-cover cursor-pointer"
-                style={{
-                  top: 'clamp(50px, 4vw, 63px)',
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  border: 'none',
-                  borderRadius: 0,
-                  outline: 'none',
-                  boxShadow: 'none'
-                }}
-                muted
-                loop
-                autoPlay
-                playsInline
-                preload="metadata"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent container click handler from firing
-                  const video = e.currentTarget;
-                  const wasMuted = video.muted;
-                  video.muted = !video.muted;
-                  setIsSoundEnabled(!video.muted);
-                  // Ensure video plays when unmuted
-                  if (!wasMuted && video.paused) {
-                    video.play().catch(() => {
-                      // Ignore play errors (autoplay restrictions)
-                    });
-                  } else if (wasMuted && !video.muted) {
-                    // When unmuting, ensure video is playing
-                    video.play().catch(() => {
-                      // Ignore play errors
-                    });
-                  }
-                }}
-              >
-                <source
-                  src="/vids/HERO.mp4"
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
-
-              {/* Custom sound cursor - Desktop only */}
-              {isHoveringHero && (
-                <div
-                  className="fixed pointer-events-none z-50 flex flex-col items-center gap-1"
-                  style={{
-                    left: `${cursorPosition.x + 15}px`,
-                    top: `${cursorPosition.y + 30}px`,
-                    transform: 'translate(-50%, -50%)',
-                    willChange: 'transform'
-                  }}
-                >
-                  {isSoundEnabled ? (
-                    <VolumeX 
-                      className="w-6 h-6 text-white"
-                    />
-                  ) : (
-                    <Volume2 
-                      className="w-6 h-6 text-white"
-                    />
-                  )}
-                  <div
-                    className="px-2 py-1 rounded-lg bg-white shadow-lg whitespace-nowrap"
-                    style={{
-                      fontFamily: 'TexGyreAdventor',
-                      fontSize: '10px',
-                      fontWeight: 'bold',
-                      color: 'var(--color-blue)'
-                    }}
-                  >
-                    {isSoundEnabled ? 'Click to mute' : 'Click for sound'}
-                  </div>
-                </div>
-              )}
-
-              {/* Work with us button */}
-              <div 
-                className="absolute left-1/2 z-40"
-                style={{
-                  bottom: 'clamp(120px, 15vw, 180px)',
-                  transform: 'translateX(-50%)',
-                  width: '90%',
-                  maxWidth: '1400px'
-                }}
-              >
-                <div className="flex items-center justify-center w-full">
-                  <FlipButton
-                    href="/work-with-us#client"
-                    frontText="Work with us"
-                    backText="Work with us"
-                    from="top"
-                    className="pointer-events-auto"
-                    frontClassName="bg-[var(--color-blue)] text-white font-bold text-xl rounded-lg"
-                    backClassName="bg-[var(--color-peach)] text-[var(--color-blue)] font-bold text-xl rounded-lg"
-                    style={{ paddingLeft: 'clamp(24px, 3vw, 48px)', paddingRight: 'clamp(24px, 3vw, 48px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1.25vw, 20px)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Text with blend effect */}
-              <div 
-                className="absolute left-1/2 z-40"
-                style={{
-                  bottom: 'clamp(16px, 5vw, 120px)',
-                  transform: 'translateX(-50%)',
-                  width: '90%',
-                  maxWidth: '1400px'
-                }}
-              >
-                <div
-                  className="flex items-center justify-center w-full"
-                  style={{ paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)', paddingTop: 'clamp(8px, 1vw, 16px)', paddingBottom: 'clamp(8px, 1vw, 16px)' }}
-                >
-                  <div 
-                    className="flex flex-wrap items-center justify-center font-bold leading-none tracking-wide pointer-events-none"
-                    style={{ 
-                      fontFamily: 'TexGyreAdventor',
-                      color: 'var(--color-blue)',
-                      fontSize: 'clamp(20px, 2.5vw, 48px)',
-                      textAlign: 'center',
-                      gap: '0.6em'
-                    }}
-                  >
-                    <span>CDMO</span>
-                    <span className="text-[var(--color-peach)]" aria-hidden="true">
-                      &bull;
-                    </span>
-                    <span>Diagnostics</span>
-                    <span className="text-[var(--color-peach)]" aria-hidden="true">
-                      &bull;
-                    </span>
-                    <span>CRO</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+          </div>
+            
+          </div>
+        </section>
 
         {/* Circle Expansion Section */}
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: isMobile 
-              ? '120vh' // Smaller height on mobile
-              : scrollProgress >= 0.85 ? '100vh' : '200vh',
+            height: scrollProgress >= 0.85 ? '100vh' : '200vh',
             opacity: scrollProgress > 0.2 ? 1 : 1,
-            transition: isMobile ? 'none' : (scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none')
+            transition: scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none'
           }}
         >
           {/* Expanding shape - positioned within section */}
@@ -1005,32 +843,22 @@ export default function Index() {
             style={{
               backgroundColor: 'var(--color-peach)',
               filter: 'none',
-              width: isMobile
-                ? scrollProgress < 0.75 
-                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                  : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion, but stay as circle
-                : scrollProgress < 0.75 
-                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                  : scrollProgress < 0.85
-                  ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                  : '100%', // Full rectangle at the very end (desktop only)
-              height: isMobile
-                ? scrollProgress < 0.75 
-                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                  : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion, but stay as circle
-                : scrollProgress < 0.75 
-                  ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                  : scrollProgress < 0.85
-                  ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                  : '100%', // Full rectangle at the very end (desktop only)
+              width: scrollProgress < 0.75 
+                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                : scrollProgress < 0.85
+                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                : '100%', // Full rectangle at the very end
+              height: scrollProgress < 0.75 
+                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                : scrollProgress < 0.85
+                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                : '100%', // Full rectangle at the very end
               opacity: 1, // Always visible
               transition: 'border-radius 0.1s linear', // Only transition border-radius, much faster
               top: '2%', // Position at 2%
               left: '50%',
               transform: 'translateX(-50%)',
-              borderRadius: isMobile 
-                ? '50%' // Always keep circle shape on mobile
-                : (scrollProgress < 0.85 ? '50%' : '0%'), // Desktop: circle until 0.85, then rectangle
+              borderRadius: scrollProgress < 0.85 ? '50%' : '0%', // Keep circle shape longer
               zIndex: 10,
               willChange: 'width, height, border-radius' // Optimize for performance
             }}
@@ -1043,11 +871,11 @@ export default function Index() {
           <section 
         ref={aboutUsRef as any}
         className="w-full relative bg-brand-orange"
-        style={{ paddingTop: 'clamp(60px, 8vw, 120px)', paddingBottom: 'clamp(40px, 4vw, 60px)' }}
+        style={{ paddingTop: '120px', paddingBottom: '60px' }}
       >
-        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
-          <div className="mx-auto" style={{ maxWidth: '1400px' }}>
-            <h2 className="font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center" style={{ fontSize: 'clamp(32px, 4vw, 64px)', marginBottom: 'clamp(40px, 6vw, 96px)' }}>About Us</h2>
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center mb-24">About Us</h2>
             
             {(() => {
               const storySegments = [
@@ -1068,10 +896,9 @@ export default function Index() {
                     return (
                       <p
                         key={segmentIndex}
-                        className={`leading-tight text-[var(--color-white)] ${segmentIndex === 1 ? 'md:text-right' : ''}`}
+                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-[var(--color-white)] ${segmentIndex === 1 ? 'text-right' : ''}`}
                         style={{
-                          fontWeight: 600,
-                          fontSize: 'clamp(20px, 3vw, 48px)'
+                          fontWeight: 600
                         }}
                       >
                         {segmentWords.map((word, i) => {
@@ -1101,12 +928,12 @@ export default function Index() {
       </section>
 
       {/* Meet Our Founders */}
-      <section className="w-full relative bg-brand-orange overflow-visible" style={{ paddingTop: 'clamp(60px, 6vw, 96px)', paddingBottom: 'clamp(60px, 6vw, 96px)' }}>
-        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
-          <div className="mx-auto" style={{ maxWidth: '1400px' }}>
-            <h2 className="font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center" style={{ fontSize: 'clamp(32px, 4vw, 64px)', marginBottom: 'clamp(32px, 4vw, 64px)' }}>Meet Our Founders</h2>
+      <section className="w-full relative bg-brand-orange py-24 overflow-visible">
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center mb-16">Meet Our Founders</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 'clamp(32px, 4vw, 64px)' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
               {/* Harriet */}
               <div className="group relative cursor-pointer">
                 <div className="rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
@@ -1117,11 +944,11 @@ export default function Index() {
                       loading="lazy"
                 />
               </div>
-                <div className="text-center" style={{ marginTop: 'clamp(16px, 2vw, 24px)' }}>
-                  <h3 className="font-bold text-[var(--color-white)]" style={{ fontSize: 'clamp(20px, 2vw, 30px)', marginBottom: 'clamp(8px, 1vw, 12px)' }}>Harriet Wheat</h3>
-                  <p className="text-[var(--color-white)]/90 font-semibold" style={{ fontSize: 'clamp(14px, 1.25vw, 20px)' }}>Co-Founder</p>
-                  <p className="text-[var(--color-white)]/80" style={{ fontSize: 'clamp(14px, 1vw, 18px)', marginTop: 'clamp(8px, 0.75vw, 12px)' }}>CDMO/CRO Recruitment</p>
-                  <p className="text-[var(--color-white)]/70 mx-auto leading-relaxed" style={{ fontSize: 'clamp(12px, 1vw, 16px)', marginTop: 'clamp(12px, 1vw, 16px)', maxWidth: '448px' }}>
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl md:text-3xl font-bold text-[var(--color-white)] mb-2">Harriet Wheat</h3>
+                  <p className="text-[var(--color-white)]/90 text-lg md:text-xl font-semibold">Co-Founder</p>
+                  <p className="text-[var(--color-white)]/80 text-base md:text-lg mt-3">CDMO/CRO Recruitment</p>
+                  <p className="text-[var(--color-white)]/70 text-sm md:text-base mt-4 max-w-md mx-auto leading-relaxed">
                     With over a decade of experience in pharmaceutical recruitment, Harriet brings deep industry knowledge and a passion for connecting top talent with leading organizations. Her expertise spans across CDMO and CRO sectors, helping companies build exceptional teams.
                   </p>
             </div>
@@ -1137,11 +964,11 @@ export default function Index() {
                       loading="lazy"
                 />
               </div>
-                <div className="text-center" style={{ marginTop: 'clamp(16px, 2vw, 24px)' }}>
-                  <h3 className="font-bold text-[var(--color-white)]" style={{ fontSize: 'clamp(20px, 2vw, 30px)', marginBottom: 'clamp(8px, 1vw, 12px)' }}>Adam Hargreaves</h3>
-                  <p className="text-[var(--color-white)]/90 font-semibold" style={{ fontSize: 'clamp(14px, 1.25vw, 20px)' }}>Co-Founder</p>
-                  <p className="text-[var(--color-white)]/80" style={{ fontSize: 'clamp(14px, 1vw, 18px)', marginTop: 'clamp(8px, 0.75vw, 12px)' }}>Diagnostics Recruitment</p>
-                  <p className="text-[var(--color-white)]/70 mx-auto leading-relaxed" style={{ fontSize: 'clamp(12px, 1vw, 16px)', marginTop: 'clamp(12px, 1vw, 16px)', maxWidth: '448px' }}>
+                <div className="mt-6 text-center">
+                  <h3 className="text-2xl md:text-3xl font-bold text-[var(--color-white)] mb-2">Adam Hargreaves</h3>
+                  <p className="text-[var(--color-white)]/90 text-lg md:text-xl font-semibold">Co-Founder</p>
+                  <p className="text-[var(--color-white)]/80 text-base md:text-lg mt-3">Diagnostics Recruitment</p>
+                  <p className="text-[var(--color-white)]/70 text-sm md:text-base mt-4 max-w-md mx-auto leading-relaxed">
                     Adam specializes in diagnostics recruitment, bringing years of experience in identifying and placing exceptional professionals. His strategic approach and extensive network help candidates find their ideal roles and companies discover the perfect talent.
                   </p>
         </div>
@@ -1152,88 +979,85 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section id="contact" className="bg-brand-orange w-full relative overflow-visible" style={{ paddingTop: 'clamp(60px, 8vw, 128px)', paddingBottom: 'clamp(60px, 8vw, 128px)' }}>
-        <div className="container mx-auto relative" style={{ zIndex: 2, paddingLeft: 'clamp(16px, 2vw, 32px)', paddingRight: 'clamp(16px, 2vw, 32px)' }}>
-          <div className="text-center mx-auto" style={{ maxWidth: '1400px' }}>
-            <h2 className="font-bold leading-[0.95] tracking-[0.02em] text-[var(--color-white)]" style={{ fontSize: 'clamp(32px, 6vw, 96px)', marginBottom: 'clamp(32px, 4vw, 64px)' }}>
+      <section id="contact" className="bg-brand-orange w-full relative py-32 overflow-visible">
+        <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
+          <div className="text-center max-w-6xl mx-auto">
+            <h2 className="text-[48px] md:text-[64px] lg:text-[80px] xl:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-[var(--color-white)] mb-16">
               Choose Your Path
             </h2>
             
             {/* Arrows and Buttons Container */}
-            <div className="flex flex-col items-center mx-auto" style={{ gap: 'clamp(24px, 4vw, 48px)', maxWidth: '1120px' }}>
-              {/* Container with arrows above buttons, properly aligned */}
-              <div className="flex flex-row justify-center items-start" style={{ gap: 'clamp(24px, 4vw, 64px)' }}>
-                {/* Left Column: Arrow + Client Button */}
-                <div className="flex flex-col items-center" style={{ gap: 'clamp(24px, 3vw, 48px)' }}>
-                  <div 
-                    className="arrow-container-client"
+            <div className="flex justify-center items-start gap-16 max-w-5xl mx-auto">
+              {/* Left Arrow and Client Button */}
+              <div className="flex flex-col items-center gap-6">
+                <div 
+                  className="arrow-container-client"
+                  style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <ArrowDown 
+                    className="arrow-client text-[var(--color-white)]"
                     style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center',
-                      cursor: 'pointer'
+                      width: '48px', 
+                      height: '48px',
+                      transition: 'transform 0.3s ease'
                     }}
-                  >
-                    <ArrowDown 
-                      className="arrow-client text-[var(--color-white)]"
-                      style={{ 
-                        width: 'clamp(32px, 3vw, 48px)', 
-                        height: 'clamp(32px, 3vw, 48px)',
-                        transition: 'transform 0.3s ease'
-                      }}
-                    />
-                  </div>
-                  <FlipButton
-                    href="/work-with-us#client"
-                    frontText="Client"
-                    backText="Client"
-                    from="top"
-                    className="rounded-[25px] font-bold"
-                    frontClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
-                    backClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
-                    style={{ paddingLeft: 'clamp(32px, 4vw, 64px)', paddingRight: 'clamp(32px, 4vw, 64px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(18px, 2vw, 32px)' }}
                   />
                 </div>
+                <FlipButton
+                  href="/work-with-us#client"
+                  frontText="Client"
+                  backText="Client"
+                  from="top"
+                  className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
+                  frontClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
+                  backClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
+                />
+              </div>
 
-                {/* Right Column: Arrow + Candidate Button */}
-                <div className="flex flex-col items-center" style={{ gap: 'clamp(24px, 3vw, 48px)' }}>
-                  <div 
-                    className="arrow-container-candidate"
+              {/* Right Arrow and Candidate Button */}
+              <div className="flex flex-col items-center gap-6">
+                <div 
+                  className="arrow-container-candidate"
+                  style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <ArrowDown 
+                    className="arrow-candidate text-[var(--color-white)]"
                     style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center',
-                      cursor: 'pointer'
+                      width: '48px', 
+                      height: '48px',
+                      transition: 'transform 0.3s ease'
                     }}
-                  >
-                    <ArrowDown 
-                      className="arrow-candidate text-[var(--color-white)]"
-                      style={{ 
-                        width: 'clamp(32px, 3vw, 48px)', 
-                        height: 'clamp(32px, 3vw, 48px)',
-                        transition: 'transform 0.3s ease'
-                      }}
-                    />
-                  </div>
-                  <FlipButton
-                    href="/work-with-us#candidate"
-                    frontText="Candidate"
-                    backText="Candidate"
-                    from="top"
-                    className="rounded-[25px] font-bold"
-                    frontClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
-                    backClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
-                    style={{ paddingLeft: 'clamp(32px, 4vw, 64px)', paddingRight: 'clamp(32px, 4vw, 64px)', paddingTop: 'clamp(12px, 1.5vw, 24px)', paddingBottom: 'clamp(12px, 1.5vw, 24px)', fontSize: 'clamp(18px, 2vw, 32px)' }}
                   />
                 </div>
+                <FlipButton
+                  href="/work-with-us#candidate"
+                  frontText="Candidate"
+                  backText="Candidate"
+                  from="top"
+                  className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
+                  frontClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
+                  backClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
+                />
               </div>
             </div>
           </div>
         </div>
       </section>
-      </div>
 
       <Footer />
+          </div>
+        </>
+      )}
     </div>
   );
 }

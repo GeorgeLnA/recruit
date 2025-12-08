@@ -133,19 +133,17 @@ export default function CurvedSlider({
       // Calculate last card's start position to determine travel distances
       const lastCardIndex = totalItems - 1;
       const firstCardIndex = 0;
-      const baseVerticalOffset = -30; // Move starting position higher
+      const baseVerticalOffset = -70; // Move starting position higher
       // Last card starts at its spread position from center (where first card starts)
       const lastCardHorizontalSpread = (lastCardIndex - firstCardIndex) * spacingVw;
       const lastCardVerticalSpread = (lastCardIndex - firstCardIndex) * 35;
       const lastCardStartX = lastCardHorizontalSpread;
       const lastCardStartY = baseVerticalOffset + lastCardVerticalSpread;
       
-      // Calculate travel distances so last card reaches center (0, 0) when progress = 1
-      // Note: diagonalDistanceY is calculated independently - globalUpwardOffset is additional
-      // When progress = 1: x = 0, y = 0
-      // 0 = lastCardStartX - 1 * diagonalDistanceX  =>  diagonalDistanceX = lastCardStartX
-      // 0 = lastCardStartY - 1 * diagonalDistanceY  =>  diagonalDistanceY = lastCardStartY
-      const diagonalDistanceX = lastCardStartX;
+      // Calculate travel distances - reduce horizontal travel so cards only move partway
+      // Cards will only travel 65% of horizontal distance when animation completes
+      const horizontalTravelRatio = 0.65; // Only travel 65% of the way horizontally
+      const diagonalDistanceX = lastCardStartX * horizontalTravelRatio;
       const diagonalDistanceY = lastCardStartY;
       
       items.forEach((_, i) => {
@@ -155,12 +153,14 @@ export default function CurvedSlider({
         // Position cards so first card (index 0) starts at center of screen (slightly higher)
         // Calculate base positions to center the first card
         const firstCardIndex = 0;
-        const baseVerticalOffset = -30; // Move starting position higher
+        const baseVerticalOffset = -70; // Move starting position higher
         const horizontalSpread = (i - firstCardIndex) * spacingVw;
         const verticalSpread = (i - firstCardIndex) * 35; // Stagger vertically for diagonal row
         
         // First card starts at center (0, 0) but higher, other cards spread from there
-        const startX = horizontalSpread;
+        // Add offset to move starting position more to the left
+        const leftOffset = 16; // Move all cards 16vw to the left initially
+        const startX = horizontalSpread - leftOffset;
         const startY = baseVerticalOffset + verticalSpread;
         
         // Each card travels independently on diagonal path: bottom-right to top-left
@@ -168,7 +168,7 @@ export default function CurvedSlider({
         const cardProgress = currentProgress;
         
         // Global vertical offset - moves entire row up with scroll so last card isn't too low
-        const globalUpwardOffset = currentProgress * 35; // Additional upward movement for whole row
+        const globalUpwardOffset = 0; // No upward movement for whole row
         
         // Calculate current position based on card progress (all cards use same progress)
         const x = startX - cardProgress * diagonalDistanceX;
