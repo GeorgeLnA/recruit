@@ -552,7 +552,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
                         src="/vids/Short 1.webm"
-                        poster="/vids/thumbnails/SHORT_1.jpg"
                         loop
                         muted
                         playsInline
@@ -611,7 +610,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
                         src="/vids/Short 2.webm"
-                        poster="/vids/thumbnails/SHORT_2.jpg"
                         loop
                         muted
                         playsInline
@@ -670,7 +668,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
                         src="/vids/Short 3.webm"
-                        poster="/vids/thumbnails/SHORT_3.jpg"
                         loop
                         muted
                         playsInline
@@ -729,7 +726,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
                         src="/vids/Short 4.webm"
-                        poster="/vids/thumbnails/SHORT_4.jpg"
                         loop
                         muted
                         playsInline
@@ -785,7 +781,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
                         src="/vids/Short 1.webm"
-                        poster="/vids/thumbnails/SHORT_1.jpg"
                         loop
                         muted
                         playsInline
@@ -844,7 +839,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
                         src="/vids/Short 2.webm"
-                        poster="/vids/thumbnails/SHORT_2.jpg"
                         loop
                         muted
                         playsInline
@@ -903,7 +897,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
                         src="/vids/Short 3.webm"
-                        poster="/vids/thumbnails/SHORT_3.jpg"
                         loop
                         muted
                         playsInline
@@ -962,7 +955,6 @@ export default function WorkWithUs() {
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
                         src="/vids/Short 5.webm"
-                        poster="/vids/thumbnails/SHORT_5.jpg"
                         loop
                         muted
                         playsInline

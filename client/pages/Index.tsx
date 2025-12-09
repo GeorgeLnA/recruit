@@ -700,7 +700,7 @@ export default function Index() {
             {/* Video background */}
             <video
               ref={heroVideoRef}
-              className="absolute w-full object-cover cursor-pointer"
+              className="absolute w-full object-cover pointer-events-none"
               style={{
                 top: '63px', // Start exactly at bottom of header offset
                 left: 0,
@@ -717,14 +717,6 @@ export default function Index() {
               preload="metadata"
               disablePictureInPicture
               disableRemotePlayback
-              onClick={(e) => {
-                const video = e.currentTarget;
-                if (video.paused) {
-                  video.play();
-                } else {
-                  video.pause();
-                }
-              }}
             >
               <source
                 src="/vids/Hero.webm"
