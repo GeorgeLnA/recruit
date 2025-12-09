@@ -80,7 +80,7 @@ export default function AsAClient() {
           </div>
           <div>
             <VideoPlayer
-              src="/CDC Website - ROUGH CUT 1 (1).mp4"
+              src="/CDC Website - ROUGH CUT 1 (1).webm"
               poster="/placeholder.svg"
               title="What we offer to clients"
               className="w-full"

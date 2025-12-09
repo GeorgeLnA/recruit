@@ -1122,6 +1122,9 @@ export default function RotatingEarth({
                         muted={isSoundEnabled[pin.id] === undefined ? true : !isSoundEnabled[pin.id]}
                         playsInline
                         preload="metadata"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ display: 'block' }}
                         onLoadedMetadata={(e) => {

@@ -715,6 +715,8 @@ export default function Index() {
               loop
               playsInline
               preload="metadata"
+              disablePictureInPicture
+              disableRemotePlayback
               onClick={(e) => {
                 const video = e.currentTarget;
                 if (video.paused) {
@@ -725,8 +727,8 @@ export default function Index() {
               }}
             >
               <source
-                src="/vids/HERO.mp4"
-                type="video/mp4"
+                src="/vids/HERO.webm"
+                type="video/webm"
               />
               Your browser does not support the video tag.
             </video>

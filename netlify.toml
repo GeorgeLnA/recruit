@@ -13,3 +13,23 @@
   from = "/api/*"
   status = 200
   to = "/.netlify/functions/api/:splat"
+
+# Video optimization headers - WebM only
+[[headers]]
+  for = "/vids/*"
+  [headers.values]
+    # Enable range requests for video streaming (essential for video playback)
+    Accept-Ranges = "bytes"
+    # Cache videos for 1 year (videos don't change often)
+    Cache-Control = "public, max-age=31536000, immutable"
+    # Enable CORS if needed
+    Access-Control-Allow-Origin = "*"
+
+# WebM video headers (better compression, smaller file sizes)
+[[headers]]
+  for = "/*.webm"
+  [headers.values]
+    Accept-Ranges = "bytes"
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+    Content-Type = "video/webm"

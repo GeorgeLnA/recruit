@@ -21,97 +21,97 @@ const defaultLogos: ClientLogo[] = [
   {
     id: "lifecore",
     name: "Lifecore",
-    imageUrl: "https://lifecore.com/wp-content/uploads/2025/10/Lifecore-Inj-CDMO_Logo_2C-e1761664162878.png",
+    imageUrl: "/logos/Lifecore-Inj-CDMO_Logo_2C-e1761664162878.png",
   },
   {
     id: "solvias",
     name: "Solvias",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2025/03/solvias-logo-1.jpg",
+    imageUrl: "/logos/solvias-logo-1.jpg",
   },
   {
     id: "smartcatch",
     name: "Smartcatch",
-    imageUrl: "https://media.licdn.com/dms/image/v2/C560BAQGkHSg2nnRWtg/company-logo_200_200/company-logo_200_200/0/1630647589319/smartcatch_logo?e=2147483647&v=beta&t=IN3e7KBL-XmtX4puMZfY8yJZ3IDidVba7SKZNnPVqC0",
+    imageUrl: "/logos/smartcatch_logo.jpeg",
   },
   {
     id: "bora",
     name: "Bora",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2022/03/bora840x454.jpg",
+    imageUrl: "/logos/bora840x454.jpg",
   },
   {
     id: "enso",
     name: "Enso",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2024/08/104_main-8.jpg",
+    imageUrl: "/logos/104_main-8.jpg",
   },
   {
     id: "pharmacircle",
     name: "PharmaCircle",
-    imageUrl: "https://www.pharmacircle.com/_get_company_logo.php?company_id=32368",
+    imageUrl: "/logos/_get_company_logo.png",
   },
   {
     id: "ensera",
     name: "Ensera Healthcare",
-    imageUrl: "https://www.worldpharmatoday.com/wp-content/uploads/2025/10/SteriPack-rebrands-to-Ensera-Healthcare-CDMO.jpg",
+    imageUrl: "/logos/SteriPack-rebrands-to-Ensera-Healthcare-CDMO.jpg",
   },
   {
     id: "enzo",
     name: "Enzo",
-    imageUrl: "https://www.enzo.com/wp-content/themes/enzo/dist/images/logo.png",
+    imageUrl: "/logos/logo.png",
   },
   {
     id: "pace",
     name: "Pace",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2024/11/Pace-840-x-454.png",
+    imageUrl: "/logos/Pace-840-x-454.png",
   },
   {
     id: "fuji",
     name: "Fuji",
-    imageUrl: "https://cdn.cookielaw.org/logos/5815ebca-40c3-4028-bfb2-2c28a566ea4f/52d99091-4b9f-4e96-8bb9-c75cf99dde69/77ddff0e-323f-41e0-8ee8-9f9e18694197/FujiStacked.jpg",
+    imageUrl: "/logos/FujiStacked.jpg",
   },
   {
     id: "vector-labs",
     name: "Vector Laboratories",
-    imageUrl: "https://qtxasset.com/quartz/qcloud5/media/image/vector_laboratories_logo.jpeg?VersionId=cTH.iLusxBa_GkIcBVUqoTigD_78ZdcX",
+    imageUrl: "/logos/vector_laboratories_logo.jpeg",
   },
   {
     id: "contract-pharma-1",
     name: "Contract Pharma",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2024/01/345_main.png",
+    imageUrl: "/logos/345_main.png",
   },
   {
     id: "contract-pharma-2",
     name: "Contract Pharma",
-    imageUrl: "https://www.contractpharma.com/wp-content/uploads/sites/6/2024/08/452_main-8.jpg",
+    imageUrl: "/logos/452_main-8.jpg",
   },
   {
     id: "saphetor",
     name: "Saphetor",
-    imageUrl: "https://mms.businesswire.com/media/20231016210169/en/1914775/22/Saphetor_Logo.jpg",
+    imageUrl: "/logos/Saphetor_Logo.jpg",
   },
   {
     id: "ascend",
     name: "Ascend Advanced Therapies",
-    imageUrl: "https://mma.prnewswire.com/media/2381828/5019244/Ascend_Advanced_Therapies_Logo.jpg?p=facebook",
+    imageUrl: "/logos/Ascend_Advanced_Therapies_Logo.jpg",
   },
   {
     id: "novigenix",
     name: "Novigenix",
-    imageUrl: "https://www.biopole.ch/wp-content/uploads/2020/09/Novigenix_logo_210x180.png",
+    imageUrl: "/logos/Novigenix_logo_210x180.png",
   },
   {
     id: "agc",
     name: "AGC Pharma Chemicals",
-    imageUrl: "https://www.agcpharmachemicals.com/wp-content/uploads/2024/10/agc_ld-jpg.webp",
+    imageUrl: "/logos/agc_ld-jpg.webp",
   },
   {
     id: "thermo-fisher",
     name: "Thermo Fisher Scientific",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Thermo_Fisher_Scientific_logo.svg/2560px-Thermo_Fisher_Scientific_logo.svg.png",
+    imageUrl: "/logos/2560px-Thermo_Fisher_Scientific_logo.svg.png",
   },
   {
     id: "predicine",
     name: "Predicine",
-    imageUrl: "https://www.predicine.com/wp-content/uploads/2024/04/Predicine-Logo-Blue-300x129.jpg",
+    imageUrl: "/logos/Predicine-Logo-Blue-300x129.jpg",
   },
 ];
 
@@ -512,11 +512,11 @@ function MarqueeItem({
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
       }}
     >
-      <div className="client-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" style={{ width: '250px', height: '250px', backgroundColor: '#FFF5E5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="client-card logo-card-group rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" style={{ width: '250px', height: '250px', backgroundColor: '#FFF5E5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img 
           src={logo.imageUrl} 
           alt={logo.alt || logo.name} 
-          className="max-w-full max-h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+          className="logo-image max-w-full max-h-full object-contain filter grayscale transition-all duration-300"
           style={{ 
             mixBlendMode: 'multiply',
             backgroundColor: 'transparent'

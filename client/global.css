@@ -830,6 +830,19 @@
     user-select: none;
   }
 
+  /* Logo card hover - only the hovered card lights up */
+  .logo-card-group:hover .logo-image {
+    filter: grayscale(0) !important;
+  }
+
+  /* LinkedIn cards mobile styling - balanced size on mobile */
+  @media (max-width: 767px) {
+    .linkedin-card-mobile {
+      min-height: 440px !important;
+      aspect-ratio: auto;
+    }
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translate(-50%, -50%) translateY(0px);

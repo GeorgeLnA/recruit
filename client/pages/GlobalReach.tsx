@@ -20,7 +20,7 @@ const locations: EarthPin[] = [
     lat: 25.2048, 
     lon: 55.2708, 
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
-    video: '/vids/DUBAI.mp4',
+    video: '/vids/DUBAI.webm',
     description: 'After years in the industry, we\'d grown frustrated with the transactional, impersonal approach so common in recruitment. We wanted to build something different — a business rooted in honesty, personal connection, and genuine partnership. At CDC, we go beyond screens and calls — we travel to meet our clients and candidates in person, taking the time to truly understand their goals, culture, and challenges. It\'s that personal touch that drives every relationship we build.',
     labelPosition: 'top'
   },
@@ -129,7 +129,7 @@ const locations: EarthPin[] = [
     lat: 25.2048, 
     lon: 55.2708, 
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
-    video: '/vids/DUBAI.mp4',
+    video: '/vids/DUBAI.webm',
     description: 'Middle East\'s leading medical laboratory exhibition and conference. MEDLAB Dubai connects us with laboratory professionals, diagnostic companies, and healthcare innovators across the region.',
     labelPosition: 'top'
   },
@@ -243,6 +243,10 @@ export default function GlobalReach() {
                     loop
                     muted
                     playsInline
+                    preload="metadata"
+                    loading="lazy"
+                    disablePictureInPicture
+                    disableRemotePlayback
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Mute/Unmute Toggle Button */}

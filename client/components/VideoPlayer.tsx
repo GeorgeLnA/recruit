@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { gsap } from "@/lib/gsap";
 
 interface VideoPlayerProps {
-  src: string;
+  src: string; // WebM video source
   poster?: string;
   className?: string;
   rounded?: string;
   aspectRatio?: string; // e.g., 'aspect-video'
   title?: string;
+  preload?: "none" | "metadata" | "auto";
+  lazy?: boolean; // Enable lazy loading
 }
 
 export default function VideoPlayer({
@@ -19,6 +21,8 @@ export default function VideoPlayer({
   rounded = "rounded-2xl",
   aspectRatio = "aspect-video",
   title,
+  preload = "metadata",
+  lazy = true,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -27,10 +31,41 @@ export default function VideoPlayer({
   const [hasStarted, setHasStarted] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(!lazy); // Load immediately if not lazy
+
+  // Lazy loading with Intersection Observer
+  useEffect(() => {
+    if (!lazy || shouldLoad) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: "100px", // Start loading 100px before video enters viewport
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [lazy, shouldLoad]);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
+    if (!v || !shouldLoad) return;
+    
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
     const onLoadedMetadata = () => {
@@ -45,7 +80,7 @@ export default function VideoPlayer({
       v.removeEventListener("pause", onPause);
       v.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
-  }, []);
+  }, [shouldLoad]);
 
   // Add expansion animation on hover for play button
   useEffect(() => {
@@ -162,13 +197,20 @@ export default function VideoPlayer({
         <video
           ref={videoRef}
           className={`h-full w-full object-cover ${videoRounded}`}
-          src={src}
-          preload="metadata"
+          preload={shouldLoad ? preload : "none"}
           controls={false}
           playsInline
           poster={poster}
           aria-label={title || "Video"}
-        />
+          loading="lazy"
+        >
+          {shouldLoad && (
+            <source src={src} type="video/webm" />
+          )}
+          {!shouldLoad && (
+            <source data-src={src} type="video/webm" />
+          )}
+        </video>
 
         {/* Initial Play Overlay */}
         {!hasStarted && (

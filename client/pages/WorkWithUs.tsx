@@ -491,7 +491,7 @@ export default function WorkWithUs() {
         {/* Video Section */}
         <div className="mx-auto relative" style={{ zIndex: 10, marginBottom: 'clamp(120px, 12vw, 192px)', maxWidth: '1120px' }}>
           <VideoPlayer
-            src={checked ? "/vids/CLIENTS.mp4" : "/vids/COMPANIES.mp4"}
+            src={checked ? "/vids/CLIENTS.webm" : "/vids/COMPANIES.webm"}
             title="Work With Us Introduction"
             className="w-full"
           />
@@ -537,11 +537,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
-                        src="/vids/SHORT 1.mp4"
+                        src="/vids/SHORT 1.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -580,7 +583,7 @@ export default function WorkWithUs() {
                     </h2>
                     {isMobile && (
                       <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
-                        With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
+                        With a 12,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
                       </p>
                     )}
                   </div>
@@ -593,11 +596,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
-                        src="/vids/SHORT 2.mp4"
+                        src="/vids/SHORT 2.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -649,11 +655,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
-                        src="/vids/SHORT 3.mp4"
+                        src="/vids/SHORT 3.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -705,11 +714,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
-                        src="/vids/SHORT 4.mp4"
+                        src="/vids/SHORT 4.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -758,11 +770,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
-                        src="/vids/SHORT 1.mp4"
+                        src="/vids/SHORT 1.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -814,11 +829,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
-                        src="/vids/SHORT 2.mp4"
+                        src="/vids/SHORT 2.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -870,11 +888,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
-                        src="/vids/SHORT 3.mp4"
+                        src="/vids/SHORT 3.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -926,11 +947,14 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
-                        src="/vids/SHORT 5.mp4"
+                        src="/vids/SHORT 5.webm"
                         loop
                         muted
                         playsInline
                         preload="none"
+                        loading="lazy"
+                        disablePictureInPicture
+                        disableRemotePlayback
                         className="w-full h-full object-cover"
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
