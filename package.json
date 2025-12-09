@@ -18,7 +18,9 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "optimize:videos": "powershell -ExecutionPolicy Bypass -File ./optimize-videos.ps1",
+    "create:thumbnails": "powershell -ExecutionPolicy Bypass -File ./create-video-thumbnails.ps1"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

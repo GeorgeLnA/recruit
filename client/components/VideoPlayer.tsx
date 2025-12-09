@@ -33,7 +33,43 @@ export default function VideoPlayer({
   const [isHovering, setIsHovering] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(!lazy); // Load immediately if not lazy
 
-  // Lazy loading with Intersection Observer
+  // Reset state and video element when src changes (for switching videos)
+  useEffect(() => {
+    // Reset all state immediately - this must happen first
+    setHasStarted(false);
+    setIsPlaying(false);
+    setCursorPosition({ x: 0, y: 0 });
+    setIsHovering(false);
+    
+    // Reset video element after a brief delay to ensure React has updated
+    const timer = setTimeout(() => {
+      const v = videoRef.current;
+      if (v) {
+        v.pause();
+        v.currentTime = 0;
+        // Force reload to apply new source
+        v.load();
+      }
+    }, 10);
+    
+    // Handle lazy loading - if video is visible, load it immediately
+    if (lazy) {
+      const container = containerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight + 200 && rect.bottom > -200;
+        setShouldLoad(isVisible);
+      } else {
+        setShouldLoad(false);
+      }
+    } else {
+      setShouldLoad(true);
+    }
+    
+    return () => clearTimeout(timer);
+  }, [src, poster, lazy]);
+
+  // Lazy loading with Intersection Observer - more aggressive optimization
   useEffect(() => {
     if (!lazy || shouldLoad) return;
 
@@ -50,7 +86,7 @@ export default function VideoPlayer({
         });
       },
       {
-        rootMargin: "100px", // Start loading 100px before video enters viewport
+        rootMargin: "200px", // Start loading 200px before video enters viewport for smoother experience
         threshold: 0.01,
       }
     );
@@ -62,25 +98,62 @@ export default function VideoPlayer({
     };
   }, [lazy, shouldLoad]);
 
+  // Set up video event listeners to track play/pause state
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || !shouldLoad) return;
+    if (!v) return;
     
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const updatePlayingState = () => {
+      setIsPlaying(!v.paused && !v.ended && v.readyState > 2);
+    };
+    
+    const onPlay = () => {
+      setIsPlaying(true);
+    };
+    const onPlaying = () => {
+      setIsPlaying(true);
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+    };
+    const onEnded = () => {
+      setIsPlaying(false);
+    };
     const onLoadedMetadata = () => {
       // Set thumbnail to 0.1 seconds
       v.currentTime = 0.1;
+      // Sync playing state with actual video state
+      updatePlayingState();
     };
+    const onTimeUpdate = () => {
+      // Periodically check playing state to catch any missed events
+      updatePlayingState();
+    };
+    
+    // Add all event listeners
     v.addEventListener("play", onPlay);
+    v.addEventListener("playing", onPlaying);
     v.addEventListener("pause", onPause);
+    v.addEventListener("ended", onEnded);
     v.addEventListener("loadedmetadata", onLoadedMetadata);
+    v.addEventListener("timeupdate", onTimeUpdate);
+    
+    // Check initial playing state
+    updatePlayingState();
+    
+    // Periodic check to ensure state stays in sync (every 100ms)
+    const interval = setInterval(updatePlayingState, 100);
+    
     return () => {
       v.removeEventListener("play", onPlay);
+      v.removeEventListener("playing", onPlaying);
       v.removeEventListener("pause", onPause);
+      v.removeEventListener("ended", onEnded);
       v.removeEventListener("loadedmetadata", onLoadedMetadata);
+      v.removeEventListener("timeupdate", onTimeUpdate);
+      clearInterval(interval);
     };
-  }, [shouldLoad]);
+  }, [src, shouldLoad]); // Re-attach when src changes
 
   // Add expansion animation on hover for play button
   useEffect(() => {
@@ -116,16 +189,27 @@ export default function VideoPlayer({
     const v = videoRef.current;
     if (!v) return;
     setHasStarted(true);
-    v.play();
+    // Reset to beginning if video was switched
+    v.currentTime = 0;
+    v.play().then(() => {
+      setIsPlaying(true);
+    }).catch(() => {
+      setIsPlaying(false);
+    });
   };
 
   const handleToggle = () => {
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      v.play();
+      v.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        setIsPlaying(false);
+      });
     } else {
       v.pause();
+      setIsPlaying(false);
     }
   };
 
@@ -200,15 +284,12 @@ export default function VideoPlayer({
           preload={shouldLoad ? preload : "none"}
           controls={false}
           playsInline
-          poster={poster}
+          poster={poster || undefined}
           aria-label={title || "Video"}
-          loading="lazy"
+          key={src}
         >
-          {shouldLoad && (
-            <source src={src} type="video/webm" />
-          )}
-          {!shouldLoad && (
-            <source data-src={src} type="video/webm" />
+          {shouldLoad && src && (
+            <source key={src} src={src} type="video/webm" />
           )}
         </video>
 
