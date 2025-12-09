@@ -1,6 +1,5 @@
 import { ArrowRight, Mail, Linkedin, Phone, MapPin, Volume2, VolumeX, ArrowDown } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
-import MobileMessage from "@/components/MobileMessage";
 import { FlipButton } from "@/components/FlipButton";
 import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
@@ -35,7 +34,6 @@ export default function Index() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [circlePosition, setCirclePosition] = useState({ x: 0, y: 0 });
   const [isLoading, setIsLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement>(null);
   const aboutUsRef = useRef<HTMLDivElement>(null);
@@ -661,12 +659,7 @@ export default function Index() {
 
   return (
     <div className="overflow-x-hidden bg-white relative">
-      {/* Mobile message - shows on mobile devices */}
-      <MobileMessage onMobileDetected={() => setIsMobile(true)} />
-      
-      {/* Only show content on desktop */}
-      {!isMobile && (
-        <>
+      <>
           {/* Loading screen overlay */}
           {isLoading && (
             <LoadingScreen onComplete={() => setIsLoading(false)} />
@@ -1049,9 +1042,6 @@ export default function Index() {
       </section>
 
       <Footer />
-          </div>
-        </>
-      )}
     </div>
   );
 }
