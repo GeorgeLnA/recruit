@@ -81,7 +81,7 @@ export default function AsAClient() {
           <div>
             <VideoPlayer
               src="/vids/Companies.webm"
-              poster="/vids/thumbnails/COMPANIES.png"
+              poster="/vids/thumbnails/COMPANIES.jpg"
               title="What we offer to clients"
               className="w-full"
             />

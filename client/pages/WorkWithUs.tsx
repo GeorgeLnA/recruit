@@ -9,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Helper function to ensure thumbnails come strictly from the thumbnails folder
 const getHorizontalVideoThumbnail = (videoName: string): string => {
   // Ensure thumbnail path is strictly from /vids/thumbnails/ folder
-  return `/vids/thumbnails/${videoName}.png`;
+  return `/vids/thumbnails/${videoName}.jpg`;
 };
 
 export default function WorkWithUs() {
