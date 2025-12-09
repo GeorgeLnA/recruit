@@ -46,8 +46,9 @@ export default function VideoPlayer({
       const v = videoRef.current;
       if (v) {
         v.pause();
+        // Always reset to 0 to show poster, not video frame
         v.currentTime = 0;
-        // Force reload to apply new source
+        // Force reload to apply new source and poster
         v.load();
       }
     }, 10);
@@ -120,8 +121,14 @@ export default function VideoPlayer({
       setIsPlaying(false);
     };
     const onLoadedMetadata = () => {
-      // Set thumbnail to 0.1 seconds
-      v.currentTime = 0.1;
+      // Only set currentTime if there's no poster (for vertical videos without posters)
+      // For horizontal videos with posters, keep currentTime at 0 to show poster, not video frame
+      if (!poster) {
+        v.currentTime = 0.1;
+      } else {
+        // Ensure video stays at 0 to show poster image, not first frame
+        v.currentTime = 0;
+      }
       // Sync playing state with actual video state
       updatePlayingState();
     };
@@ -191,6 +198,8 @@ export default function VideoPlayer({
     setHasStarted(true);
     // Reset to beginning if video was switched
     v.currentTime = 0;
+    // Fade in video when starting to play
+    v.style.opacity = '1';
     v.play().then(() => {
       setIsPlaying(true);
     }).catch(() => {
@@ -287,15 +296,29 @@ export default function VideoPlayer({
           poster={poster || undefined}
           aria-label={title || "Video"}
           key={src}
+          style={{
+            // Hide video frame until play is clicked - show poster instead
+            opacity: hasStarted ? 1 : 0,
+          }}
         >
           {shouldLoad && src && (
             <source key={src} src={src} type="video/webm" />
           )}
         </video>
+        
+        {/* Poster image overlay - shown when video hasn't started */}
+        {!hasStarted && poster && (
+          <img
+            src={poster}
+            alt={title || "Video thumbnail"}
+            className={`absolute inset-0 h-full w-full object-cover ${videoRounded}`}
+            style={{ zIndex: 1 }}
+          />
+        )}
 
         {/* Initial Play Overlay */}
         {!hasStarted && (
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center" style={{ zIndex: 2 }}>
             <Button
               ref={playButtonRef}
               onClick={handlePlay}

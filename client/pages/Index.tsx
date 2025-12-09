@@ -727,7 +727,7 @@ export default function Index() {
               }}
             >
               <source
-                src="/vids/HERO.webm"
+                src="/vids/Hero.webm"
                 type="video/webm"
               />
               Your browser does not support the video tag.

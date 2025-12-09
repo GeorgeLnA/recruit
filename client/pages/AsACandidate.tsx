@@ -61,8 +61,8 @@ export default function AsACandidate() {
           </div>
           <div>
             <VideoPlayer
-              src="/CDC Website - ROUGH CUT 1 (1).webm"
-              poster="/placeholder.svg"
+              src="/vids/Clients.webm"
+              poster="/vids/thumbnails/CLIENTS.png"
               title="What we offer to candidates"
               className="w-full"
             />

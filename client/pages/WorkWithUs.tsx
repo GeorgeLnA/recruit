@@ -6,6 +6,12 @@ import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { Hand } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Helper function to ensure thumbnails come strictly from the thumbnails folder
+const getHorizontalVideoThumbnail = (videoName: string): string => {
+  // Ensure thumbnail path is strictly from /vids/thumbnails/ folder
+  return `/vids/thumbnails/${videoName}.png`;
+};
+
 export default function WorkWithUs() {
   // Helper function to get checked state from hash
   const getCheckedFromHash = () => {
@@ -32,55 +38,19 @@ export default function WorkWithUs() {
   const clientVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
   const candidateVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
 
-  // Optimize video loading and playback - only load and play when visible
+  // Simple play/pause observer - videos load immediately on page load
   useEffect(() => {
     const allVideoRefs = [...clientVideoRefs.current, ...candidateVideoRefs.current].filter(Boolean) as HTMLVideoElement[];
-    
-    // First observer: lazy load video sources when approaching viewport
-    const loadObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting) {
-            // Get the data-src attribute if src is not set
-            const dataSrc = video.getAttribute('data-src');
-            if (dataSrc && !video.src) {
-              video.src = dataSrc;
-              video.preload = 'metadata';
-              video.load();
-            } else if (video.preload === 'none') {
-              // If src is already set, just change preload to start loading
-              video.preload = 'metadata';
-              video.load();
-            }
-          }
-        });
-      },
-      {
-        rootMargin: '300px', // Start loading 300px before entering viewport
-        threshold: 0.01
-      }
-    );
 
-    // Second observer: play/pause when visible
+    // Simple observer: play/pause when visible
     const playObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target as HTMLVideoElement;
           if (entry.isIntersecting && entry.intersectionRatio > 0.25) {
-            // Only play if video has loaded enough data
-            if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-              video.play().catch(() => {
-                // Autoplay prevented, that's okay
-              });
-            } else {
-              // Wait for video to load before playing
-              const onCanPlay = () => {
-                video.play().catch(() => {});
-                video.removeEventListener('canplay', onCanPlay);
-              };
-              video.addEventListener('canplay', onCanPlay, { once: true });
-            }
+            video.play().catch(() => {
+              // Autoplay prevented, that's okay
+            });
           } else {
             video.pause();
           }
@@ -94,7 +64,6 @@ export default function WorkWithUs() {
 
     allVideoRefs.forEach((video) => {
       if (video) {
-        loadObserver.observe(video);
         playObserver.observe(video);
       }
     });
@@ -102,11 +71,9 @@ export default function WorkWithUs() {
     return () => {
       allVideoRefs.forEach((video) => {
         if (video) {
-          loadObserver.unobserve(video);
           playObserver.unobserve(video);
         }
       });
-      loadObserver.disconnect();
       playObserver.disconnect();
     };
   }, [checked]);
@@ -535,8 +502,8 @@ export default function WorkWithUs() {
         {/* Video Section */}
         <div className="mx-auto relative" style={{ zIndex: 10, marginBottom: 'clamp(120px, 12vw, 192px)', maxWidth: '1120px' }}>
           <VideoPlayer
-            src={checked ? "/vids/CLIENTS.webm" : "/vids/COMPANIES.webm"}
-            poster={checked ? "/vids/thumbnails/CLIENTS.png" : "/vids/thumbnails/COMPANIES.png"}
+            src={checked ? "/vids/Clients.webm" : "/vids/Companies.webm"}
+            poster={checked ? getHorizontalVideoThumbnail("COMPANIES") : getHorizontalVideoThumbnail("CLIENTS")}
             title="Work With Us Introduction"
             className="w-full"
             lazy={true}
@@ -584,12 +551,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
-                        data-src="/vids/SHORT 1.webm"
+                        src="/vids/Short 1.webm"
                         poster="/vids/thumbnails/SHORT_1.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -643,12 +610,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
-                        data-src="/vids/SHORT 2.webm"
+                        src="/vids/Short 2.webm"
                         poster="/vids/thumbnails/SHORT_2.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -702,12 +669,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
-                        data-src="/vids/SHORT 3.webm"
+                        src="/vids/Short 3.webm"
                         poster="/vids/thumbnails/SHORT_3.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -761,12 +728,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
-                        data-src="/vids/SHORT 4.webm"
+                        src="/vids/Short 4.webm"
                         poster="/vids/thumbnails/SHORT_4.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -817,12 +784,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
-                        data-src="/vids/SHORT 1.webm"
+                        src="/vids/Short 1.webm"
                         poster="/vids/thumbnails/SHORT_1.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -876,12 +843,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
-                        data-src="/vids/SHORT 2.webm"
+                        src="/vids/Short 2.webm"
                         poster="/vids/thumbnails/SHORT_2.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -935,12 +902,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
-                        data-src="/vids/SHORT 3.webm"
+                        src="/vids/Short 3.webm"
                         poster="/vids/thumbnails/SHORT_3.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
@@ -994,12 +961,12 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
-                        data-src="/vids/SHORT 5.webm"
+                        src="/vids/Short 5.webm"
                         poster="/vids/thumbnails/SHORT_5.jpg"
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="auto"
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
