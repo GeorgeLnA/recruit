@@ -313,6 +313,8 @@ export default function VideoPlayer({
             alt={title || "Video thumbnail"}
             className={`absolute inset-0 h-full w-full object-cover ${videoRounded}`}
             style={{ zIndex: 1 }}
+            loading="eager"
+            fetchPriority="high"
           />
         )}
 

@@ -38,6 +38,22 @@ export default function WorkWithUs() {
   const clientVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
   const candidateVideoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null, null]);
 
+  // Preload Short 2 video early since it's larger (1.32 MB vs 0.7 MB for others)
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.href = '/vids/Short 2.webm';
+    link.as = 'video';
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
+    
+    return () => {
+      if (document.head.contains(link)) {
+        document.head.removeChild(link);
+      }
+    };
+  }, []);
+
   // Simple play/pause observer - videos load immediately on page load
   useEffect(() => {
     const allVideoRefs = [...clientVideoRefs.current, ...candidateVideoRefs.current].filter(Boolean) as HTMLVideoElement[];
@@ -506,7 +522,7 @@ export default function WorkWithUs() {
             poster={checked ? getHorizontalVideoThumbnail("COMPANIES") : getHorizontalVideoThumbnail("CLIENTS")}
             title="Work With Us Introduction"
             className="w-full"
-            lazy={true}
+            lazy={false}
             preload="none"
           />
         </div>
