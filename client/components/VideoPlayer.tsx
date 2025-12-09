@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { gsap } from "@/lib/gsap";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VideoPlayerProps {
   src: string; // WebM video source
@@ -24,6 +25,7 @@ export default function VideoPlayer({
   preload = "metadata",
   lazy = true,
 }: VideoPlayerProps) {
+  const isMobile = useIsMobile();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,44 @@ export default function VideoPlayer({
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(!lazy); // Load immediately if not lazy
+  const [audioReady, setAudioReady] = useState(false);
+
+  // Mobile audio optimization - simple and conservative approach
+  useEffect(() => {
+    if (!isMobile || !shouldLoad) return;
+
+    const v = videoRef.current;
+    if (!v) return;
+
+    // Simple mobile audio setup - just ensure volume is correct
+    // Don't do aggressive seeking as it can break audio on some codecs
+    const setupAudio = () => {
+      v.volume = 1.0;
+      v.muted = false;
+      // Mark as ready when video can play through
+      const handleCanPlayThrough = () => {
+        setAudioReady(true);
+      };
+      v.addEventListener('canplaythrough', handleCanPlayThrough, { once: true });
+      
+      return () => {
+        v.removeEventListener('canplaythrough', handleCanPlayThrough);
+      };
+    };
+
+    if (v.readyState >= 2) {
+      return setupAudio();
+    } else {
+      const handleMetadata = () => {
+        setupAudio();
+      };
+      v.addEventListener('loadedmetadata', handleMetadata, { once: true });
+      
+      return () => {
+        v.removeEventListener('loadedmetadata', handleMetadata);
+      };
+    }
+  }, [isMobile, shouldLoad]);
 
   // Reset state and video element when src changes (for switching videos)
   useEffect(() => {
@@ -48,6 +88,12 @@ export default function VideoPlayer({
         v.pause();
         // Always reset to 0 to show poster, not video frame
         v.currentTime = 0;
+        // Mobile audio optimization - reset audio state
+        if (isMobile) {
+          setAudioReady(false);
+          v.volume = 1.0;
+          v.muted = false;
+        }
         // Force reload to apply new source and poster
         v.load();
       }
@@ -68,7 +114,7 @@ export default function VideoPlayer({
     }
     
     return () => clearTimeout(timer);
-  }, [src, poster, lazy]);
+  }, [src, poster, lazy, isMobile]);
 
   // Lazy loading with Intersection Observer - more aggressive optimization
   useEffect(() => {
@@ -200,34 +246,91 @@ export default function VideoPlayer({
     v.currentTime = 0;
     // Fade in video when starting to play
     v.style.opacity = '1';
-    v.play().then(() => {
-      setIsPlaying(true);
-    }).catch(() => {
-      setIsPlaying(false);
-    });
+    
+    // Mobile audio optimization - simpler approach that works with all codecs
+    if (isMobile) {
+      // Ensure audio settings are correct
+      v.volume = 1.0;
+      v.muted = false;
+      
+      // Simple play with minimal delay - let browser handle audio naturally
+      // Only wait if video isn't ready yet
+      const playVideo = async () => {
+        if (v.readyState < 2) {
+          // Wait for metadata if not ready
+          await new Promise(resolve => {
+            const checkReady = () => {
+              if (v.readyState >= 2) {
+                resolve(undefined);
+              } else {
+                setTimeout(checkReady, 50);
+              }
+            };
+            checkReady();
+          });
+        }
+        
+        // Small delay to ensure audio context is ready (but not too long)
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        try {
+          await v.play();
+          setIsPlaying(true);
+        } catch (err) {
+          console.warn('Mobile play error:', err);
+          setIsPlaying(false);
+        }
+      };
+      
+      playVideo();
+    } else {
+      v.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {
+        setIsPlaying(false);
+      });
+    }
   };
 
   const handleToggle = () => {
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      v.play().then(() => {
-        setIsPlaying(true);
-      }).catch(() => {
-        setIsPlaying(false);
-      });
+      // Mobile audio optimization - simple and consistent
+      if (isMobile) {
+        v.volume = 1.0;
+        v.muted = false;
+        // Small delay for audio context initialization
+        setTimeout(() => {
+          v.play().then(() => {
+            setIsPlaying(true);
+          }).catch((err) => {
+            console.warn('Mobile play error:', err);
+            setIsPlaying(false);
+          });
+        }, 50);
+      } else {
+        v.play().then(() => {
+          setIsPlaying(true);
+        }).catch((err) => {
+          setIsPlaying(false);
+        });
+      }
     } else {
       v.pause();
       setIsPlaying(false);
     }
   };
 
-  const handleVideoClick = (e: React.MouseEvent) => {
-    // Don't toggle if clicking on the play button or pause button
+  const handleVideoClick = (e: React.MouseEvent | React.TouchEvent) => {
     const target = e.target as HTMLElement;
+    
+    // Don't handle clicks if clicking on buttons (they handle their own clicks with stopPropagation)
     if (target.closest('button')) {
       return;
     }
+    
+    // Handle clicks anywhere on the video container
     const v = videoRef.current;
     if (!v) return;
     if (hasStarted) {
@@ -237,10 +340,14 @@ export default function VideoPlayer({
     }
   };
 
-  // Handle mouse move for cursor label
+  // Handle mouse move for cursor label (desktop only)
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !hasStarted) return;
+    if (!container || !hasStarted || isMobile) {
+      setIsHovering(false);
+      setCursorPosition({ x: 0, y: 0 });
+      return;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
@@ -272,7 +379,7 @@ export default function VideoPlayer({
       container.removeEventListener('mouseenter', handleMouseEnter);
       container.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [hasStarted]);
+  }, [hasStarted, isMobile]);
 
   // Check if video is horizontal (default aspect-video is 16:9, which is horizontal)
   const isHorizontal = aspectRatio === "aspect-video" || aspectRatio.includes("video") || !aspectRatio.includes("9/16");
@@ -284,21 +391,38 @@ export default function VideoPlayer({
     <div className={`relative w-full ${aspectRatio} overflow-visible ${videoRounded} ${className}`}>
       <div 
         ref={containerRef}
-        className={`relative w-full h-full overflow-hidden ${videoRounded} cursor-pointer`}
-        onClick={handleVideoClick}
+        className={`relative w-full h-full overflow-hidden ${videoRounded} cursor-pointer touch-manipulation`}
+        onClick={(e) => {
+          handleVideoClick(e);
+        }}
       >
         <video
           ref={videoRef}
-          className={`h-full w-full object-cover ${videoRounded}`}
-          preload={shouldLoad ? preload : "none"}
+          className={`h-full w-full object-cover pointer-events-none ${videoRounded}`}
+          preload={shouldLoad ? (isMobile ? "auto" : preload) : "none"}
           controls={false}
           playsInline
           poster={poster || undefined}
           aria-label={title || "Video"}
           key={src}
+          volume={1.0}
+          muted={false}
+          // Mobile audio optimizations - minimal and non-intrusive
+          {...(isMobile && {
+            onCanPlayThrough: () => {
+              const v = videoRef.current;
+              if (v && isMobile) {
+                // Audio is fully buffered and ready
+                setAudioReady(true);
+                v.volume = 1.0;
+                v.muted = false;
+              }
+            },
+          })}
           style={{
             // Hide video frame until play is clicked - show poster instead
             opacity: hasStarted ? 1 : 0,
+            display: 'block'
           }}
         >
           {shouldLoad && src && (
@@ -311,20 +435,26 @@ export default function VideoPlayer({
           <img
             src={poster}
             alt={title || "Video thumbnail"}
-            className={`absolute inset-0 h-full w-full object-cover ${videoRounded}`}
-            style={{ zIndex: 1 }}
+            className={`absolute inset-0 h-full w-full object-cover pointer-events-none ${videoRounded}`}
+            style={{ 
+              zIndex: 1
+            }}
             loading="eager"
-            fetchPriority="high"
+            fetchpriority="high"
           />
         )}
 
         {/* Initial Play Overlay */}
         {!hasStarted && (
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center" style={{ zIndex: 2 }}>
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-none" style={{ zIndex: 2 }}>
             <Button
               ref={playButtonRef}
-              onClick={handlePlay}
-              className="px-6 py-4 text-white font-bold bg-[var(--color-blue)] hover:bg-[var(--color-blue-dark)]"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handlePlay();
+              }}
+              className="px-6 py-4 text-white font-bold bg-[var(--color-blue)] md:hover:bg-[var(--color-blue-dark)] pointer-events-auto touch-manipulation z-20"
               aria-label="Play video"
             >
               <Play className="w-5 h-5" />
@@ -337,16 +467,35 @@ export default function VideoPlayer({
         {hasStarted && (
           <button
             type="button"
-            onClick={handleToggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleToggle();
+            }}
+            onTouchStart={(e) => {
+              e.currentTarget.style.backgroundColor = '#e6823a';
+            }}
+            onTouchEnd={(e) => {
+              setTimeout(() => {
+                e.currentTarget.style.backgroundColor = '#FF9752';
+              }, 150);
+            }}
             aria-label={isPlaying ? "Pause video" : "Play video"}
-            className="absolute bottom-4 left-4 inline-flex items-center justify-center rounded-full bg-[#FF9752] hover:bg-[#e6823a] text-white p-3 transition-colors z-10"
+            className="absolute bottom-4 left-4 inline-flex items-center justify-center rounded-full bg-[#FF9752] md:hover:bg-[#e6823a] text-white p-3 transition-colors z-20 pointer-events-auto touch-manipulation"
+            style={{
+              minWidth: isMobile ? '44px' : 'auto',
+              minHeight: isMobile ? '44px' : 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </button>
         )}
 
-        {/* Cursor-following pause/play label */}
-        {hasStarted && isHovering && (
+        {/* Cursor-following pause/play label (desktop only) */}
+        {hasStarted && !isMobile && isHovering && (
           <div
             className="fixed pointer-events-none z-50 flex flex-col items-center gap-1"
             style={{

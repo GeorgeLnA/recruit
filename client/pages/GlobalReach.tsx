@@ -2,7 +2,8 @@ import Footer from "@/components/Footer";
 import { gsap, useGSAP } from "@/lib/gsap";
 import RotatingEarth, { EarthPin } from "@/components/RotatingEarth";
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { Play, Pause } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const locations: EarthPin[] = [
   { 
@@ -150,28 +151,56 @@ export default function GlobalReach() {
   const globeOnlyIds = ['boston', 'newjersey', 'sanfrancisco', 'medlab-dubai', 'arizona', 'berlin'];
   const otherLocations = locations.filter(loc => loc.id !== 'dubai' && !globeOnlyIds.includes(loc.id));
   
-  // Dubai video sound control
+  // Dubai video control
   const dubaiVideoRef = useRef<HTMLVideoElement>(null);
   const dubaiCardRef = useRef<HTMLDivElement>(null);
-  const [isDubaiSoundEnabled, setIsDubaiSoundEnabled] = useState(false);
+  const [isDubaiPlaying, setIsDubaiPlaying] = useState(false);
+  const isMobile = useIsMobile();
 
-  // Set Dubai video thumbnail to 0.1 seconds
+  // Set Dubai video thumbnail to 0.1 seconds and track play/pause state
   useEffect(() => {
     const video = dubaiVideoRef.current;
     if (!video) return;
     
     const handleLoadedMetadata = () => {
       video.currentTime = 0.1;
+      // Ensure sound is always on
+      video.muted = false;
+      video.volume = 1.0;
+    };
+    
+    const handlePlay = () => {
+      // Always unmute when playing
+      video.muted = false;
+      video.volume = 1.0;
+      setIsDubaiPlaying(true);
+    };
+    
+    const handlePause = () => {
+      setIsDubaiPlaying(false);
     };
     
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('playing', handlePlay);
+    video.addEventListener('pause', handlePause);
     
     if (video.readyState >= 1) {
       video.currentTime = 0.1;
+      video.muted = false;
+      video.volume = 1.0;
+      // Ensure video starts paused
+      video.pause();
     }
+    
+    // Check initial playing state (should be paused by default)
+    setIsDubaiPlaying(false);
     
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('playing', handlePlay);
+      video.removeEventListener('pause', handlePause);
     };
   }, []);
 
@@ -230,48 +259,90 @@ export default function GlobalReach() {
           {dubaiLocation && (
             <div 
               ref={dubaiCardRef}
-              className="dubai-card overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group relative" 
+              className="dubai-card overflow-hidden shadow-xl md:hover:shadow-2xl transition-all duration-300 md:hover:-translate-y-2 group relative" 
               style={{ opacity: 1, backgroundColor: '#FF9752', marginBottom: 'clamp(32px, 3vw, 48px)', borderRadius: 'clamp(24px, 2vw, 32px)' }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 0 }}>
                 {/* Video on left */}
-                <div className="relative aspect-[16/9] overflow-hidden bg-gray-200">
+                <div 
+                  className="relative aspect-[16/9] overflow-hidden bg-gray-200 cursor-pointer touch-manipulation"
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    // Don't handle clicks if clicking on buttons
+                    if (target.closest('button')) {
+                      return;
+                    }
+                    // Handle clicks anywhere on the video container
+                    const video = dubaiVideoRef.current;
+                    if (!video) return;
+                    if (video.paused) {
+                      // Always unmute when playing
+                      video.muted = false;
+                      video.play().then(() => {
+                        setIsDubaiPlaying(true);
+                      }).catch(() => {
+                        setIsDubaiPlaying(false);
+                      });
+                    } else {
+                      video.pause();
+                      setIsDubaiPlaying(false);
+                    }
+                  }}
+                >
                   <video
                     ref={dubaiVideoRef}
                     src={dubaiLocation.video}
-                    autoPlay
+                    autoPlay={false}
                     loop
-                    muted
+                    muted={false}
                     playsInline
                     preload="metadata"
                     loading="lazy"
                     disablePictureInPicture
                     disableRemotePlayback
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    style={{ display: 'block' }}
                   />
-                  {/* Mute/Unmute Toggle Button */}
+                  {/* Play/Pause Toggle Button */}
                   <button
-                    onClick={() => {
-                      if (dubaiVideoRef.current) {
-                        dubaiVideoRef.current.muted = !dubaiVideoRef.current.muted;
-                        setIsDubaiSoundEnabled(!dubaiVideoRef.current.muted);
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      const video = dubaiVideoRef.current;
+                      if (!video) return;
+                      if (video.paused) {
+                        // Always unmute when playing
+                        video.muted = false;
+                        video.play().then(() => {
+                          setIsDubaiPlaying(true);
+                        }).catch(() => {
+                          setIsDubaiPlaying(false);
+                        });
+                      } else {
+                        video.pause();
+                        setIsDubaiPlaying(false);
                       }
                     }}
-                    className="absolute z-10 rounded-full transition-colors"
-                    style={{ backgroundColor: '#FF9752', color: 'white', top: 'clamp(12px, 1vw, 16px)', right: 'clamp(12px, 1vw, 16px)', padding: 'clamp(8px, 0.75vw, 12px)' }}
-                    onMouseEnter={(e) => {
+                    onTouchStart={(e) => {
                       e.currentTarget.style.backgroundColor = '#e6823a';
                     }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#FF9752';
+                    onTouchEnd={(e) => {
+                      setTimeout(() => {
+                        e.currentTarget.style.backgroundColor = '#FF9752';
+                      }, 150);
                     }}
-                    aria-label={isDubaiSoundEnabled ? "Mute" : "Unmute"}
+                    aria-label={isDubaiPlaying ? "Pause video" : "Play video"}
+                    className="absolute top-4 left-4 inline-flex items-center justify-center rounded-full bg-[#FF9752] md:hover:bg-[#e6823a] text-white p-3 transition-colors z-20 pointer-events-auto touch-manipulation"
+                    style={{
+                      minWidth: isMobile ? '44px' : 'auto',
+                      minHeight: isMobile ? '44px' : 'auto',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
-                    {isDubaiSoundEnabled ? (
-                      <VolumeX className="text-white" style={{ width: 'clamp(16px, 1.25vw, 20px)', height: 'clamp(16px, 1.25vw, 20px)' }} />
-                    ) : (
-                      <Volume2 className="text-white" style={{ width: 'clamp(16px, 1.25vw, 20px)', height: 'clamp(16px, 1.25vw, 20px)' }} />
-                    )}
+                    {isDubaiPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
                   </button>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
                   <div className="absolute pointer-events-none" style={{ bottom: 'clamp(20px, 1.5vw, 24px)', left: 'clamp(20px, 1.5vw, 24px)', right: 'clamp(20px, 1.5vw, 24px)' }}>
@@ -296,14 +367,14 @@ export default function GlobalReach() {
             {otherLocations.map((location) => (
               <div
                 key={location.id}
-                className="location-card overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group cursor-pointer"
+                className="location-card overflow-hidden shadow-xl md:hover:shadow-2xl transition-all duration-300 md:hover:-translate-y-2 group md:cursor-pointer"
                 style={{ backgroundColor: '#FF9752', opacity: 1, borderRadius: 'clamp(24px, 2vw, 32px)' }}
               >
                 <div className="relative aspect-[16/9] overflow-hidden bg-gray-200">
                   <img
                     src={location.image}
                     alt={location.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover md:group-hover:scale-110 transition-transform duration-500"
                     style={{ opacity: 1 }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
