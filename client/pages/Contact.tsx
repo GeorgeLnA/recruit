@@ -3,9 +3,11 @@ import Footer from "@/components/Footer";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { Mail, Phone, MapPin, Linkedin, ArrowRight, Sparkles } from "lucide-react";
 import { FlipButton } from "@/components/FlipButton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // LinkedIn Connection Section Component
 function LinkedInConnectionSection() {
+  const isMobile = useIsMobile();
   const sectionRef = useRef<HTMLDivElement>(null);
   const harrietCardRef = useRef<HTMLAnchorElement>(null);
   const adamCardRef = useRef<HTMLAnchorElement>(null);
@@ -101,8 +103,10 @@ function LinkedInConnectionSection() {
     });
   }, []);
 
-  // Enhanced hover animations for cards - smooth and stable
+  // Enhanced hover animations for cards - smooth and stable (desktop only)
   useEffect(() => {
+    if (isMobile) return; // Disable hover animations on mobile
+    
     const cards = [harrietCardRef, companyCardRef, adamCardRef];
     const animations = new Map<HTMLElement, { float?: gsap.core.Tween; hover?: gsap.core.Timeline }>();
     
@@ -274,7 +278,7 @@ function LinkedInConnectionSection() {
         card.removeEventListener('mouseleave', handleMouseLeave);
       };
     });
-  }, []);
+  }, [isMobile]);
 
   return (
     <div ref={sectionRef} className="mb-16" style={{ marginBottom: 'clamp(48px, 5vw, 80px)' }}>
@@ -295,7 +299,7 @@ function LinkedInConnectionSection() {
           href="https://www.linkedin.com/in/harriet-wheat/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden cursor-pointer"
+          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden md:cursor-pointer"
           style={{
             backgroundColor: 'var(--color-blue)',
             padding: 'clamp(24px, 2.5vw, 40px)',
@@ -306,12 +310,12 @@ function LinkedInConnectionSection() {
             boxShadow: '0 8px 24px rgba(255, 151, 82, 0.3)',
             transition: 'box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 151, 82, 0.5)';
-          }}
-          onMouseLeave={(e) => {
+          } : undefined}
+          onMouseLeave={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 151, 82, 0.3)';
-          }}
+          } : undefined}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
           <div>
@@ -350,7 +354,7 @@ function LinkedInConnectionSection() {
           href="https://www.linkedin.com/company/cdcglobal/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden cursor-pointer"
+          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden md:cursor-pointer"
           style={{
             backgroundColor: 'var(--color-blue)',
             padding: 'clamp(24px, 2.5vw, 40px)',
@@ -361,12 +365,12 @@ function LinkedInConnectionSection() {
             boxShadow: '0 8px 24px rgba(255, 151, 82, 0.3)',
             transition: 'box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 151, 82, 0.5)';
-          }}
-          onMouseLeave={(e) => {
+          } : undefined}
+          onMouseLeave={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 151, 82, 0.3)';
-          }}
+          } : undefined}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
           <div>
@@ -405,7 +409,7 @@ function LinkedInConnectionSection() {
           href="https://www.linkedin.com/in/adam-hargreaves-ivd/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden cursor-pointer"
+          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden md:cursor-pointer"
           style={{
             backgroundColor: 'var(--color-blue)',
             padding: 'clamp(24px, 2.5vw, 40px)',
@@ -416,12 +420,12 @@ function LinkedInConnectionSection() {
             boxShadow: '0 8px 24px rgba(255, 151, 82, 0.3)',
             transition: 'box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
+          onMouseEnter={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 151, 82, 0.5)';
-          }}
-          onMouseLeave={(e) => {
+          } : undefined}
+          onMouseLeave={!isMobile ? (e) => {
             e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 151, 82, 0.3)';
-          }}
+          } : undefined}
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
           <div>

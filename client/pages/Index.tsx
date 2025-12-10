@@ -4,6 +4,7 @@ import { FlipButton } from "@/components/FlipButton";
 import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "@/lib/gsap";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // SVG file names from /public/svgs
 const svgFiles = [
@@ -20,6 +21,7 @@ const svgFiles = [
 ];
 
 export default function Index() {
+  const isMobile = useIsMobile();
   const heroRef = useRef<HTMLElement>(null);
   const videoSectionRef = useRef<HTMLElement>(null);
   const aboutSectionRef = useRef<HTMLElement>(null);
@@ -122,21 +124,32 @@ export default function Index() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (!isMobile) {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
+    if (!isMobile) {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      if (!isMobile) {
+        window.removeEventListener('mousemove', handleMouseMove);
+      }
     };
-  }, []);
+  }, [isMobile]);
 
   // Removed IntersectionObserver in favor of a simpler, stable rAF-based tracker
 
   useEffect(() => {
+    if (isMobile) {
+      setCirclePosition({ x: 0, y: 0 });
+      return;
+    }
+
     const damping = 0.3; // 30% damping
     const animationFrame = requestAnimationFrame(() => {
       setCirclePosition(prev => ({
@@ -146,7 +159,7 @@ export default function Index() {
     });
 
     return () => cancelAnimationFrame(animationFrame);
-  }, [mousePosition]);
+  }, [mousePosition, isMobile]);
 
   // Helper functions for video shape morphing (based on videoProgress within grey section)
   const getVideoBorderRadius = (progress: number) => {
@@ -464,10 +477,100 @@ export default function Index() {
     }
   }, [isLoading]);
 
+  // On mobile, ensure video starts playing after loading completes
+  useEffect(() => {
+    if (!isMobile || isLoading || !heroVideoRef.current) return;
+
+    const video = heroVideoRef.current;
+    
+    // Try to play immediately
+    const playVideo = () => {
+      if (video.paused) {
+        video.play().catch((error) => {
+          console.log('Video play prevented on mobile:', error);
+        });
+      }
+    };
+
+    // If video is already loaded, play immediately
+    if (video.readyState >= 2) {
+      playVideo();
+    } else {
+      // Otherwise wait for loadeddata event
+      video.addEventListener('loadeddata', playVideo, { once: true });
+      return () => {
+        video.removeEventListener('loadeddata', playVideo);
+      };
+    }
+  }, [isMobile, isLoading]);
+
+  // Ensure video never stops on mobile (only after loading completes)
+  useEffect(() => {
+    if (!isMobile || isLoading || !heroVideoRef.current) return;
+
+    const video = heroVideoRef.current;
+    
+    const ensurePlaying = () => {
+      // Only resume if video is paused and loading is complete
+      if (video.paused && !isLoading) {
+        video.play().catch((error) => {
+          console.log('Video play prevented:', error);
+        });
+      }
+    };
+
+    const handlePause = () => {
+      // On mobile, resume if paused (but only if not loading)
+      if (!isLoading) {
+        // Small delay to avoid immediate re-trigger
+        setTimeout(ensurePlaying, 100);
+      }
+    };
+
+    const handleEnded = () => {
+      // Restart video if it ends (shouldn't happen with loop, but just in case)
+      if (!isLoading) {
+        video.currentTime = 0;
+        ensurePlaying();
+      }
+    };
+
+    // Monitor video state periodically on mobile (only after loading)
+    const checkInterval = setInterval(ensurePlaying, 1000);
+
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('ended', handleEnded);
+
+    return () => {
+      clearInterval(checkInterval);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('ended', handleEnded);
+    };
+  }, [isMobile, isLoading]);
+
   // Hero video sound enable and custom cursor
   useEffect(() => {
     const container = heroVideoContainerRef.current;
     if (!container) return;
+
+    // On mobile, only handle click, no cursor following
+    const handleClick = () => {
+      if (heroVideoRef.current) {
+        heroVideoRef.current.muted = !heroVideoRef.current.muted;
+        setIsSoundEnabled(!heroVideoRef.current.muted);
+      }
+    };
+
+    container.addEventListener('click', handleClick);
+
+    // Desktop-only cursor following
+    if (isMobile) {
+      setIsHoveringHero(false);
+      setCursorPosition({ x: 0, y: 0 });
+      return () => {
+        container.removeEventListener('click', handleClick);
+      };
+    }
 
     let rafId: number | null = null;
     let currentX = 0;
@@ -508,17 +611,9 @@ export default function Index() {
       setIsHoveringHero(false);
     };
 
-    const handleClick = () => {
-      if (heroVideoRef.current) {
-        heroVideoRef.current.muted = !heroVideoRef.current.muted;
-        setIsSoundEnabled(!heroVideoRef.current.muted);
-      }
-    };
-
     container.addEventListener('mousemove', handleMouseMove, { passive: true });
     container.addEventListener('mouseenter', handleMouseEnter);
     container.addEventListener('mouseleave', handleMouseLeave);
-    container.addEventListener('click', handleClick);
 
     return () => {
       if (rafId !== null) {
@@ -529,7 +624,7 @@ export default function Index() {
       container.removeEventListener('mouseleave', handleMouseLeave);
       container.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [isMobile]);
 
   // Scroll animation for About Us word reveal
   useEffect(() => {
@@ -597,8 +692,10 @@ export default function Index() {
     };
   }, []);
 
-  // Arrow hover animations
+  // Arrow hover animations (desktop only)
   useEffect(() => {
+    if (isMobile) return;
+
     const arrowClient = document.querySelector('.arrow-client');
     const arrowCandidate = document.querySelector('.arrow-candidate');
     const containerClient = document.querySelector('.arrow-container-client');
@@ -655,7 +752,7 @@ export default function Index() {
       containerCandidate.removeEventListener('mouseenter', handleCandidateEnter);
       containerCandidate.removeEventListener('mouseleave', handleCandidateLeave);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="overflow-x-hidden bg-white relative">
@@ -672,10 +769,14 @@ export default function Index() {
         <section 
           ref={heroRef} 
           id="home" 
-          className={`w-full hero-outline h-screen relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
+          className={`w-full hero-outline relative z-10 ${scrollProgress === 0 ? 'bouncing' : ''}`}
           style={{
+            height: isMobile ? '65vh' : '100vh',
+            minHeight: isMobile ? '450px' : '100vh',
             transform: `translateY(${-scrollProgress * 200}px) rotate(${scrollProgress * 90}deg)`,
-            transformOrigin: 'right bottom'
+            transformOrigin: 'right bottom',
+            borderRadius: isMobile ? 'clamp(32px, 4vw, 64px)' : 'clamp(12px, 1.5vw, 24px)',
+            overflow: isMobile ? 'hidden' : 'hidden'
           }}
         >
           <div className="hero-corner bl"></div>
@@ -684,10 +785,11 @@ export default function Index() {
             ref={heroVideoContainerRef}
             className="hero-inner h-full flex flex-col justify-center relative"
             style={{ 
-              overflow: 'visible',
+              overflow: 'hidden',
               margin: 0,
               padding: 0,
-              border: 'none'
+              border: 'none',
+              borderRadius: 0
             }}
           >
             {/* Video background */}
@@ -707,9 +809,34 @@ export default function Index() {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
+              autoPlay
               disablePictureInPicture
               disableRemotePlayback
+              onLoadedData={(e) => {
+                // On mobile, ensure video starts playing when data is loaded
+                if (isMobile && !isLoading && e.currentTarget.paused) {
+                  e.currentTarget.play().catch(() => {});
+                }
+              }}
+              onPause={(e) => {
+                // On mobile, resume if paused (but only if not loading)
+                if (isMobile && !isLoading && e.currentTarget.paused) {
+                  // Small delay to avoid immediate re-trigger
+                  setTimeout(() => {
+                    if (e.currentTarget.paused) {
+                      e.currentTarget.play().catch(() => {});
+                    }
+                  }, 100);
+                }
+              }}
+              onEnded={(e) => {
+                // Restart video if it ends (shouldn't happen with loop, but just in case)
+                if (isMobile) {
+                  e.currentTarget.currentTime = 0;
+                  e.currentTarget.play().catch(() => {});
+                }
+              }}
             >
               <source
                 src="/vids/Hero.webm"
@@ -718,8 +845,36 @@ export default function Index() {
               Your browser does not support the video tag.
             </video>
 
-            {/* Custom sound cursor */}
-            {isHoveringHero && (
+            {/* Mobile-only sound button (top right corner) */}
+            {isMobile && (
+              <button
+                onClick={() => {
+                  if (heroVideoRef.current) {
+                    heroVideoRef.current.muted = !heroVideoRef.current.muted;
+                    setIsSoundEnabled(!heroVideoRef.current.muted);
+                  }
+                }}
+                className="absolute rounded-full transition-colors pointer-events-auto"
+                style={{ 
+                  backgroundColor: '#FF9752', 
+                  color: 'white', 
+                  top: 'clamp(75px, 10vw, 80px)', // Account for header height (63px) + padding
+                  right: 'clamp(12px, 1vw, 16px)', 
+                  padding: 'clamp(8px, 0.75vw, 12px)',
+                  zIndex: 50
+                }}
+                aria-label={isSoundEnabled ? "Mute" : "Unmute"}
+              >
+                {isSoundEnabled ? (
+                  <VolumeX className="text-white" style={{ width: 'clamp(16px, 1.25vw, 20px)', height: 'clamp(16px, 1.25vw, 20px)' }} />
+                ) : (
+                  <Volume2 className="text-white" style={{ width: 'clamp(16px, 1.25vw, 20px)', height: 'clamp(16px, 1.25vw, 20px)' }} />
+                )}
+              </button>
+            )}
+
+            {/* Custom sound cursor (desktop only) */}
+            {!isMobile && isHoveringHero && (
               <div
                 className="fixed pointer-events-none z-50 flex flex-col items-center gap-2"
                 style={{
@@ -819,9 +974,11 @@ export default function Index() {
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: scrollProgress >= 0.85 ? '100vh' : '200vh',
+            height: isMobile 
+              ? '110vh' // Shorter on mobile, no state change
+              : (scrollProgress >= 0.85 ? '100vh' : '200vh'),
             opacity: scrollProgress > 0.2 ? 1 : 1,
-            transition: scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none'
+            transition: isMobile ? 'none' : (scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none')
           }}
         >
           {/* Expanding shape - positioned within section */}
@@ -830,22 +987,30 @@ export default function Index() {
             style={{
               backgroundColor: 'var(--color-peach)',
               filter: 'none',
-              width: scrollProgress < 0.75 
-                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                : scrollProgress < 0.85
-                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                : '100%', // Full rectangle at the very end
-              height: scrollProgress < 0.75 
-                ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                : scrollProgress < 0.85
-                ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                : '100%', // Full rectangle at the very end
+              width: isMobile
+                ? (scrollProgress < 0.75 
+                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px`
+                    : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px`)
+                : (scrollProgress < 0.75 
+                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                    : scrollProgress < 0.85
+                    ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                    : '100%'), // Full rectangle at the very end (desktop only)
+              height: isMobile
+                ? (scrollProgress < 0.75 
+                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px`
+                    : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px`)
+                : (scrollProgress < 0.75 
+                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
+                    : scrollProgress < 0.85
+                    ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
+                    : '100%'), // Full rectangle at the very end (desktop only)
               opacity: 1, // Always visible
               transition: 'border-radius 0.1s linear', // Only transition border-radius, much faster
               top: '2%', // Position at 2%
               left: '50%',
               transform: 'translateX(-50%)',
-              borderRadius: scrollProgress < 0.85 ? '50%' : '0%', // Keep circle shape longer
+              borderRadius: isMobile ? '50%' : (scrollProgress < 0.85 ? '50%' : '0%'), // Always circle on mobile
               zIndex: 10,
               willChange: 'width, height, border-radius' // Optimize for performance
             }}
@@ -883,7 +1048,7 @@ export default function Index() {
                     return (
                       <p
                         key={segmentIndex}
-                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-[var(--color-white)] ${segmentIndex === 1 ? 'text-right' : ''}`}
+                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-[var(--color-white)] text-center ${segmentIndex === 1 ? 'md:text-right' : ''}`}
                         style={{
                           fontWeight: 600
                         }}
@@ -923,11 +1088,11 @@ export default function Index() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
               {/* Harriet */}
               <div className="group relative cursor-pointer">
-                <div className="rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
+                <div className="rounded-2xl shadow-lg transition-all duration-500 md:hover:scale-105 md:hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
                     <img 
                       src="/optimised/Harriet Headshot 8.jpg" 
                       alt="Harriet" 
-                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-auto object-cover transition-transform duration-500 md:group-hover:scale-110"
                       loading="lazy"
                 />
               </div>
@@ -943,11 +1108,11 @@ export default function Index() {
 
               {/* Adam */}
               <div className="group relative cursor-pointer">
-                <div className="rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
+                <div className="rounded-2xl shadow-lg transition-all duration-500 md:hover:scale-105 md:hover:shadow-2xl overflow-hidden" style={{ border: '3px solid #FF9752' }}>
                     <img 
                       src="/optimised/Adam Headshot 4.jpg" 
                       alt="Adam" 
-                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-auto object-cover transition-transform duration-500 md:group-hover:scale-110"
                       loading="lazy"
                 />
               </div>
@@ -958,10 +1123,10 @@ export default function Index() {
                   <p className="text-[var(--color-white)]/70 text-sm md:text-base mt-4 max-w-md mx-auto leading-relaxed">
                     Adam specializes in diagnostics recruitment, bringing years of experience in identifying and placing exceptional professionals. His strategic approach and extensive network help candidates find their ideal roles and companies discover the perfect talent.
                   </p>
-        </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
         </div>
       </section>
 
@@ -969,14 +1134,14 @@ export default function Index() {
       <section id="contact" className="bg-brand-orange w-full relative py-32 overflow-visible">
         <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
           <div className="text-center max-w-6xl mx-auto">
-            <h2 className="text-[48px] md:text-[64px] lg:text-[80px] xl:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-[var(--color-white)] mb-16">
+            <h2 className="text-[32px] md:text-[64px] lg:text-[80px] xl:text-[96px] font-bold leading-[0.95] tracking-[0.02em] text-[var(--color-white)] mb-8 md:mb-16">
               Choose Your Path
             </h2>
             
             {/* Arrows and Buttons Container */}
-            <div className="flex justify-center items-start gap-16 max-w-5xl mx-auto">
+            <div className="flex justify-center items-start gap-4 md:gap-16 max-w-5xl mx-auto">
               {/* Left Arrow and Client Button */}
-              <div className="flex flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-3 md:gap-6">
                 <div 
                   className="arrow-container-client"
                   style={{ 
@@ -989,8 +1154,8 @@ export default function Index() {
                   <ArrowDown 
                     className="arrow-client text-[var(--color-white)]"
                     style={{ 
-                      width: '48px', 
-                      height: '48px',
+                      width: isMobile ? '32px' : '48px', 
+                      height: isMobile ? '32px' : '48px',
                       transition: 'transform 0.3s ease'
                     }}
                   />
@@ -1000,14 +1165,14 @@ export default function Index() {
                   frontText="Client"
                   backText="Client"
                   from="top"
-                  className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
-                  frontClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
-                  backClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
+                  className={`${isMobile ? 'px-6 py-4 text-[18px]' : 'px-16 py-6 text-[32px]'} rounded-lg font-bold`}
+                  frontClassName="bg-[var(--color-blue)] text-white rounded-lg"
+                  backClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-lg"
                 />
               </div>
 
               {/* Right Arrow and Candidate Button */}
-              <div className="flex flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-3 md:gap-6">
                 <div 
                   className="arrow-container-candidate"
                   style={{ 
@@ -1020,8 +1185,8 @@ export default function Index() {
                   <ArrowDown 
                     className="arrow-candidate text-[var(--color-white)]"
                     style={{ 
-                      width: '48px', 
-                      height: '48px',
+                      width: isMobile ? '32px' : '48px', 
+                      height: isMobile ? '32px' : '48px',
                       transition: 'transform 0.3s ease'
                     }}
                   />
@@ -1031,9 +1196,9 @@ export default function Index() {
                   frontText="Candidate"
                   backText="Candidate"
                   from="top"
-                  className="px-16 py-6 rounded-[25px] font-bold text-[32px]"
-                  frontClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-[25px]"
-                  backClassName="bg-[var(--color-blue)] text-white rounded-[25px]"
+                  className={`${isMobile ? 'px-6 py-4 text-[18px]' : 'px-16 py-6 text-[32px]'} rounded-lg font-bold`}
+                  frontClassName="bg-[var(--color-white)] text-[var(--color-blue)] rounded-lg"
+                  backClassName="bg-[var(--color-blue)] text-white rounded-lg"
                 />
               </div>
             </div>
@@ -1041,7 +1206,10 @@ export default function Index() {
         </div>
       </section>
 
+          </div>
+          
       <Footer />
+      </>
     </div>
   );
 }

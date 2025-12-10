@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -18,6 +19,7 @@ type WordState =
   | { type: 'EXIT' };
 
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
+  const isMobile = useIsMobile();
   const [progress, setProgress] = useState(0);
   const [wordState, setWordState] = useState<WordState>({ type: 'CDMO' });
   
@@ -33,13 +35,13 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const isExitingRef = useRef(false);
   const currentStateRef = useRef<WordState>({ type: 'CDMO' }); // Synchronous state tracking
 
-  // Word mapping
+  // Word mapping - with line break for mobile
   const wordText: Record<WordState['type'], string> = {
     'CDMO': 'CDMO',
     'Diagnostics': 'Diagnostics',
     'CRO': 'CRO',
-    'CDC_Global': 'CDC Global',
-    'EXIT': 'CDC Global'
+    'CDC_Global': isMobile ? 'CDC\nGlobal' : 'CDC Global',
+    'EXIT': isMobile ? 'CDC\nGlobal' : 'CDC Global'
   };
 
   // Get next state in sequence
@@ -91,7 +93,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       text2Ref.current.style.opacity = '0%';
     }
     currentStateRef.current = { type: 'CDMO' };
-  }, []);
+  }, [isMobile]);
 
   // Sync state ref with state
   useEffect(() => {
@@ -160,9 +162,13 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       }
 
       // Continue morphing - use ref for synchronous state
-      const currentText = wordText[currentState.type];
+      const currentText = currentState.type === 'CDC_Global' || currentState.type === 'EXIT' 
+        ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+        : wordText[currentState.type];
       const nextState = getNextState(currentState);
-      const nextText = wordText[nextState.type];
+      const nextText = nextState.type === 'CDC_Global' || nextState.type === 'EXIT'
+        ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+        : wordText[nextState.type];
 
       // CRITICAL: Always ensure text2 is set to next word BEFORE any morph happens
       // This prevents any flash of wrong text
@@ -191,7 +197,9 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           
           // Prepare text2 for next morph - calculate from nextState, not currentState
           const nextNextState = getNextState(nextState);
-          const nextNextText = wordText[nextNextState.type];
+          const nextNextText = nextNextState.type === 'CDC_Global' || nextNextState.type === 'EXIT'
+            ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+            : wordText[nextNextState.type];
           
           // CRITICAL: Set text2 immediately and ensure it's correct
           text2Ref.current.textContent = nextNextText;
@@ -242,7 +250,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         morphRafIdRef.current = null;
       }
     };
-  }, [wordState]);
+  }, [wordState, isMobile]);
 
   // Safety check: Prevent wrong text from appearing during transitions
   useEffect(() => {
@@ -253,7 +261,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       
       if (currentState.type === 'EXIT' || isExitingRef.current) {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = wordText['CDC_Global'];
+          const cdcText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
           if (text1Ref.current.textContent !== cdcText) {
             text1Ref.current.textContent = cdcText;
           }
@@ -267,7 +275,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       // When at CRO or transitioning to CDC Global, ensure text2 is NEVER Diagnostics
       if (currentState.type === 'CRO' || currentState.type === 'CDC_Global') {
         if (text2Ref.current) {
-          const expectedText = wordText['CDC_Global'];
+          const expectedText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
           // If text2 shows Diagnostics when it shouldn't, fix it immediately
           if (text2Ref.current.textContent === wordText['Diagnostics']) {
             text2Ref.current.textContent = expectedText;
@@ -292,14 +300,14 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     const interval = setInterval(safetyCheck, 16); // Check every frame (~60fps)
     
     return () => clearInterval(interval);
-  }, [wordState]);
+  }, [wordState, isMobile]);
 
   // Lock text during exit
   useEffect(() => {
     if (wordState.type === 'EXIT' && text1Ref.current && text2Ref.current) {
       const lockText = () => {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = wordText['CDC_Global'];
+          const cdcText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
           text1Ref.current.textContent = cdcText;
           text2Ref.current.textContent = cdcText;
           text1Ref.current.style.filter = 'none';
@@ -314,10 +322,57 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       
       return () => clearInterval(interval);
     }
-  }, [wordState]);
+  }, [wordState, isMobile]);
+
+  // Simple mobile loading screen
+  const [mobileExiting, setMobileExiting] = useState(false);
+  
+  useEffect(() => {
+    if (isMobile) {
+      // Show for 1.5 seconds then slide up
+      const timer = setTimeout(() => {
+        setMobileExiting(true);
+        setTimeout(() => {
+          onComplete();
+        }, 1000); // Wait for slide animation
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile, onComplete]);
 
   const isCounting = wordState.type !== 'EXIT';
   const isExiting = wordState.type === 'EXIT';
+
+  // Simple mobile version
+  if (isMobile) {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        style={{
+          backgroundColor: 'var(--color-peach)',
+          transform: mobileExiting ? 'translateY(-100%)' : 'translateY(0%)',
+          transition: 'transform 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          willChange: 'transform',
+          zIndex: 2147483650
+        }}
+      >
+        <div className="text-center">
+          <h1
+            className="font-bold text-center"
+            style={{
+              color: 'var(--color-blue)',
+              fontSize: 'clamp(48px, 12vw, 80px)',
+              fontFamily: 'TexGyreAdventor',
+              whiteSpace: 'pre-line',
+              lineHeight: '1.2',
+            }}
+          >
+            CDC{'\n'}Global
+          </h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -334,7 +389,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         <div 
           className="text-center mb-16 select-none relative flex items-center justify-center" 
           style={{ 
-            height: 'clamp(120px, 15vw, 240px)',
+            height: isMobile ? 'clamp(100px, 20vw, 160px)' : 'clamp(120px, 15vw, 240px)',
             filter: isCounting ? 'url(#threshold) blur(0.6px)' : 'none',
             opacity: 1,
             transform: 'translateY(0px)',
@@ -355,29 +410,33 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             </defs>
           </svg>
           <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none"
             ref={text1Ref}
             style={{
               color: 'var(--color-blue)',
-              fontSize: 'clamp(100px, 12vw, 220px)',
+              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(100px, 12vw, 220px)',
               fontFamily: 'inherit',
               fontWeight: 'bold',
               fontStyle: 'normal',
               textTransform: 'none',
               letterSpacing: 'normal',
+              whiteSpace: isMobile ? 'pre-line' : 'nowrap',
+              lineHeight: isMobile ? '1.1' : '1',
             }}
           />
           <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none whitespace-nowrap"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block text-center font-bold leading-none"
             ref={text2Ref}
             style={{
               color: 'var(--color-blue)',
-              fontSize: 'clamp(100px, 12vw, 220px)',
+              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(100px, 12vw, 220px)',
               fontFamily: 'inherit',
               fontWeight: 'bold',
               fontStyle: 'normal',
               textTransform: 'none',
               letterSpacing: 'normal',
+              whiteSpace: isMobile ? 'pre-line' : 'nowrap',
+              lineHeight: isMobile ? '1.1' : '1',
             }}
           />
         </div>
@@ -386,7 +445,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           <div
             className="invisible font-bold leading-none"
             style={{ 
-              fontSize: 'clamp(30px, 8vw, 120px)'
+              fontSize: isMobile ? 'clamp(20px, 5vw, 40px)' : 'clamp(30px, 8vw, 120px)'
             }}
           >
             100%
@@ -397,7 +456,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               className="font-bold leading-none transition-all duration-1000 ease-out"
               style={{
                 color: 'var(--color-blue)',
-                fontSize: 'clamp(30px, 8vw, 120px)',
+                fontSize: isMobile ? 'clamp(20px, 5vw, 40px)' : 'clamp(30px, 8vw, 120px)',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore
                 fontFeatureSettings: '"tnum" 1',

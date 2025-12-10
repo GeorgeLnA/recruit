@@ -101,6 +101,11 @@ export default function RotatingEarth({
   const pinPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
   const positionUpdateRafRef = useRef<number | null>(null);
   const canvasSizeRef = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
+  const touchStartXRef = useRef<number>(0);
+  const touchStartYRef = useRef<number>(0);
+  const touchStartRotationRef = useRef<[number, number]>([0, -45]);
+  const touchRafRef = useRef<number | null>(null);
+  const isTouchDraggingRef = useRef<boolean>(false);
 
   // Update pin positions directly via DOM (no React re-renders)
   const updatePinPositions = useCallback(() => {
@@ -398,85 +403,8 @@ export default function RotatingEarth({
 
     canvas.addEventListener("mousedown", handleMouseDown as any);
     
-    // Mobile touch interaction - attach immediately
-    const handleTouchStart = (event: TouchEvent) => {
-      // Don't start drag if clicking on a pin
-      if ((event.target as HTMLElement).closest('.pin-button')) {
-        return;
-      }
-
-      // Close pin if open when starting to drag
-      if (selectedId) {
-        setSelectedId(null);
-      }
-
-      setIsHoveringGlobe(false);
-      autoRotateRef.current = false;
-      isDraggingRef.current = true;
-      
-      const touch = event.touches[0];
-      const startX = touch.clientX;
-      const startY = touch.clientY;
-      const startRotation = [...rotationRef.current] as [number, number];
-      
-      let rafId: number | null = null;
-
-      const handleTouchMove = (moveEvent: TouchEvent) => {
-        if (moveEvent.touches.length === 0) return;
-        
-        const touch = moveEvent.touches[0];
-        const sensitivity = 0.5;
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
-
-        rotationRef.current[0] = startRotation[0] + dx * sensitivity;
-        rotationRef.current[1] = startRotation[1] - dy * sensitivity;
-        rotationRef.current[1] = Math.max(-90, Math.min(90, rotationRef.current[1]));
-
-        projection.rotate(rotationRef.current as any);
-        
-        // Throttle renders using requestAnimationFrame
-        if (rafId === null) {
-          rafId = requestAnimationFrame(() => {
-            render();
-            updatePinPositions();
-            rafId = null;
-          });
-        }
-      };
-
-      const handleTouchEnd = () => {
-        document.removeEventListener("touchmove", handleTouchMove);
-        document.removeEventListener("touchend", handleTouchEnd);
-        document.removeEventListener("touchcancel", handleTouchEnd);
-        if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-        // Final render to ensure positions are updated
-        render();
-        updatePinPositions();
-        // Delay setting isDragging to false to prevent blink
-        setTimeout(() => {
-          isDraggingRef.current = false;
-          // Update positions again after delay to apply visibility checks
-          updatePinPositions();
-          // Resume auto-rotation on mobile after 1 second of no touch
-          setTimeout(() => {
-            if (!isDraggingRef.current && !selectedId) {
-              autoRotateRef.current = true;
-            }
-          }, 1000);
-        }, 300);
-      };
-
-      document.addEventListener("touchmove", handleTouchMove, { passive: false });
-      document.addEventListener("touchend", handleTouchEnd);
-      document.addEventListener("touchcancel", handleTouchEnd);
-    };
-
-    // Always attach touch handler (works on all devices, but only processes on mobile)
-    canvas.addEventListener("touchstart", handleTouchStart as any, { passive: false });
+    // Note: Touch handlers are now handled via React event handlers on the canvas element
+    // This provides better mobile support and prevents conflicts
 
     renderRef.current = render;
 
@@ -532,7 +460,7 @@ export default function RotatingEarth({
       });
       window.removeEventListener("resize", handleResize);
       canvas.removeEventListener("mousedown", handleMouseDown as any);
-      canvas.removeEventListener("touchstart", handleTouchStart as any);
+      // Touch handlers are React handlers, no cleanup needed
     };
   }, [width, height, render]);
 
@@ -627,13 +555,33 @@ export default function RotatingEarth({
           ease: "power2.in",
           onComplete: () => {
             setSelectedId(null);
+            // Resume auto-rotation on mobile after closing card
+            if (isMobile) {
+              setTimeout(() => {
+                if (!isDraggingRef.current) {
+                  autoRotateRef.current = true;
+                }
+              }, 1000);
+            } else {
+              autoRotateRef.current = true;
+            }
           }
         });
       } else {
         setSelectedId(null);
+        // Resume auto-rotation on mobile after closing card
+        if (isMobile) {
+          setTimeout(() => {
+            if (!isDraggingRef.current) {
+              autoRotateRef.current = true;
+            }
+          }, 1000);
+        } else {
+          autoRotateRef.current = true;
+        }
       }
     }
-  }, [selectedId, pins, onSelectPin]);
+  }, [selectedId, pins, onSelectPin, isMobile]);
 
   // Smooth cursor position with damping - disabled on mobile
   useEffect(() => {
@@ -752,10 +700,11 @@ export default function RotatingEarth({
         
         if (!isClickOnCard && !isClickOnPinButton) {
           setSelectedId(null);
-          // Resume auto-rotation when pin is closed
-          if (isMobile) {
+          // Resume auto-rotation when pin is closed - check mobile at runtime
+          const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+          if (isMobileDevice) {
             setTimeout(() => {
-              if (!selectedId) {
+              if (!isDraggingRef.current) {
                 autoRotateRef.current = true;
               }
             }, 1000);
@@ -780,8 +729,167 @@ export default function RotatingEarth({
     };
   }, [selectedId]);
 
+  // Update pin label colors on mobile when location is opened/closed
+  useEffect(() => {
+    if (!isMobile) return; // Only on mobile
+    
+    pins.forEach((pin) => {
+      const pinEl = pinRefs.current[pin.id];
+      if (!pinEl) return;
+      
+      const pinLabel = pinEl.querySelector('.pin-label') as HTMLElement;
+      if (!pinLabel) return;
+      
+      if (selectedId === pin.id) {
+        // Location is open - change to colored state
+        gsap.to(pinLabel, {
+          backgroundColor: '#464C53',
+          color: '#FF9752',
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      } else {
+        // Location is closed - change back to white
+        gsap.to(pinLabel, {
+          backgroundColor: '#FFF5E5',
+          color: '#464C53',
+          duration: 0.3,
+          ease: 'power2.out'
+        });
+      }
+    });
+  }, [selectedId, pins, isMobile]);
+
+  // React touch handlers for mobile - work on all devices but only process on mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement | HTMLDivElement>) => {
+    // Check if mobile at runtime
+    const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    if (!isMobileDevice || !projectionRef.current) return;
+    
+    // Don't start drag if clicking on a pin or pin card
+    const target = e.target as HTMLElement;
+    if (target.closest('.pin-button') || target.closest('.pin-card')) {
+      return;
+    }
+
+    // Close pin if open when starting to drag
+    if (selectedId) {
+      setSelectedId(null);
+    }
+
+    setIsHoveringGlobe(false);
+    autoRotateRef.current = false;
+    isDraggingRef.current = true;
+    isTouchDraggingRef.current = true;
+    
+    const touch = e.touches[0];
+    if (!touch) return;
+    
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+    touchStartRotationRef.current = [...rotationRef.current] as [number, number];
+    
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement | HTMLDivElement>) => {
+    // Check if mobile at runtime
+    const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    if (!isMobileDevice || !isTouchDraggingRef.current) return;
+    
+    const projection = projectionRef.current;
+    if (!projection) return;
+    if (e.touches.length === 0) return;
+    
+    const touch = e.touches[0];
+    if (!touch) return;
+    
+    const dx = Math.abs(touch.clientX - touchStartXRef.current);
+    const dy = Math.abs(touch.clientY - touchStartYRef.current);
+    
+    // Always prevent default when dragging
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Only process if we've moved enough
+    if (dx < 3 && dy < 3) {
+      return; // Not enough movement yet
+    }
+    
+    const sensitivity = 0.5;
+    const deltaX = touch.clientX - touchStartXRef.current;
+    const deltaY = touch.clientY - touchStartYRef.current;
+
+    rotationRef.current[0] = touchStartRotationRef.current[0] + deltaX * sensitivity;
+    rotationRef.current[1] = touchStartRotationRef.current[1] - deltaY * sensitivity;
+    rotationRef.current[1] = Math.max(-90, Math.min(90, rotationRef.current[1]));
+
+    projection.rotate(rotationRef.current as any);
+    
+    // Throttle renders using requestAnimationFrame
+    if (touchRafRef.current === null) {
+      touchRafRef.current = requestAnimationFrame(() => {
+        if (renderRef.current) {
+          renderRef.current();
+        }
+        updatePinPositions();
+        touchRafRef.current = null;
+      });
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement | HTMLDivElement>) => {
+    // Check if mobile at runtime
+    const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    if (!isMobileDevice || !isTouchDraggingRef.current) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (touchRafRef.current !== null) {
+      cancelAnimationFrame(touchRafRef.current);
+      touchRafRef.current = null;
+    }
+    
+    // Final render to ensure positions are updated
+    if (renderRef.current) {
+      renderRef.current();
+    }
+    updatePinPositions();
+    
+    // Delay setting isDragging to false to prevent blink
+    setTimeout(() => {
+      isDraggingRef.current = false;
+      isTouchDraggingRef.current = false;
+      // Update positions again after delay to apply visibility checks
+      updatePinPositions();
+      // Resume auto-rotation on mobile after 1 second of no touch
+      setTimeout(() => {
+        if (!isDraggingRef.current && !selectedId) {
+          autoRotateRef.current = true;
+        }
+      }, 1000);
+    }, 300);
+  };
+
   return (
-    <div ref={containerRef} className={`relative ${className}`} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
+    <div 
+      ref={containerRef} 
+      className={`relative ${className}`} 
+      style={{ 
+        width: '100%', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        margin: '0 auto',
+        touchAction: isMobile ? 'none' : 'auto'
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+    >
       <canvas 
         ref={canvasRef} 
         style={{ 
@@ -790,8 +898,17 @@ export default function RotatingEarth({
           maxWidth: '100%',
           height: 'auto',
           display: "block",
-          margin: '0 auto'
+          margin: '0 auto',
+          touchAction: isMobile ? 'none' : 'auto',
+          pointerEvents: 'auto',
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none'
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         onMouseEnter={() => {
           if (!isMobile) {
             // Don't set hovering globe if a card is selected or hovering over pin/card
@@ -894,6 +1011,8 @@ export default function RotatingEarth({
                 className="pin-button relative flex items-center group -translate-y-1/2"
                 aria-label={`Select ${pin.name}`}
                 onMouseEnter={(e) => {
+                  if (isMobile) return; // Skip hover effects on mobile
+                  
                   // Mark that we're hovering over pin or card
                   if (hoverTimeoutRef.current[pin.id]) {
                     clearTimeout(hoverTimeoutRef.current[pin.id]);
@@ -929,6 +1048,8 @@ export default function RotatingEarth({
                   }
                 }}
                 onMouseLeave={(e) => {
+                  if (isMobile) return; // Skip hover effects on mobile
+                  
                   // Add delay before marking as not hovering to prevent flicker
                   isHoveringPinOrCard.current[pin.id] = false;
                   hoverTimeoutRef.current[pin.id] = setTimeout(() => {
@@ -1095,10 +1216,8 @@ export default function RotatingEarth({
                         }));
                       }}
                       onClick={(e) => {
-                        // On desktop only: clicking video toggles mute
-                        if (!isMobile) {
-                          toggleMute(pin.id);
-                        }
+                        // Clicking anywhere on video toggles mute (both desktop and mobile)
+                        toggleMute(pin.id);
                       }}
                     >
                       <video
@@ -1125,7 +1244,7 @@ export default function RotatingEarth({
                         loading="lazy"
                         disablePictureInPicture
                         disableRemotePlayback
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                         style={{ display: 'block' }}
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
@@ -1147,7 +1266,7 @@ export default function RotatingEarth({
                             e.preventDefault();
                             toggleMute(pin.id);
                           }}
-                          className="absolute top-2 right-2 z-20 p-1.5 rounded-full transition-colors touch-manipulation"
+                          className="absolute top-2 right-2 z-20 p-1.5 rounded-full transition-colors touch-manipulation pointer-events-auto"
                           style={{ 
                             backgroundColor: '#FF9752', 
                             color: 'white',

@@ -79,3 +79,4 @@ After deployment, check:
 - Network tab → File sizes and load times
 - Lighthouse score → Should improve significantly
 
+

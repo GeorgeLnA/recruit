@@ -2,6 +2,7 @@ import { ArrowRight, Menu, X, ChevronDown, Linkedin } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { FlipButton } from "@/components/FlipButton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItem {
   label: string;
@@ -29,6 +30,7 @@ export default function Header({
   sticky = true,
   className = ""
 }: HeaderProps) {
+  const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -207,8 +209,10 @@ export default function Header({
     }
   };
 
-  // Animate dropdown morphing from button
+  // Animate dropdown morphing from button - skip on mobile
   useEffect(() => {
+    if (isMobile) return; // Skip dropdown animations on mobile
+    
     items.forEach((item) => {
       if (!item.submenu) return;
       
@@ -312,10 +316,11 @@ export default function Header({
         // separately in the isAnimatingOut effect, so we don't interfere here
       }
     });
-  }, [activeDropdown, items]);
+  }, [activeDropdown, items, isMobile]);
 
-  // Handle exit animation for Work With Us and Proof in the People panels
+  // Handle exit animation for Work With Us and Proof in the People panels - skip on mobile
   useEffect(() => {
+    if (isMobile) return; // Skip exit animations on mobile
     if (!isAnimatingOut || !animatingOutLabel) return;
     
     const dropdownEl = dropdownRefs.current.get(animatingOutLabel);
@@ -347,7 +352,7 @@ export default function Header({
         ease: 'power3.in'
       });
     }
-  }, [isAnimatingOut, animatingOutLabel]);
+  }, [isAnimatingOut, animatingOutLabel, isMobile]);
 
   // Set extended state (used for smaller screens on mount/resize)
   const setExtendedState = () => {
@@ -1024,19 +1029,19 @@ export default function Header({
         <>
           {/* Invisible bridge to catch mouse in gap */}
           <div
-            className="absolute left-0 right-0 top-full h-1"
-            onMouseEnter={() => handleDropdownEnter('Work With Us')}
-            onMouseLeave={() => handleDropdownLeave('Work With Us')}
+            className={`absolute left-0 right-0 top-full h-1 ${isMobile ? 'hidden' : ''}`}
+            onMouseEnter={() => !isMobile && handleDropdownEnter('Work With Us')}
+            onMouseLeave={() => !isMobile && handleDropdownLeave('Work With Us')}
             style={{ pointerEvents: 'auto', zIndex: 49 }}
           />
           <div
             ref={(el) => {
               if (el) dropdownRefs.current.set('Work With Us', el);
             }}
-            className="absolute left-0 right-0 top-full z-50"
+            className={`absolute left-0 right-0 top-full z-50 ${isMobile ? 'hidden' : ''}`}
             style={{ paddingTop: '0px', pointerEvents: activeDropdown === 'Work With Us' ? 'auto' : 'none' }}
-            onMouseEnter={() => handleDropdownEnter('Work With Us')}
-            onMouseLeave={() => handleDropdownLeave('Work With Us')}
+            onMouseEnter={() => !isMobile && handleDropdownEnter('Work With Us')}
+            onMouseLeave={() => !isMobile && handleDropdownLeave('Work With Us')}
           >
             <div className="bg-[var(--color-peach)] rounded-2xl overflow-hidden" style={{ marginLeft: 'clamp(16px, 2vw, 32px)', marginRight: 'clamp(16px, 2vw, 32px)' }}
             >
@@ -1095,19 +1100,19 @@ export default function Header({
         <>
           {/* Invisible bridge to catch mouse in gap */}
           <div
-            className="absolute left-0 right-0 top-full h-1"
-            onMouseEnter={() => handleDropdownEnter('Proof in the People')}
-            onMouseLeave={() => handleDropdownLeave('Proof in the People')}
+            className={`absolute left-0 right-0 top-full h-1 ${isMobile ? 'hidden' : ''}`}
+            onMouseEnter={() => !isMobile && handleDropdownEnter('Proof in the People')}
+            onMouseLeave={() => !isMobile && handleDropdownLeave('Proof in the People')}
             style={{ pointerEvents: 'auto', zIndex: 49 }}
           />
           <div
             ref={(el) => {
               if (el) dropdownRefs.current.set('Proof in the People', el);
             }}
-            className="absolute left-0 right-0 top-full z-50"
+            className={`absolute left-0 right-0 top-full z-50 ${isMobile ? 'hidden' : ''}`}
             style={{ paddingTop: '0px', pointerEvents: activeDropdown === 'Proof in the People' ? 'auto' : 'none' }}
-            onMouseEnter={() => handleDropdownEnter('Proof in the People')}
-            onMouseLeave={() => handleDropdownLeave('Proof in the People')}
+            onMouseEnter={() => !isMobile && handleDropdownEnter('Proof in the People')}
+            onMouseLeave={() => !isMobile && handleDropdownLeave('Proof in the People')}
           >
             <div className="bg-[var(--color-peach)] rounded-2xl overflow-hidden" style={{ marginLeft: 'clamp(16px, 2vw, 32px)', marginRight: 'clamp(16px, 2vw, 32px)' }}
             >

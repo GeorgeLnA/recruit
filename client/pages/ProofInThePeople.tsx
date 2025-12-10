@@ -306,7 +306,7 @@ export default function ProofInThePeople() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 'clamp(300px, 60vw, 500px)' : 'clamp(80px, 8vw, 128px)', paddingBottom: isMobile ? 'clamp(200px, 40vw, 300px)' : '0' }}>
               {/* Card 1 */}
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
-                <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
+                <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6" style={{ paddingTop: 'clamp(60px, 8vw, 120px)' }}>
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[0] = el; }}
                     className="case-study-card md:sticky top-0 z-30 mx-auto shadow-lg transition-all duration-500 ease-out"

@@ -160,3 +160,4 @@ Once optimized:
 - **After**: 3-4 MB optimized = ~1-2 seconds load
 - **With CDN caching**: Subsequent loads = instant
 
+

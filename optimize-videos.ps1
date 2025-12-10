@@ -106,3 +106,4 @@ Write-Host "   Get-ChildItem '*_optimized.webm' | ForEach-Object { Rename-Item `
 Write-Host ""
 Write-Host "Original files backed up to: $backupPath" -ForegroundColor Cyan
 
+

@@ -547,11 +547,12 @@ export default function WorkWithUs() {
                     <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>01</span>
                   </div>
 
-                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)', zIndex: 10 }}>
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
-                        src="/vids/Short 1.webm"
+                        src="/vids/Short%201.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -559,6 +560,7 @@ export default function WorkWithUs() {
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
+                        style={{ display: 'block', width: '100%', height: '100%' }}
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
                         }}
@@ -605,11 +607,12 @@ export default function WorkWithUs() {
                     <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>02</span>
                   </div>
 
-                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)', zIndex: 10 }}>
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
-                        src="/vids/Short 2.webm"
+                        src="/vids/Short%202.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -617,6 +620,7 @@ export default function WorkWithUs() {
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
+                        style={{ display: 'block', width: '100%', height: '100%' }}
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
                         }}
@@ -663,11 +667,12 @@ export default function WorkWithUs() {
                     <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>03</span>
                   </div>
 
-                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)' }}>
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ right: 'clamp(80px, 5vw, 80px)', zIndex: 10 }}>
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
-                        src="/vids/Short 3.webm"
+                        src="/vids/Short%203.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -675,6 +680,7 @@ export default function WorkWithUs() {
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
+                        style={{ display: 'block', width: '100%', height: '100%' }}
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
                         }}
@@ -721,11 +727,12 @@ export default function WorkWithUs() {
                     <span className="font-bold leading-none text-white/20" style={{ fontSize: 'clamp(160px, 16vw, 320px)' }}>04</span>
                   </div>
 
-                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)' }}>
+                  <div className="hidden md:block lg:absolute lg:top-1/2 lg:-translate-y-1/2" style={{ left: 'clamp(80px, 5vw, 80px)', zIndex: 10 }}>
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
-                        src="/vids/Short 4.webm"
+                        src="/vids/Short%204.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -733,6 +740,7 @@ export default function WorkWithUs() {
                         disablePictureInPicture
                         disableRemotePlayback
                         className="w-full h-full object-cover"
+                        style={{ display: 'block', width: '100%', height: '100%' }}
                         onLoadedMetadata={(e) => {
                           e.currentTarget.currentTime = 0.1;
                         }}
@@ -780,7 +788,8 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
-                        src="/vids/Short 1.webm"
+                        src="/vids/Short%201.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -838,7 +847,8 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
-                        src="/vids/Short 2.webm"
+                        src="/vids/Short%202.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -896,7 +906,8 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
-                        src="/vids/Short 3.webm"
+                        src="/vids/Short%203.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline
@@ -954,7 +965,8 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
-                        src="/vids/Short 5.webm"
+                        src="/vids/Short%205.webm"
+                        autoPlay
                         loop
                         muted
                         playsInline

@@ -97,7 +97,7 @@ export default function CurvedSlider({
       const viewportWidth = window.innerWidth;
       const isMobile = viewportWidth < 768;
       const maxCardWidth = isMobile ? 600 : 480; // Much larger max width on mobile
-      const baseCardWidthVw = isMobile ? 70 : 28; // Much larger base width on mobile (70vw vs 28vw)
+      const baseCardWidthVw = isMobile ? 85 : 28; // Wider cards on mobile (85vw vs 28vw)
       
       // Calculate what baseCardWidthVw equals in pixels
       const baseCardWidthPx = (viewportWidth * baseCardWidthVw) / 100;
@@ -133,18 +133,18 @@ export default function CurvedSlider({
       // Calculate last card's start position to determine travel distances
       const lastCardIndex = totalItems - 1;
       const firstCardIndex = 0;
-      const baseVerticalOffset = -70; // Move starting position higher
+      const baseVerticalOffset = isMobile ? -50 : -70; // Starting point on mobile, higher on desktop
       // Last card starts at its spread position from center (where first card starts)
       const lastCardHorizontalSpread = (lastCardIndex - firstCardIndex) * spacingVw;
       const lastCardVerticalSpread = (lastCardIndex - firstCardIndex) * 35;
       const lastCardStartX = lastCardHorizontalSpread;
       const lastCardStartY = baseVerticalOffset + lastCardVerticalSpread;
       
-      // Calculate travel distances - reduce horizontal travel so cards only move partway
-      // Cards will only travel 65% of horizontal distance when animation completes
-      const horizontalTravelRatio = 0.65; // Only travel 65% of the way horizontally
+      // Calculate travel distances - cards travel more distance on mobile
+      // On desktop: travel 65% of horizontal distance, on mobile: travel 105%
+      const horizontalTravelRatio = isMobile ? 1.05 : 0.65; // Mobile: 105%, Desktop: 65% (original)
       const diagonalDistanceX = lastCardStartX * horizontalTravelRatio;
-      const diagonalDistanceY = lastCardStartY;
+      const diagonalDistanceY = isMobile ? lastCardStartY * 0.3 : lastCardStartY; // Reduced vertical movement on mobile (30% of desktop)
       
       items.forEach((_, i) => {
         const cardEl = cardRefs.current[i];
@@ -153,13 +153,13 @@ export default function CurvedSlider({
         // Position cards so first card (index 0) starts at center of screen (slightly higher)
         // Calculate base positions to center the first card
         const firstCardIndex = 0;
-        const baseVerticalOffset = -70; // Move starting position higher
+        const baseVerticalOffset = isMobile ? -50 : -70; // Starting point on mobile, higher on desktop
         const horizontalSpread = (i - firstCardIndex) * spacingVw;
         const verticalSpread = (i - firstCardIndex) * 35; // Stagger vertically for diagonal row
         
         // First card starts at center (0, 0) but higher, other cards spread from there
-        // Add offset to move starting position more to the left
-        const leftOffset = 16; // Move all cards 16vw to the left initially
+        // Add offset to move starting position - on mobile, no offset (centered)
+        const leftOffset = isMobile ? 0 : 16; // On mobile: no offset (centered), on desktop: 16vw to the left
         const startX = horizontalSpread - leftOffset;
         const startY = baseVerticalOffset + verticalSpread;
         
@@ -170,9 +170,15 @@ export default function CurvedSlider({
         // Global vertical offset - moves entire row up with scroll so last card isn't too low
         const globalUpwardOffset = 0; // No upward movement for whole row
         
+        // On mobile, add upward offset that increases with progress to make final position higher
+        const mobileFinalOffset = isMobile ? cardProgress * 180 : 0; // Move final position 180px higher on mobile
+        
+        // On mobile, add horizontal offset that increases with progress to make final position more to the right
+        const mobileFinalRightOffset = isMobile ? cardProgress * 15 : 0; // Move final position 15vw more to the right on mobile
+        
         // Calculate current position based on card progress (all cards use same progress)
-        const x = startX - cardProgress * diagonalDistanceX;
-        const y = startY - cardProgress * diagonalDistanceY - globalUpwardOffset;
+        const x = startX - cardProgress * diagonalDistanceX + mobileFinalRightOffset;
+        const y = startY - cardProgress * diagonalDistanceY - globalUpwardOffset - mobileFinalOffset;
         
         // Individual rotation based on position: cards on right tilt right, at center upright, on left tilt left
         // Rotation is proportional to distance from center (x = 0)
@@ -214,7 +220,7 @@ export default function CurvedSlider({
         rafRef.current = null;
       }
     };
-  }, [items, progress, externalProgress, spacingVw]);
+  }, [items, progress, externalProgress, spacingVw, isMobile]);
 
   const handleToggle = useCallback((id: string) => {
     setFlipped((prev) => {
@@ -246,7 +252,7 @@ export default function CurvedSlider({
               style={{ 
                 width: `${cardWidthVw}vw`,
                 maxWidth: `${maxCardWidth}px`,
-                aspectRatio: isMobile ? '400/700' : '400/472', // Much taller on mobile
+                aspectRatio: isMobile ? '400/600' : '400/472', // Shorter on mobile
                 left: '50%',
                 top: '50%',
                 transform: 'translate3d(-50%, -50%, 0)',

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type Review = {
   id?: string;
@@ -79,6 +80,22 @@ function MarqueeRow({
   const [isDragging, setIsDragging] = useState(false);
   const [dragVelocity, setDragVelocity] = useState(0);
   const loopWidthRef = useRef<number | null>(null);
+  const mobilePauseRef = useRef(false);
+  const mobileResumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const startYRef = useRef(0);
+  const isHorizontalDragRef = useRef(false);
+  const [isHorizontalDrag, setIsHorizontalDrag] = useState(false);
+
+  // Detect mobile devices - same logic as ClientLogoMarquee
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Calculate and cache loop width (one set of items)
   const updateLoopWidth = useCallback(() => {
@@ -133,7 +150,108 @@ function MarqueeRow({
     applyTransform();
   }, [applyTransform]);
 
+  // Mobile-specific touch handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile || !containerRef.current) return;
+    const touch = e.touches[0];
+    startXRef.current = touch.clientX;
+    startYRef.current = touch.clientY;
+    isHorizontalDragRef.current = false;
+    setIsHorizontalDrag(false);
+    setIsDragging(true);
+    hoverRef.current = false;
+    startOffsetRef.current = baseOffsetRef.current + dragOffset;
+    lastMoveXRef.current = touch.clientX;
+    lastMoveTimeRef.current = Date.now();
+    smoothedVelocityRef.current = 0;
+    setDragVelocity(0);
+    mobilePauseRef.current = true;
+    // Clear any existing resume timeout
+    if (mobileResumeTimeoutRef.current) {
+      clearTimeout(mobileResumeTimeoutRef.current);
+      mobileResumeTimeoutRef.current = null;
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!isMobile || !isDragging) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - startXRef.current);
+    const dy = Math.abs(touch.clientY - startYRef.current);
+    
+    // Determine if this is a horizontal drag (only prevent default if horizontal)
+    if (!isHorizontalDragRef.current) {
+      // If horizontal movement is greater than vertical, it's a horizontal drag
+      if (dx > dy && dx > 3) {
+        isHorizontalDragRef.current = true;
+        setIsHorizontalDrag(true);
+        // Prevent default immediately when horizontal drag is detected
+        e.preventDefault();
+        e.stopPropagation();
+      } else if (dy > dx && dy > 3) {
+        // Vertical scroll - don't prevent default, end drag immediately
+        setIsDragging(false);
+        setIsHorizontalDrag(false);
+        isHorizontalDragRef.current = false;
+        return;
+      } else {
+        // Not enough movement yet, don't prevent default to allow vertical scroll
+        return;
+      }
+    }
+    
+    // Only process if it's a horizontal drag
+    if (!isHorizontalDragRef.current) {
+      return;
+    }
+    
+    // Always prevent default when dragging horizontally to prevent vertical scroll
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const newOffset = startOffsetRef.current + (touch.clientX - startXRef.current);
+    
+    // Apply wrapping during drag to prevent going too far
+    const wrapped = wrapOffset(newOffset);
+    setDragOffset(wrapped - baseOffsetRef.current);
+    
+    // Calculate velocity
+    const now = Date.now();
+    const timeDelta = now - lastMoveTimeRef.current;
+    if (timeDelta > 0 && timeDelta < 100) {
+      const positionDelta = touch.clientX - lastMoveXRef.current;
+      const instantVelocity = positionDelta * 10;
+      const smoothingFactor = 0.25;
+      smoothedVelocityRef.current = smoothedVelocityRef.current * (1 - smoothingFactor) + instantVelocity * smoothingFactor;
+      
+      const deadZone = 4;
+      if (Math.abs(smoothedVelocityRef.current) > deadZone) {
+        setDragVelocity(smoothedVelocityRef.current);
+      } else {
+        smoothedVelocityRef.current *= 0.8;
+        setDragVelocity(smoothedVelocityRef.current);
+      }
+    }
+    lastMoveXRef.current = touch.clientX;
+    lastMoveTimeRef.current = Date.now();
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    // Only prevent default and end drag if it was a horizontal drag
+    if (isHorizontalDragRef.current) {
+      e.preventDefault();
+      endDrag();
+    } else {
+      // Reset drag state if it was vertical scroll
+      setIsDragging(false);
+      setIsHorizontalDrag(false);
+      isHorizontalDragRef.current = false;
+    }
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
+    if (isMobile) return; // Use touch events on mobile instead
     if (!containerRef.current) return;
     containerRef.current.setPointerCapture(e.pointerId);
     setIsDragging(true);
@@ -147,6 +265,7 @@ function MarqueeRow({
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
+    if (isMobile) return; // Use touch events on mobile instead
     if (!isDragging) return;
     const dx = e.clientX - startXRef.current;
     const newOffset = startOffsetRef.current + dx;
@@ -183,6 +302,8 @@ function MarqueeRow({
 
   const endDrag = (e?: React.PointerEvent) => {
     setIsDragging(false);
+    setIsHorizontalDrag(false);
+    isHorizontalDragRef.current = false;
     const finalOffset = baseOffsetRef.current + dragOffset;
     baseOffsetRef.current = wrapOffset(finalOffset);
     setDragOffset(0);
@@ -190,6 +311,19 @@ function MarqueeRow({
     setDragVelocity(0);
     if (e && containerRef.current) {
       try { containerRef.current.releasePointerCapture(e.pointerId); } catch {}
+    }
+    
+    // On mobile, resume movement after 1 second
+    if (isMobile) {
+      // Clear any existing timeout
+      if (mobileResumeTimeoutRef.current) {
+        clearTimeout(mobileResumeTimeoutRef.current);
+      }
+      // Resume after 1 second
+      mobileResumeTimeoutRef.current = setTimeout(() => {
+        mobilePauseRef.current = false;
+        mobileResumeTimeoutRef.current = null;
+      }, 1000);
     }
   };
 
@@ -202,18 +336,23 @@ function MarqueeRow({
       prevTimeRef.current = timestamp;
 
       if (!isDragging) {
-        const loopWidth = loopWidthRef.current;
-        if (loopWidth && loopWidth > 0) {
-          const directionMultiplier = direction === "left" ? -1 : 1;
-          const secondsPerLoop = duration;
-          const pxPerMs = loopWidth / (secondsPerLoop * 1000);
-          const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
-          const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
-          
-          // Update base offset and wrap immediately
-          baseOffsetRef.current += deltaOffset;
-          baseOffsetRef.current = wrapOffset(baseOffsetRef.current);
-          applyTransform();
+        // On mobile, check if movement is paused
+        const shouldPause = isMobile && mobilePauseRef.current;
+        
+        if (!shouldPause) {
+          const loopWidth = loopWidthRef.current;
+          if (loopWidth && loopWidth > 0) {
+            const directionMultiplier = direction === "left" ? -1 : 1;
+            const secondsPerLoop = duration;
+            const pxPerMs = loopWidth / (secondsPerLoop * 1000);
+            const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
+            const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
+            
+            // Update base offset and wrap immediately
+            baseOffsetRef.current += deltaOffset;
+            baseOffsetRef.current = wrapOffset(baseOffsetRef.current);
+            applyTransform();
+          }
         }
       }
 
@@ -226,8 +365,12 @@ function MarqueeRow({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
       prevTimeRef.current = null;
+      if (mobileResumeTimeoutRef.current) {
+        clearTimeout(mobileResumeTimeoutRef.current);
+        mobileResumeTimeoutRef.current = null;
+      }
     };
-  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover]);
+  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover, isMobile]);
 
   return (
     <div
@@ -240,7 +383,12 @@ function MarqueeRow({
       style={{
         // @ts-expect-error CSS custom property
         "--marquee-duration": `${duration}s`,
+        touchAction: isMobile && isDragging ? 'none' : (isMobile ? 'pan-y' : 'auto')
       }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -250,10 +398,10 @@ function MarqueeRow({
         if (pauseOnHover) hoverRef.current = false;
       }}
       onMouseEnter={() => {
-        if (pauseOnHover) hoverRef.current = true;
+        if (!isMobile && pauseOnHover) hoverRef.current = true;
       }}
       onMouseLeave={() => {
-        if (pauseOnHover) hoverRef.current = false;
+        if (!isMobile && pauseOnHover) hoverRef.current = false;
       }}
     >
       <div
@@ -291,18 +439,17 @@ function MarqueeItem({
   dragVelocity?: number;
 }) {
   const { authorName, authorTitle, company, avatarUrl, quote, sourceUrl } = review;
-  const baseTiltDeg = (idx % 2 === 0 ? -2 : 2);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const baseTiltDeg = isMobile ? 0 : (idx % 2 === 0 ? -2 : 2);
   
   // Add dynamic tilt based on drag velocity with additional smoothing
   // Velocity is negative when dragging left, positive when dragging right
   const dragTiltDeg = isDragging ? Math.max(-6, Math.min(6, dragVelocity * 0.12)) : 0;
   const tiltDeg = baseTiltDeg + dragTiltDeg;
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   const card = (
     <div
-      className="mx-5 shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] shadow-lg will-change-transform review-card flex flex-col"
+      className={cn("shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] shadow-lg will-change-transform review-card flex flex-col", isMobile ? "mx-2" : "mx-5")}
       style={{ 
         width: isMobile ? 'clamp(280px, 75vw, 400px)' : 'clamp(500px, 40vw, 580px)',
         height: isMobile ? 'clamp(400px, 100vh, 500px)' : '800px',
@@ -327,7 +474,13 @@ function MarqueeItem({
           )}
         </div>
       </div>
-      <blockquote className="text-white/90 leading-relaxed flex-1 flex items-start overflow-y-auto" style={{ fontSize: isMobile ? 'clamp(14px, 3.5vw, 18px)' : 'clamp(24px, 1.5vw, 24px)' }}>"{quote}"</blockquote>
+      <blockquote 
+        className="text-white/90 leading-relaxed flex-1 flex items-start" 
+        style={{ 
+          fontSize: isMobile ? 'clamp(14px, 3.5vw, 18px)' : 'clamp(24px, 1.5vw, 24px)',
+          overflowY: isMobile ? 'visible' : 'auto',
+        }}
+      >"{quote}"</blockquote>
     </div>
   );
 
@@ -338,6 +491,9 @@ function MarqueeItem({
         target="_blank"
         rel="noopener noreferrer"
         className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-blue)] rounded-2xl"
+        style={{
+          display: 'block',
+        }}
       >
         {card}
       </a>

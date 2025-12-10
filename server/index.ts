@@ -14,8 +14,10 @@ export function createServer() {
   app.use(express.urlencoded({ extended: true }));
 
   // Serve video files with explicit range request handling
-  app.get('/vids/*', (req, res, next) => {
-    const filePath = path.join(__dirname, "../public", req.path);
+  app.get(/^\/vids\/.*/, (req, res, next) => {
+    // Decode URL-encoded path to handle spaces and special characters
+    const decodedPath = decodeURIComponent(req.path);
+    const filePath = path.join(__dirname, "../public", decodedPath);
     
     // Check if file exists
     if (!fs.existsSync(filePath)) {

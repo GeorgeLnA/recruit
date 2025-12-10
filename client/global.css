@@ -349,14 +349,23 @@
     border-top: 0 !important;
     border-left: 0 !important;
     border-right: 0 !important;
-    border-bottom: 16px solid var(--theme-background);
-    border-radius: 0;
+    border-bottom: 0 !important;
+    border-radius: clamp(12px, 1.5vw, 24px);
     position: relative;
     background: var(--theme-background);
     z-index: 10;
     transition: background-color 0.3s ease, border-color 0.3s ease;
     box-shadow: none;
     outline: none;
+    overflow: hidden;
+  }
+  
+  @media (max-width: 767px) {
+    .hero-outline {
+      border-bottom: 16px solid var(--theme-background) !important;
+      border-radius: clamp(32px, 4vw, 64px);
+      overflow: hidden;
+    }
   }
 
 
@@ -835,6 +844,19 @@
     filter: grayscale(0) !important;
   }
 
+  /* Ensure logo card backgrounds are clipped on mobile and logos always in color */
+  @media (max-width: 767px) {
+    .client-card.logo-card-group {
+      overflow: hidden !important;
+      border-radius: 12px !important;
+      -webkit-border-radius: 12px !important;
+    }
+    .logo-card-group .logo-image {
+      filter: none !important;
+      -webkit-filter: none !important;
+    }
+  }
+
   /* LinkedIn cards mobile styling - balanced size on mobile */
   @media (max-width: 767px) {
     .linkedin-card-mobile {
@@ -851,4 +873,50 @@
       transform: translate(-50%, -50%) translateY(-10px);
     }
   }
+}
+
+/* Disable hover effects on mobile devices */
+@media (max-width: 767px) {
+  /* Disable all hover state changes on mobile */
+  * {
+    pointer-events: auto !important;
+  }
+  
+  /* Disable hover transforms and effects */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover,
+  .hover\:shadow-2xl:hover,
+  .hover\:shadow-xl:hover,
+  .hover\:shadow-md:hover,
+  .hover\:shadow-lg:hover,
+  .hover\:-translate-y-2:hover,
+  .group:hover .group-hover\:scale-110,
+  .group:hover .group-hover\:translate-x-2,
+  .group:hover .group-hover\:gap-3 {
+    transform: none !important;
+    box-shadow: inherit !important;
+    gap: inherit !important;
+  }
+  
+  /* Disable hover color changes */
+  .hover\:bg-white\/20:hover,
+  .hover\:bg-white\/10:hover,
+  .hover\:bg-white\/30:hover,
+  .hover\:bg-gray-50:hover,
+  .hover\:bg-\[var\(--color-blue-dark\)\]:hover,
+  .hover\:bg-\[#e6823a\]:hover,
+  .hover\:text-white:hover {
+    background-color: inherit !important;
+    color: inherit !important;
+  }
+  
+  /* Disable cursor pointer on mobile for hover-only elements */
+  .cursor-pointer {
+    cursor: default !important;
+  }
+}
+
+/* Only enable hover effects on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  /* Hover effects are enabled by default on desktop */
 }

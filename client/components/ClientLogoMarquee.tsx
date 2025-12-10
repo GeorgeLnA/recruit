@@ -1,6 +1,7 @@
 import { useMemo, useRef, useEffect, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { gsap } from "@/lib/gsap";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClientLogo {
   id: string;
@@ -225,6 +226,8 @@ function MarqueeRow({
   const prevTimeRef = useRef<number | null>(null);
   const hoverRef = useRef(false);
   const rafRef = useRef<number | null>(null);
+  const mobilePauseRef = useRef(false);
+  const mobileResumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update loop width when track is ready
   useEffect(() => {
@@ -247,7 +250,67 @@ function MarqueeRow({
     applyTransform();
   }, [applyTransform]);
 
+  // Mobile-specific touch handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile || !containerRef.current) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    setIsDragging(true);
+    hoverRef.current = false;
+    startXRef.current = touch.clientX;
+    startOffsetRef.current = baseOffsetRef.current + dragOffset;
+    lastMoveXRef.current = touch.clientX;
+    lastMoveTimeRef.current = Date.now();
+    smoothedVelocityRef.current = 0;
+    setDragVelocity(0);
+    mobilePauseRef.current = true;
+    // Clear any existing resume timeout
+    if (mobileResumeTimeoutRef.current) {
+      clearTimeout(mobileResumeTimeoutRef.current);
+      mobileResumeTimeoutRef.current = null;
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!isMobile || !isDragging) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const dx = touch.clientX - startXRef.current;
+    const newOffset = startOffsetRef.current + dx;
+    
+    // Apply wrapping during drag to prevent going too far
+    const wrapped = wrapOffset(newOffset);
+    setDragOffset(wrapped - baseOffsetRef.current);
+    
+    // Calculate velocity
+    const now = Date.now();
+    const timeDelta = now - lastMoveTimeRef.current;
+    if (timeDelta > 0 && timeDelta < 100) {
+      const positionDelta = touch.clientX - lastMoveXRef.current;
+      const instantVelocity = positionDelta * 10;
+      const smoothingFactor = 0.25;
+      smoothedVelocityRef.current = smoothedVelocityRef.current * (1 - smoothingFactor) + instantVelocity * smoothingFactor;
+      
+      const deadZone = 4;
+      if (Math.abs(smoothedVelocityRef.current) > deadZone) {
+        setDragVelocity(smoothedVelocityRef.current);
+      } else {
+        smoothedVelocityRef.current *= 0.8;
+        setDragVelocity(smoothedVelocityRef.current);
+      }
+    }
+    lastMoveXRef.current = touch.clientX;
+    lastMoveTimeRef.current = Date.now();
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    e.preventDefault();
+    endDrag();
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
+    if (isMobile) return; // Use touch events on mobile instead
     if (!containerRef.current) return;
     containerRef.current.setPointerCapture(e.pointerId);
     setIsDragging(true);
@@ -261,6 +324,7 @@ function MarqueeRow({
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
+    if (isMobile) return; // Use touch events on mobile instead
     if (!isDragging) return;
     const dx = e.clientX - startXRef.current;
     const newOffset = startOffsetRef.current + dx;
@@ -300,6 +364,19 @@ function MarqueeRow({
     if (e && containerRef.current) {
       try { containerRef.current.releasePointerCapture(e.pointerId); } catch {}
     }
+    
+    // On mobile, resume movement after 1 second
+    if (isMobile) {
+      // Clear any existing timeout
+      if (mobileResumeTimeoutRef.current) {
+        clearTimeout(mobileResumeTimeoutRef.current);
+      }
+      // Resume after 1 second
+      mobileResumeTimeoutRef.current = setTimeout(() => {
+        mobilePauseRef.current = false;
+        mobileResumeTimeoutRef.current = null;
+      }, 1000);
+    }
   };
 
   useEffect(() => {
@@ -311,18 +388,23 @@ function MarqueeRow({
       prevTimeRef.current = timestamp;
 
       if (!isDragging) {
-        const loopWidth = loopWidthRef.current;
-        if (loopWidth && loopWidth > 0) {
-          const directionMultiplier = direction === "left" ? -1 : 1;
-          const secondsPerLoop = duration;
-          const pxPerMs = loopWidth / (secondsPerLoop * 1000);
-          const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
-          const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
-          
-          // Update base offset and wrap immediately
-          baseOffsetRef.current += deltaOffset;
-          baseOffsetRef.current = wrapOffset(baseOffsetRef.current);
-          applyTransform();
+        // On mobile, check if movement is paused
+        const shouldPause = isMobile && mobilePauseRef.current;
+        
+        if (!shouldPause) {
+          const loopWidth = loopWidthRef.current;
+          if (loopWidth && loopWidth > 0) {
+            const directionMultiplier = direction === "left" ? -1 : 1;
+            const secondsPerLoop = duration;
+            const pxPerMs = loopWidth / (secondsPerLoop * 1000);
+            const hoverFactor = pauseOnHover && hoverRef.current ? 0.25 : 1;
+            const deltaOffset = directionMultiplier * pxPerMs * delta * hoverFactor;
+            
+            // Update base offset and wrap immediately
+            baseOffsetRef.current += deltaOffset;
+            baseOffsetRef.current = wrapOffset(baseOffsetRef.current);
+            applyTransform();
+          }
         }
       }
 
@@ -335,8 +417,12 @@ function MarqueeRow({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
       prevTimeRef.current = null;
+      if (mobileResumeTimeoutRef.current) {
+        clearTimeout(mobileResumeTimeoutRef.current);
+        mobileResumeTimeoutRef.current = null;
+      }
     };
-  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover]);
+  }, [direction, duration, isDragging, wrapOffset, applyTransform, pauseOnHover, isMobile]);
 
   // Smooth cursor position with damping - disabled on mobile
   useEffect(() => {
@@ -410,6 +496,10 @@ function MarqueeRow({
         // @ts-expect-error CSS custom property
         "--marquee-duration": `${duration}s`,
       }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
       onPointerDown={onPointerDown}
       onPointerMove={(e) => {
         onPointerMove(e);
@@ -426,6 +516,9 @@ function MarqueeRow({
         endDrag(e);
         setIsHoveringMarquee(false);
         if (pauseOnHover) hoverRef.current = false;
+      }}
+      style={{
+        touchAction: isMobile ? 'pan-y' : 'auto'
       }}
       onMouseEnter={() => {
         if (!isMobile) {
@@ -472,7 +565,12 @@ function MarqueeRow({
         <div 
           ref={trackRef}
           className={cn("marquee-track", direction === "right" && "marquee-reverse")}
-          style={{ minHeight: '250px', alignItems: 'center', paddingTop: '20px', paddingBottom: '20px' }}
+          style={{ 
+            minHeight: isMobile ? '180px' : '250px', 
+            alignItems: 'center', 
+            paddingTop: isMobile ? '8px' : '20px', 
+            paddingBottom: isMobile ? '8px' : '20px' 
+          }}
         > 
           {duplicated.map((logo, idx) => (
             <MarqueeItem 
@@ -500,26 +598,49 @@ function MarqueeItem({
   isDragging?: boolean;
   dragVelocity?: number;
 }) {
+  const isMobile = useIsMobile();
   const baseTiltDeg = 0;
   const dragTiltDeg = isDragging ? Math.max(-3, Math.min(3, dragVelocity * 0.08)) : 0;
   const tiltDeg = baseTiltDeg + dragTiltDeg;
 
   return (
     <div
-      className="mx-3 shrink-0 flex items-center justify-center"
+      className={`${isMobile ? 'mx-0.5' : 'mx-3'} shrink-0 flex items-center justify-center`}
       style={{ 
         transform: `rotate(${tiltDeg}deg)`,
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
+        overflow: isMobile ? 'hidden' : 'visible',
+        borderRadius: isMobile ? '12px' : '0',
+        WebkitBorderRadius: isMobile ? '12px' : '0'
       }}
     >
-      <div className="client-card logo-card-group rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300" style={{ width: '250px', height: '250px', backgroundColor: '#FFF5E5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div 
+        className={`client-card logo-card-group rounded-xl ${isMobile ? 'p-3' : 'p-6'} shadow-lg ${!isMobile ? 'hover:shadow-xl' : ''} transition-shadow duration-300`}
+        style={{ 
+          width: isMobile ? '160px' : '250px', 
+          height: isMobile ? '160px' : '250px', 
+          backgroundColor: '#FFF5E5', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          overflow: 'hidden',
+          borderRadius: '12px',
+          WebkitBorderRadius: '12px',
+          WebkitOverflowScrolling: 'touch',
+          isolation: 'isolate',
+          willChange: 'transform',
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
         <img 
           src={logo.imageUrl} 
           alt={logo.alt || logo.name} 
-          className="logo-image max-w-full max-h-full object-contain filter grayscale transition-all duration-300"
+          className={`logo-image max-w-full max-h-full object-contain transition-all duration-300 ${isMobile ? '' : 'filter grayscale'}`}
           style={{ 
             mixBlendMode: 'multiply',
-            backgroundColor: 'transparent'
+            backgroundColor: 'transparent',
+            filter: isMobile ? 'none' : 'grayscale(100%)'
           }}
           loading="lazy"
           draggable={false}

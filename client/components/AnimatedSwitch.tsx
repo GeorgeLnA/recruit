@@ -1,5 +1,6 @@
 import { useRef, useEffect, ReactNode } from "react";
 import { gsap } from "@/lib/gsap";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AnimatedSwitchProps {
   checked: boolean;
@@ -24,6 +25,7 @@ export default function AnimatedSwitch({
   sliderColor = 'var(--color-blue)',
   className = '',
 }: AnimatedSwitchProps) {
+  const isMobile = useIsMobile();
   const switchRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const leftLabelRef = useRef<HTMLSpanElement>(null);
@@ -62,8 +64,10 @@ export default function AnimatedSwitch({
     }, 0);
   }, [checked, leftActive]);
 
-  // Add hover animation for the switch container
+  // Add hover animation for the switch container - desktop only
   useEffect(() => {
+    if (isMobile) return; // Skip hover effects on mobile
+    
     const switchContainer = switchRef.current?.querySelector('.switch-container') as HTMLElement;
     if (!switchContainer) return;
 
@@ -95,20 +99,23 @@ export default function AnimatedSwitch({
       switchContainer.removeEventListener('mouseleave', handleMouseLeave);
       gsap.killTweensOf(switchContainer); // Clean up on unmount
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div 
       ref={switchRef}
-      className={`relative flex items-center cursor-pointer gap-16 flex-wrap justify-center ${className}`}
+      className={`relative flex items-center cursor-pointer flex-wrap justify-center ${className}`}
+      style={{
+        gap: isMobile ? 'clamp(16px, 4vw, 24px)' : '64px',
+      }}
       onClick={() => onCheckedChange(!checked)}
     >
       <span 
         ref={leftLabelRef}
-        className="text-7xl font-bold whitespace-normal text-center text-white leading-tight flex-1"
+        className={`font-bold whitespace-normal text-center text-white leading-tight flex-1 ${isMobile ? 'text-[clamp(32px, 8vw, 48px)]' : 'text-7xl'}`}
         style={{ 
-          minWidth: '400px', 
-          maxWidth: '600px',
+          minWidth: isMobile ? '0' : '400px', 
+          maxWidth: isMobile ? '100%' : '600px',
           willChange: 'opacity',
           transform: 'translateZ(0)' // Force hardware acceleration
         }}
@@ -117,8 +124,11 @@ export default function AnimatedSwitch({
       </span>
       
       <div 
-        className="switch-container relative w-40 h-20 rounded-full border-4 overflow-hidden shadow-inner flex-shrink-0" 
+        className="switch-container relative rounded-full overflow-hidden shadow-inner flex-shrink-0" 
         style={{ 
+          width: isMobile ? 'clamp(80px, 20vw, 120px)' : '160px',
+          height: isMobile ? 'clamp(40px, 10vw, 60px)' : '80px',
+          borderWidth: isMobile ? '3px' : '4px',
           borderColor, 
           backgroundColor: switchBgColor,
           willChange: 'transform',
@@ -138,10 +148,10 @@ export default function AnimatedSwitch({
       
       <span 
         ref={rightLabelRef}
-        className="text-7xl font-bold whitespace-normal text-center text-white leading-tight flex-1"
+        className={`font-bold whitespace-normal text-center text-white leading-tight flex-1 ${isMobile ? 'text-[clamp(32px, 8vw, 48px)]' : 'text-7xl'}`}
         style={{ 
-          minWidth: '400px', 
-          maxWidth: '600px',
+          minWidth: isMobile ? '0' : '400px', 
+          maxWidth: isMobile ? '100%' : '600px',
           willChange: 'opacity',
           transform: 'translateZ(0)' // Force hardware acceleration
         }}

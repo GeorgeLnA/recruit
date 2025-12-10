@@ -114,3 +114,4 @@ ffmpeg -i "SHORT 1.webm" -ss 00:00:01 -vframes 1 -q:v 2 "thumbnails/SHORT_1.jpg"
 - Adjust `-ss` time to get better frame
 - Example: `-ss 00:00:02` for 2 seconds
 
+
