@@ -306,7 +306,7 @@ export default function ProofInThePeople() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 'clamp(300px, 60vw, 500px)' : 'clamp(80px, 8vw, 128px)', paddingBottom: isMobile ? 'clamp(200px, 40vw, 300px)' : '0' }}>
               {/* Card 1 */}
               <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
-                <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6" style={{ paddingTop: 'clamp(60px, 8vw, 120px)' }}>
+                <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[0] = el; }}
                     className="case-study-card md:sticky top-0 z-30 mx-auto shadow-lg transition-all duration-500 ease-out"
@@ -353,7 +353,7 @@ export default function ProofInThePeople() {
               </div>
 
               {/* Card 2 - Mirrored */}
-              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]" style={{ marginTop: isMobile ? 'clamp(100px, 20vw, 150px)' : '0' }}>
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]">
                 <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[1] = el; }}
@@ -401,7 +401,7 @@ export default function ProofInThePeople() {
               </div>
 
               {/* Card 3 */}
-              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]" style={{ marginTop: isMobile ? 'clamp(80px, 15vw, 120px)' : '0' }}>
+              <div className="relative h-[70vh] sm:h-[75vh] md:h-[85vh]" style={{ marginTop: isMobile ? 'clamp(-200px, -40vw, -100px)' : 'clamp(-40px, -4vw, -20px)' }}>
                 <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen px-6">
                   <article 
                     ref={(el) => { caseStudyCardRefs.current[2] = el; }}
@@ -414,22 +414,23 @@ export default function ProofInThePeople() {
                       borderRadius: 'clamp(16px, 1.5vw, 24px)',
                       padding: 'clamp(32px, 3vw, 64px)',
                       maxWidth: '1120px',
+                      color: 'white',
                       transform: enableTransforms ? getCardTransform('left', caseStudyCardProgress[2] || 0) : undefined 
                     }}
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 'clamp(24px, 2vw, 48px)' }}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 'clamp(24px, 2vw, 48px)', color: 'white' }}>
                       {/* Text Column */}
-                      <div className="flex flex-col">
-                        <span className="uppercase tracking-wider text-white/80" style={{ fontSize: 'clamp(10px, 0.75vw, 12px)' }}>Full site build out</span>
-                        <h3 className="font-bold text-white leading-[1.05]" style={{ fontSize: 'clamp(28px, 3vw, 48px)', marginTop: 'clamp(8px, 0.75vw, 12px)' }}>
+                      <div className="flex flex-col" style={{ color: 'white' }}>
+                        <span className="uppercase tracking-wider text-white/80" style={{ fontSize: 'clamp(10px, 0.75vw, 12px)', color: 'rgba(255, 255, 255, 0.8)' }}>Full site build out</span>
+                        <h3 className="font-bold text-white leading-[1.05]" style={{ fontSize: 'clamp(28px, 3vw, 48px)', marginTop: 'clamp(8px, 0.75vw, 12px)', color: 'white' }}>
                           Building from the Ground Up: Staffing a New Site from C-Suite to Scientists
                         </h3>
-                        <p className="text-white/90 leading-relaxed" style={{ marginTop: 'clamp(16px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
+                        <p className="text-white/90 leading-relaxed" style={{ marginTop: 'clamp(16px, 1.5vw, 24px)', fontSize: 'clamp(14px, 1.125vw, 18px)', color: 'rgba(255, 255, 255, 0.9)' }}>
                           A startup precision medicine company in San Francisco needed support from leadership to clinical scientists. With a tight
                           launch timeline, CDC embedded alongside the company's leadership team to manage all hiring, from employer branding to offer
                           management.
                         </p>
-                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1vw, 16px)' }}>
+                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1vw, 16px)', color: 'rgba(255, 255, 255, 0.85)' }}>
                           We built a full end-to-end hiring engine, filling 45 positions in under five months and standing up the site ahead of its launch date.
                         </p>
                       </div>

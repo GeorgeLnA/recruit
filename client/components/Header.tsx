@@ -829,20 +829,21 @@ export default function Header({
           style={{ paddingLeft: 'clamp(12px, 1.5vw, 24px)', paddingRight: 'clamp(12px, 1.5vw, 24px)', paddingTop: 'clamp(4px, 0.5vw, 8px)', paddingBottom: 'clamp(10px, 1.25vw, 20px)' }}
         >
           {/* Mobile Header - Simple: Logo Center, Menu Button Right */}
-          <div className="md:hidden flex items-center justify-between w-full relative">
-            {/* Spacer for balance */}
-            <div style={{ width: 'clamp(24px, 2vw, 28px)' }}></div>
+          <div className="md:hidden flex items-center w-full relative" style={{ justifyContent: 'space-between' }}>
+            {/* Spacer for balance - same width as menu button to center logo */}
+            <div style={{ width: 'clamp(40px, 4vw, 52px)', flexShrink: 0 }}></div>
             
             {/* Logo/Name - Center */}
-            <a href="/" className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
-              <div className="text-white whitespace-nowrap flex items-center" style={{ fontSize: 'clamp(18px, 2vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>
-                CDC Global
+            <a href="/" className="group/logo flex items-center justify-center relative overflow-hidden rounded-lg transition-all duration-300 flex-1" style={{ paddingLeft: 'clamp(8px, 1vw, 12px)', paddingRight: 'clamp(8px, 1vw, 12px)', paddingTop: 'clamp(5px, 0.625vw, 8px)', paddingBottom: 'clamp(5px, 0.625vw, 8px)', textAlign: 'center' }}>
+              <div className="absolute opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)', top: '4px', bottom: '4px', left: '4px', right: '4px'}}></div>
+              <div className="relative z-10 text-white whitespace-nowrap flex items-center justify-center" style={{ fontSize: 'clamp(18px, 2vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', textAlign: 'center' }}>
+                CDC Global Solutions
               </div>
             </a>
             
             {/* Menu Button - Right */}
             <button
-              className="text-white hover:bg-white/20 rounded-lg transition-colors duration-200"
+              className="text-white hover:bg-white/20 rounded-lg transition-colors duration-200 flex-shrink-0"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
               style={{ padding: 'clamp(8px, 1vw, 12px)' }}
@@ -860,9 +861,10 @@ export default function Header({
               style={{ zIndex: 30, marginTop: '-10px', height: 'clamp(50px, 4vw, 65px)', minHeight: 'clamp(50px, 4vw, 65px)', maxHeight: 'clamp(50px, 4vw, 65px)', backgroundColor: 'var(--color-peach)' }}
             >
               <div className="glass-island-inner flex items-center h-full" style={{ padding: 'clamp(8px, 1vw, 16px)', backgroundColor: 'var(--color-peach)' }}>
-                <a href="/" className="flex items-center">
-                  <div className="text-white whitespace-nowrap flex items-center" style={{ fontSize: 'clamp(14px, 1.5vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', marginLeft: 'clamp(-4px, -0.5vw, -8px)' }}>
-                    CDC Global
+                <a href="/" className="group/logo flex items-center relative overflow-hidden rounded-lg transition-all duration-300" style={{ paddingLeft: 'clamp(8px, 1vw, 16px)', paddingRight: 'clamp(8px, 1vw, 16px)', paddingTop: 'clamp(5px, 0.625vw, 10px)', paddingBottom: 'clamp(5px, 0.625vw, 10px)' }}>
+                  <div className="absolute opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)', top: '4px', bottom: '4px', left: '4px', right: '4px'}}></div>
+                  <div className="relative z-10 text-white whitespace-nowrap flex items-center" style={{ fontSize: 'clamp(14px, 1.5vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', marginLeft: 'clamp(-4px, -0.5vw, -8px)' }}>
+                    CDC Global Solutions
                   </div>
                 </a>
               </div>
@@ -987,7 +989,7 @@ export default function Header({
                   href="https://www.linkedin.com/company/cdcglobal/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group/linkedin flex items-center justify-center text-white relative overflow-visible rounded-lg transition-all duration-300"
+                  className="group/linkedin flex items-center justify-center text-white relative overflow-hidden rounded-lg transition-all duration-300"
                   style={{ 
                     paddingLeft: 'clamp(8px, 1vw, 16px)', 
                     paddingRight: 'clamp(8px, 1vw, 16px)', 
@@ -998,7 +1000,8 @@ export default function Header({
                   }}
                   aria-label="Visit our LinkedIn page"
                 >
-                  <div className="relative z-10 flex items-center justify-center transition-transform duration-300 group-hover/linkedin:rotate-12">
+                  <div className="absolute inset-0 opacity-0 group-hover/linkedin:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)'}}></div>
+                  <div className="relative z-10 flex items-center justify-center">
                     <Linkedin className="text-white flex-shrink-0" style={{ width: 'clamp(16px, 1.5vw, 24px)', height: 'clamp(16px, 1.5vw, 24px)' }} />
                   </div>
                 </a>

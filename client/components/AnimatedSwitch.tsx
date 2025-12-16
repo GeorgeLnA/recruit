@@ -112,10 +112,12 @@ export default function AnimatedSwitch({
     >
       <span 
         ref={leftLabelRef}
-        className={`font-bold whitespace-normal text-center text-white leading-tight flex-1 ${isMobile ? 'text-[clamp(32px, 8vw, 48px)]' : 'text-7xl'}`}
+        className="font-bold whitespace-normal text-center text-white flex-1"
         style={{ 
           minWidth: isMobile ? '0' : '400px', 
           maxWidth: isMobile ? '100%' : '600px',
+          fontSize: isMobile ? 'clamp(32px, 8vw, 48px)' : '4.5rem',
+          lineHeight: '1.1',
           willChange: 'opacity',
           transform: 'translateZ(0)' // Force hardware acceleration
         }}
@@ -148,10 +150,12 @@ export default function AnimatedSwitch({
       
       <span 
         ref={rightLabelRef}
-        className={`font-bold whitespace-normal text-center text-white leading-tight flex-1 ${isMobile ? 'text-[clamp(32px, 8vw, 48px)]' : 'text-7xl'}`}
+        className="font-bold whitespace-normal text-center text-white flex-1"
         style={{ 
           minWidth: isMobile ? '0' : '400px', 
           maxWidth: isMobile ? '100%' : '600px',
+          fontSize: isMobile ? 'clamp(32px, 8vw, 48px)' : '4.5rem',
+          lineHeight: '1.1',
           willChange: 'opacity',
           transform: 'translateZ(0)' // Force hardware acceleration
         }}

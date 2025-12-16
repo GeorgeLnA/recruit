@@ -629,8 +629,10 @@ export default function Index() {
   // Scroll animation for About Us word reveal
   useEffect(() => {
     const storySegments = [
-      "At CDC Global Solutions, we're all about people – not just filling roles.",
-      "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
+      "At CDC, people always come first - because building a high-performing team takes more than ticking boxes on a job description.",
+      "We've spent years embedded in the CDMO, Diagnostics, and CRO markets, getting to know the people behind the science and earning trust the right way.",
+      "That means when you partner with us, you're not just tapping into a database, you're accessing a network built on real conversations, long-term relationships, and industry insight you can actually use.",
+      "We combine that experience with a refreshingly honest approach to recruitment. No fluff, no pushy tactics - just clear communication, genuine connections, and talent that elevates your business."
     ];
     const allWords = storySegments.flatMap(segment => segment.split(' '));
     const totalWords = allWords.length;
@@ -641,7 +643,7 @@ export default function Index() {
 
     const smoothScroll = () => {
       const difference = targetProgress - currentProgress;
-      currentProgress += difference * 0.15; // Slower interpolation for smoother word-by-word reveal
+      currentProgress += difference * 0.4; // Faster interpolation for quicker word-by-word reveal
       
       if (Math.abs(targetProgress - currentProgress) > 0.001) {
         const wordsToReveal = Math.floor(currentProgress * totalWords);
@@ -667,10 +669,10 @@ export default function Index() {
       const currentScroll = window.scrollY;
       
       // Delay the start of animation - add offset to delay when words start revealing
-      const startDelay = scrollDistance * 0.15; // Delay start by 15% of scroll distance
+      const startDelay = scrollDistance * 0.1; // Delay start by 10% of scroll distance
       const adjustedAnimationStart = animationStart + startDelay;
       
-      // Spread word reveal over more scroll distance for smoother word-by-word effect
+      // Spread word reveal over less scroll distance for quicker word-by-word effect
       let progress = (currentScroll - adjustedAnimationStart) / (scrollDistance * 0.8);
       targetProgress = Math.max(0, Math.min(1, progress));
       
@@ -1027,19 +1029,21 @@ export default function Index() {
       >
         <div className="container mx-auto px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-[48px] sm:text-[56px] md:text-[64px] font-bold leading-[0.95] tracking-[0.05em] text-[var(--color-white)] text-center mb-24">About Us</h2>
+            <h2 className="text-[45px] sm:text-[54px] md:text-[62px] font-bold leading-[0.95] tracking-[0.05em] text-[var(--theme-accent)] text-center mb-24">About Us</h2>
             
             {(() => {
               const storySegments = [
-                "At CDC Global Solutions, we're all about people – not just filling roles.",
-                "We've spent years building trusted relationships and networks within the pharmaceutical and biotech worlds, which means we know how to find the right people for the right roles."
+                "At CDC, people always come first - because building a high-performing team takes more than ticking boxes on a job description.",
+                "We've spent years embedded in the CDMO, Diagnostics, and CRO markets, getting to know the people behind the science and earning trust the right way.",
+                "That means when you partner with us, you're not just tapping into a database, you're accessing a network built on real conversations, long-term relationships, and industry insight you can actually use.",
+                "We combine that experience with a refreshingly honest approach to recruitment. No fluff, no pushy tactics - just clear communication, genuine connections, and talent that elevates your business."
               ];
 
               const allWords = storySegments.flatMap(segment => segment.split(' '));
               let wordIndex = 0;
 
               return (
-              <div className="space-y-32">
+              <div className="space-y-16">
                   {storySegments.map((segment, segmentIndex) => {
                     const segmentWords = segment.split(' ');
                     const segmentStartIndex = wordIndex;
@@ -1048,7 +1052,7 @@ export default function Index() {
                     return (
                       <p
                         key={segmentIndex}
-                        className={`text-4xl md:text-5xl lg:text-6xl leading-tight text-[var(--color-white)] text-center ${segmentIndex === 1 ? 'md:text-right' : ''}`}
+                        className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight text-center"
                         style={{
                           fontWeight: 600
                         }}
@@ -1059,9 +1063,9 @@ export default function Index() {
                           return (
                             <span
                               key={i}
-                              className={isRevealed ? 'text-[var(--color-white)]' : 'text-[var(--color-white)]/40'}
+                              className={isRevealed ? 'text-[var(--theme-accent)]' : 'text-[var(--theme-accent)]/40'}
                               style={{
-                                transition: 'all 0.3s ease-out',
+                                transition: 'all 0.2s ease-out',
                                 opacity: isRevealed ? 1 : 0.4
                               }}
                             >
@@ -1101,7 +1105,7 @@ export default function Index() {
                   <p className="text-[var(--color-white)]/90 text-lg md:text-xl font-semibold">Co-Founder</p>
                   <p className="text-[var(--color-white)]/80 text-base md:text-lg mt-3">CDMO/CRO Recruitment</p>
                   <p className="text-[var(--color-white)]/70 text-sm md:text-base mt-4 max-w-md mx-auto leading-relaxed">
-                    With over a decade of experience in pharmaceutical recruitment, Harriet brings deep industry knowledge and a passion for connecting top talent with leading organizations. Her expertise spans across CDMO and CRO sectors, helping companies build exceptional teams.
+                    With over five years in CDMO/CRO recruitment, Harriet brings strong industry insight and a genuine passion for connecting top talent with the companies shaping the sector. Well known across the industry, she shares valuable insights on LinkedIn and at conferences, helping organisations build high-performing teams that can grow, deliver, and lead.
                   </p>
             </div>
         </div>
@@ -1121,7 +1125,7 @@ export default function Index() {
                   <p className="text-[var(--color-white)]/90 text-lg md:text-xl font-semibold">Co-Founder</p>
                   <p className="text-[var(--color-white)]/80 text-base md:text-lg mt-3">Diagnostics Recruitment</p>
                   <p className="text-[var(--color-white)]/70 text-sm md:text-base mt-4 max-w-md mx-auto leading-relaxed">
-                    Adam specializes in diagnostics recruitment, bringing years of experience in identifying and placing exceptional professionals. His strategic approach and extensive network help candidates find their ideal roles and companies discover the perfect talent.
+                    With over eight years in Diagnostics recruitment, Adam has built a reputation for spotting standout talent and knowing exactly what makes a great match. His strong network and strategic, relationship-driven approach help candidates land roles where they can thrive - and enable companies to secure the people who drive their business forward.
                   </p>
                 </div>
               </div>

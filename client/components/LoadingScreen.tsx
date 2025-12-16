@@ -40,8 +40,8 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     'CDMO': 'CDMO',
     'Diagnostics': 'Diagnostics',
     'CRO': 'CRO',
-    'CDC_Global': isMobile ? 'CDC\nGlobal' : 'CDC Global',
-    'EXIT': isMobile ? 'CDC\nGlobal' : 'CDC Global'
+    'CDC_Global': isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions',
+    'EXIT': isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions'
   };
 
   // Get next state in sequence
@@ -126,7 +126,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       const deltaTime = (now - lastTimeRef.current) / 1000;
       lastTimeRef.current = now;
 
-      // Handle CDC Global state - lock and exit
+      // Handle CDC Global Solutions state - lock and exit
       if (currentState.type === 'CDC_Global') {
         if (text1Ref.current && text2Ref.current) {
           const cdcText = wordText['CDC_Global'];
@@ -163,11 +163,11 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
       // Continue morphing - use ref for synchronous state
       const currentText = currentState.type === 'CDC_Global' || currentState.type === 'EXIT' 
-        ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+        ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
         : wordText[currentState.type];
       const nextState = getNextState(currentState);
       const nextText = nextState.type === 'CDC_Global' || nextState.type === 'EXIT'
-        ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+        ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
         : wordText[nextState.type];
 
       // CRITICAL: Always ensure text2 is set to next word BEFORE any morph happens
@@ -198,7 +198,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           // Prepare text2 for next morph - calculate from nextState, not currentState
           const nextNextState = getNextState(nextState);
           const nextNextText = nextNextState.type === 'CDC_Global' || nextNextState.type === 'EXIT'
-            ? (isMobile ? 'CDC\nGlobal' : 'CDC Global')
+            ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
             : wordText[nextNextState.type];
           
           // CRITICAL: Set text2 immediately and ensure it's correct
@@ -261,7 +261,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       
       if (currentState.type === 'EXIT' || isExitingRef.current) {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
+          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
           if (text1Ref.current.textContent !== cdcText) {
             text1Ref.current.textContent = cdcText;
           }
@@ -272,10 +272,10 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         return;
       }
 
-      // When at CRO or transitioning to CDC Global, ensure text2 is NEVER Diagnostics
+      // When at CRO or transitioning to CDC Global Solutions, ensure text2 is NEVER Diagnostics
       if (currentState.type === 'CRO' || currentState.type === 'CDC_Global') {
         if (text2Ref.current) {
-          const expectedText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
+          const expectedText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
           // If text2 shows Diagnostics when it shouldn't, fix it immediately
           if (text2Ref.current.textContent === wordText['Diagnostics']) {
             text2Ref.current.textContent = expectedText;
@@ -307,7 +307,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     if (wordState.type === 'EXIT' && text1Ref.current && text2Ref.current) {
       const lockText = () => {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = isMobile ? 'CDC\nGlobal' : 'CDC Global';
+          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
           text1Ref.current.textContent = cdcText;
           text2Ref.current.textContent = cdcText;
           text1Ref.current.style.filter = 'none';
@@ -364,10 +364,10 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               fontSize: 'clamp(48px, 12vw, 80px)',
               fontFamily: 'TexGyreAdventor',
               whiteSpace: 'pre-line',
-              lineHeight: '1.2',
+              lineHeight: '0.95',
             }}
           >
-            CDC{'\n'}Global
+            CDC{'\n'}Global{'\n'}Solutions
           </h1>
         </div>
       </div>
@@ -414,14 +414,14 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             ref={text1Ref}
             style={{
               color: 'var(--color-blue)',
-              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(100px, 12vw, 220px)',
+              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(70px, 9vw, 160px)',
               fontFamily: 'inherit',
               fontWeight: 'bold',
               fontStyle: 'normal',
               textTransform: 'none',
               letterSpacing: 'normal',
               whiteSpace: isMobile ? 'pre-line' : 'nowrap',
-              lineHeight: isMobile ? '1.1' : '1',
+              lineHeight: isMobile ? '0.9' : '1',
             }}
           />
           <span
@@ -429,14 +429,14 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             ref={text2Ref}
             style={{
               color: 'var(--color-blue)',
-              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(100px, 12vw, 220px)',
+              fontSize: isMobile ? 'clamp(48px, 10vw, 80px)' : 'clamp(70px, 9vw, 160px)',
               fontFamily: 'inherit',
               fontWeight: 'bold',
               fontStyle: 'normal',
               textTransform: 'none',
               letterSpacing: 'normal',
               whiteSpace: isMobile ? 'pre-line' : 'nowrap',
-              lineHeight: isMobile ? '1.1' : '1',
+              lineHeight: isMobile ? '0.9' : '1',
             }}
           />
         </div>
@@ -445,7 +445,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           <div
             className="invisible font-bold leading-none"
             style={{ 
-              fontSize: isMobile ? 'clamp(20px, 5vw, 40px)' : 'clamp(30px, 8vw, 120px)'
+              fontSize: isMobile ? 'clamp(16px, 4vw, 32px)' : 'clamp(24px, 6vw, 96px)'
             }}
           >
             100%
@@ -456,7 +456,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               className="font-bold leading-none transition-all duration-1000 ease-out"
               style={{
                 color: 'var(--color-blue)',
-                fontSize: isMobile ? 'clamp(20px, 5vw, 40px)' : 'clamp(30px, 8vw, 120px)',
+                fontSize: isMobile ? 'clamp(16px, 4vw, 32px)' : 'clamp(24px, 6vw, 96px)',
                 fontVariantNumeric: 'tabular-nums',
                 // @ts-ignore
                 fontFeatureSettings: '"tnum" 1',

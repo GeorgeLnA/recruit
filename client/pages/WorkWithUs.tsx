@@ -537,8 +537,8 @@ export default function WorkWithUs() {
                       Deep Industry Expertise
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
-                        We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
+                        We live and breathe the Life Sciences sector — especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
                       </p>
                     )}
                   </div>
@@ -569,8 +569,8 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    We live and breathe the Life Sciences sector — especially CDMO, CRO, and Diagnostics. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                    We live and breathe the Life Sciences sector — especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
                   </p>
                 )}
               </div>
@@ -588,17 +588,18 @@ export default function WorkWithUs() {
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#ff3632',
+                  color: 'white',
                   transform: enableTransforms ? getCardTransform('right', clientCardProgress[1] || 0) : undefined 
                 }}
               >
-                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)' }}>
-                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)', color: 'white' }}>
+                  <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)', color: 'white' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)', color: 'white' }}>
                       Global Network, Personal Approach
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
-                        With a 12,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%', color: 'white' }}>
+                        With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship driven service.
                       </p>
                     )}
                   </div>
@@ -629,8 +630,8 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    With a 20,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship-driven service.
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)', color: 'white' }}>
+                    With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship driven service.
                   </p>
                 )}
               </div>
@@ -657,8 +658,8 @@ export default function WorkWithUs() {
                       Precision Recruitment
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
-                        We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
+                        We deliver the right people who understand your business. Every search is built on deep understanding of your business goals, culture, and specific needs.
                       </p>
                     )}
                   </div>
@@ -689,8 +690,8 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    We don't just send CVs — we deliver the right people. Every search is built on deep understanding of your business goals, culture, and technical needs.
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                    We deliver the right people who understand your business. Every search is built on deep understanding of your business goals, culture, and specific needs.
                   </p>
                 )}
                 </div>
@@ -707,7 +708,7 @@ export default function WorkWithUs() {
                   height: 'clamp(520px, 40vw, 720px)', 
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
-                  backgroundColor: '#aa95de',
+                  backgroundColor: '#ff8c42',
                   transform: enableTransforms ? getCardTransform('right', clientCardProgress[3] || 0) : undefined 
                 }}
               >
@@ -717,7 +718,7 @@ export default function WorkWithUs() {
                       Speed, Transparency & Trust
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
                         We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
                       </p>
                     )}
@@ -749,7 +750,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
                   </p>
                 )}
@@ -774,8 +775,8 @@ export default function WorkWithUs() {
                       Industry Insiders, Not Generalists
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
-                        We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
+                        From CDMO's, to diagnostic companies, to CRO's — You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
                       </p>
                     )}
                   </div>
@@ -805,8 +806,8 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    We specialise exclusively in Life Sciences — from CDMOs and CROs to Diagnostics. You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                    From CDMO's, to diagnostic companies, to CRO's — You'll work with recruiters who truly understand your world, your skill set, and where you can go next.
                   </p>
                 )}
               </div>
@@ -824,16 +825,17 @@ export default function WorkWithUs() {
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
                   backgroundColor: '#ff3632',
+                  color: 'white',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined 
                 }}
               >
-                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
-                  <div className="flex-1 w-full md:max-w-[65%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)' }}>
-                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
+                <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)', color: 'white' }}>
+                  <div className="flex-1 w-full md:max-w-[65%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 48px)', color: 'white' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)', color: 'white' }}>
                       Real Opportunities, Not Random Roles
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%', color: 'white' }}>
                         We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
                       </p>
                     )}
@@ -864,7 +866,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)', color: 'white' }}>
                     We only present positions that align with your goals, values, and expertise — no spam, no pressure. Every conversation is about fit, not just filling jobs.
                   </p>
                 )}
@@ -892,7 +894,7 @@ export default function WorkWithUs() {
                       Guidance That Adds Value
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
                         From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
                       </p>
                     )}
@@ -923,7 +925,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                  <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     From CV advice to interview prep and market insight, we'll help you navigate your next move with clarity and confidence.
                   </p>
                 )}
@@ -951,7 +953,7 @@ export default function WorkWithUs() {
                       Confidentiality & Honesty Always
                     </h2>
                     {isMobile && (
-                      <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 24px)', maxWidth: '90%' }}>
+                      <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
                         Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
                       </p>
                     )}
@@ -982,7 +984,7 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
                     Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
                   </p>
                 )}

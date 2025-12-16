@@ -89,3 +89,5 @@ Write-Host ""
 Write-Host "Next: Update video elements to use these thumbnails as poster images" -ForegroundColor Yellow
 
 
+
+

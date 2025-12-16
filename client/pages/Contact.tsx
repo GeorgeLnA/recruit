@@ -378,13 +378,13 @@ function LinkedInConnectionSection() {
               <div className="relative rounded-full overflow-hidden flex-shrink-0" style={{ width: 'clamp(64px, 5vw, 80px)', height: 'clamp(64px, 5vw, 80px)', border: '3px solid rgba(255, 255, 255, 0.3)' }}>
                 <img 
                   src="/cdcglobal_logo.jpeg" 
-                  alt="CDC Global"
+                  alt="CDC Global Solutions"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
                 <h3 className="font-bold text-white" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(20px, 1.75vw, 28px)' }}>
-                  CDC Global
+                  CDC Global Solutions
                 </h3>
                 <p className="text-white/80" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(12px, 1vw, 16px)' }}>
                   Company Page
@@ -392,7 +392,7 @@ function LinkedInConnectionSection() {
               </div>
             </div>
             <p className="text-white/90" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.25vw, 18px)', lineHeight: '1.7' }}>
-              Connect with CDC Global for industry insights, job opportunities, and company updates. Join our 12,000+ network in the Life Sciences sector. We specialize in CDMO, CRO, and Diagnostics recruitment, connecting exceptional talent with leading organizations worldwide.
+              Connect with CDC Global Solutions for industry insights, job opportunities, and company updates. Join our 12,000+ network in the Life Sciences sector. We specialize in CDMO, CRO, and Diagnostics recruitment, connecting exceptional talent with leading organizations worldwide.
             </p>
           </div>
           <div className="flex items-center gap-2 text-white group-hover/linkedin-card:gap-3 transition-all" style={{ marginTop: 'auto', paddingTop: 'clamp(16px, 1.5vw, 24px)' }}>

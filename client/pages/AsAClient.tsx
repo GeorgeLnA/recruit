@@ -45,7 +45,7 @@ export default function AsAClient() {
           Work With Us: As a Client
         </h1>
         <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', marginBottom: 'clamp(60px, 5vw, 80px)' }}>
-          CDC Global specialises in global recruitment across CDMO, CRO and diagnostics —
+          CDC Global Solutions specialises in global recruitment across CDMO, CRO and diagnostics —
           covering commercial, technical and operational roles among others.
         </p>
 

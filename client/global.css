@@ -144,6 +144,7 @@
 
   /* Firefox */
   html {
+    scroll-behavior: smooth;
     scrollbar-color: var(--theme-scrollbar) var(--theme-background);
     scrollbar-width: thin;
   }
@@ -186,6 +187,7 @@
 
   html, body {
     @apply font-sans;
+    scroll-behavior: smooth;
     color: var(--color-white);
     font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
     font-weight: var(--font-weight, 400) !important;
@@ -919,4 +921,51 @@
 /* Only enable hover effects on devices that support hover */
 @media (hover: hover) and (pointer: fine) {
   /* Hover effects are enabled by default on desktop */
+}
+
+/* Force white text on red cards */
+.client-card-02,
+.candidate-card-02 {
+  color: white !important;
+}
+
+.client-card-02 h2,
+.client-card-02 p,
+.candidate-card-02 h2,
+.candidate-card-02 p {
+  color: white !important;
+}
+
+/* Keep card number styling as original (white/20 opacity) */
+.client-card-02 span[class*="text-white/20"],
+.candidate-card-02 span[class*="text-white/20"] {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Force white text on all footer elements */
+footer h4,
+footer [data-footer-heading],
+footer h4[data-footer-heading],
+footer h4.text-white {
+  color: white !important;
+}
+
+/* Force white text on red case study card */
+.case-study-card[style*="background-color: rgb(255, 54, 50)"],
+.case-study-card[style*="background-color: #ff3632"] {
+  color: white !important;
+}
+
+.case-study-card[style*="background-color: rgb(255, 54, 50)"] *,
+.case-study-card[style*="background-color: #ff3632"] * {
+  color: white !important;
+}
+
+.case-study-card[style*="background-color: rgb(255, 54, 50)"] h3,
+.case-study-card[style*="background-color: #ff3632"] h3,
+.case-study-card[style*="background-color: rgb(255, 54, 50)"] p,
+.case-study-card[style*="background-color: #ff3632"] p,
+.case-study-card[style*="background-color: rgb(255, 54, 50)"] span,
+.case-study-card[style*="background-color: #ff3632"] span {
+  color: white !important;
 }
