@@ -551,7 +551,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
-                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -612,7 +612,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
-                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -732,7 +732,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
-                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -789,7 +789,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
-                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -849,7 +849,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
-                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -967,7 +967,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
-                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
+                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
