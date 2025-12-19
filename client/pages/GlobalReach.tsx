@@ -155,6 +155,8 @@ export default function GlobalReach() {
   const dubaiVideoRef = useRef<HTMLVideoElement>(null);
   const dubaiCardRef = useRef<HTMLDivElement>(null);
   const [isDubaiPlaying, setIsDubaiPlaying] = useState(false);
+  const userPausedRef = useRef(false); // Track if user manually paused
+  const hasAutoPlayedRef = useRef(false); // Track if autoplay has happened once
   const isMobile = useIsMobile();
 
   // Set Dubai video thumbnail to 0.1 seconds and track play/pause state
@@ -175,10 +177,16 @@ export default function GlobalReach() {
       video.muted = false;
       video.volume = 1.0;
       setIsDubaiPlaying(true);
+      // Reset user pause flag when user manually plays
+      userPausedRef.current = false;
     };
     
     const handlePause = () => {
       setIsDubaiPlaying(false);
+      // Only set user pause flag if autoplay has already happened
+      if (hasAutoPlayedRef.current) {
+        userPausedRef.current = true;
+      }
     };
     
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -192,17 +200,21 @@ export default function GlobalReach() {
       video.volume = 1.0;
     }
     
-    // IntersectionObserver to autoplay video when card comes into view
+    // IntersectionObserver to autoplay video when card comes into view (only first time)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
-            // Card is visible - autoplay video with audio
-            if (video.paused) {
+            // Only autoplay if:
+            // 1. Video is paused
+            // 2. Autoplay hasn't happened yet (first time only)
+            // 3. User hasn't manually paused
+            if (video.paused && !hasAutoPlayedRef.current && !userPausedRef.current) {
               video.muted = false;
               video.volume = 1.0;
               video.play().then(() => {
                 setIsDubaiPlaying(true);
+                hasAutoPlayedRef.current = true;
               }).catch((error) => {
                 // Autoplay with audio failed (browser policy), try muted autoplay
                 console.log('Autoplay with audio failed, trying muted:', error);
@@ -211,6 +223,7 @@ export default function GlobalReach() {
                   // Once playing, unmute
                   video.muted = false;
                   setIsDubaiPlaying(true);
+                  hasAutoPlayedRef.current = true;
                 }).catch(() => {
                   setIsDubaiPlaying(false);
                 });
@@ -315,12 +328,17 @@ export default function GlobalReach() {
                       video.muted = false;
                       video.play().then(() => {
                         setIsDubaiPlaying(true);
+                        userPausedRef.current = false; // Reset pause flag when user plays
                       }).catch(() => {
                         setIsDubaiPlaying(false);
                       });
                     } else {
                       video.pause();
                       setIsDubaiPlaying(false);
+                      // Mark as user paused if autoplay has happened
+                      if (hasAutoPlayedRef.current) {
+                        userPausedRef.current = true;
+                      }
                     }
                   }}
                 >
@@ -351,12 +369,17 @@ export default function GlobalReach() {
                         video.muted = false;
                         video.play().then(() => {
                           setIsDubaiPlaying(true);
+                          userPausedRef.current = false; // Reset pause flag when user plays
                         }).catch(() => {
                           setIsDubaiPlaying(false);
                         });
                       } else {
                         video.pause();
                         setIsDubaiPlaying(false);
+                        // Mark as user paused if autoplay has happened
+                        if (hasAutoPlayedRef.current) {
+                          userPausedRef.current = true;
+                        }
                       }
                     }}
                     onTouchStart={(e) => {
