@@ -25,12 +25,12 @@ interface FontContextType {
 
 const FontContext = createContext<FontContextType | undefined>(undefined);
 
-const DEFAULT_FONT = "TexGyreAdventor, Inter, sans-serif";
+const DEFAULT_FONT = "Raleway, TexGyreAdventor, Inter, sans-serif";
 
 const DEFAULT_FONT_SETTINGS: FontSettings = {
-  weight: 400, // normal weight (original default)
+  weight: 600, // semibold weight (Raleway default)
   letterSpacing: 0.00, // 0.00em (default)
-  lineHeight: 1.5, // standard line height (browser default)
+  lineHeight: 1.50, // standard line height
 };
 
 const AVAILABLE_FONTS: FontOption[] = [
@@ -287,7 +287,7 @@ export function FontProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.lineHeight = fontSettings.lineHeight.toString();
 
     // Apply to all elements using a style tag for maximum coverage (font-size excluded to preserve relative sizing)
-    const styleId = "font-tester-global-styles";
+    const styleId = "font-global-styles";
     let styleElement = document.getElementById(styleId) as HTMLStyleElement;
     
     if (!styleElement) {

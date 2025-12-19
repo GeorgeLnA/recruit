@@ -61,7 +61,7 @@ export default function AsACandidate() {
           </div>
           <div>
             <VideoPlayer
-              src="/vids/Clients.webm"
+              src="/vids/longs/Work%20With%20Us%20-%20Clients%20V4.webm"
               poster="/vids/thumbnails/CLIENTS.jpg"
               title="What we offer to candidates"
               className="w-full"

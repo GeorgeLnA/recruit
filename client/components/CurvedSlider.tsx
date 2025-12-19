@@ -141,8 +141,8 @@ export default function CurvedSlider({
       const lastCardStartY = baseVerticalOffset + lastCardVerticalSpread;
       
       // Calculate travel distances - cards travel more distance on mobile
-      // On desktop: travel 65% of horizontal distance, on mobile: travel 105%
-      const horizontalTravelRatio = isMobile ? 1.05 : 0.65; // Mobile: 105%, Desktop: 65% (original)
+      // On desktop: travel 85% of horizontal distance (increased from 65%), on mobile: travel 105%
+      const horizontalTravelRatio = isMobile ? 1.05 : 0.85; // Mobile: 105%, Desktop: 85% (increased for more scroll)
       const diagonalDistanceX = lastCardStartX * horizontalTravelRatio;
       const diagonalDistanceY = isMobile ? lastCardStartY * 0.3 : lastCardStartY; // Reduced vertical movement on mobile (30% of desktop)
       
@@ -277,6 +277,35 @@ export default function CurvedSlider({
               >
                 <div className={cn("flip-inner h-full w-full", isFlipped && "flipped")}> 
                   <div className="flip-front h-full w-full relative rounded-[16px] overflow-hidden">
+                    {/* Flip indicator icon in top left */}
+                    <div 
+                      className="absolute top-3 left-3 z-20 flex items-center justify-center pointer-events-none"
+                      style={{
+                        backgroundColor: 'var(--color-peach)',
+                        padding: 'clamp(4px, 0.4vw, 6px)',
+                        borderRadius: 'clamp(6px, 0.5vw, 8px)',
+                        backdropFilter: 'blur(4px)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                        width: 'clamp(24px, 2.5vw, 32px)',
+                        height: 'clamp(24px, 2.5vw, 32px)'
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 'clamp(14px, 1.5vw, 20px)',
+                          height: 'clamp(14px, 1.5vw, 20px)',
+                          backgroundColor: 'var(--color-blue)',
+                          maskImage: 'url(/flick-to-left.png)',
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMaskImage: 'url(/flick-to-left.png)',
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+                    </div>
                     <img 
                       src={item.imageUrl} 
                       alt="" 
@@ -287,6 +316,35 @@ export default function CurvedSlider({
                   </div>
 
                   <div className="flip-back absolute inset-0 rounded-[16px] overflow-hidden">
+                    {/* Flip indicator icon in top left */}
+                    <div 
+                      className="absolute top-3 left-3 z-20 flex items-center justify-center pointer-events-none"
+                      style={{
+                        backgroundColor: 'var(--color-peach)',
+                        padding: 'clamp(4px, 0.4vw, 6px)',
+                        borderRadius: 'clamp(6px, 0.5vw, 8px)',
+                        backdropFilter: 'blur(4px)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                        width: 'clamp(24px, 2.5vw, 32px)',
+                        height: 'clamp(24px, 2.5vw, 32px)'
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 'clamp(14px, 1.5vw, 20px)',
+                          height: 'clamp(14px, 1.5vw, 20px)',
+                          backgroundColor: 'var(--color-blue)',
+                          maskImage: 'url(/flick-to-left.png)',
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMaskImage: 'url(/flick-to-left.png)',
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+                    </div>
                     {item.backImageUrl ? (
                       <img 
                         src={item.backImageUrl} 

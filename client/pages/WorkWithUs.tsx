@@ -502,7 +502,7 @@ export default function WorkWithUs() {
         {/* Video Section */}
         <div className="mx-auto relative" style={{ zIndex: 10, marginBottom: 'clamp(120px, 12vw, 192px)', maxWidth: '1120px' }}>
           <VideoPlayer
-            src={checked ? "/vids/Clients.webm" : "/vids/Companies.webm"}
+            src={checked ? "/vids/longs/Work%20With%20Us%20-%20Clients%20V4.webm" : "/vids/longs/Work%20With%20Us%20-%20Companies%20V4.webm"}
             poster={checked ? getHorizontalVideoThumbnail("COMPANIES") : getHorizontalVideoThumbnail("CLIENTS")}
             title="Work With Us Introduction"
             className="w-full"
@@ -551,7 +551,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[0] = el; }}
-                        src="/vids/Short%201.webm"
+                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -612,7 +612,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[1] = el; }}
-                        src="/vids/Short%202.webm"
+                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -672,7 +672,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[2] = el; }}
-                        src="/vids/Short%203.webm"
+                        src="/vids/shorts/Cdc%204%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -732,7 +732,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { clientVideoRefs.current[3] = el; }}
-                        src="/vids/Short%204.webm"
+                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -789,7 +789,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[0] = el; }}
-                        src="/vids/Short%201.webm"
+                        src="/vids/shorts/Cdc%201%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -849,7 +849,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[1] = el; }}
-                        src="/vids/Short%202.webm"
+                        src="/vids/shorts/Cdc%203%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -908,7 +908,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[2] = el; }}
-                        src="/vids/Short%203.webm"
+                        src="/vids/shorts/Cdc%204%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted
@@ -943,7 +943,7 @@ export default function WorkWithUs() {
                   height: 'clamp(520px, 40vw, 720px)', 
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
-                  backgroundColor: '#aa95de',
+                  backgroundColor: '#ff8c42',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined 
                 }}
               >
@@ -967,7 +967,7 @@ export default function WorkWithUs() {
                     <div className="w-full aspect-[9/16] overflow-hidden" style={{ maxWidth: 'clamp(220px, 18vw, 360px)', borderRadius: 'clamp(20px, 1.5vw, 24px)' }}>
                       <video
                         ref={(el) => { candidateVideoRefs.current[3] = el; }}
-                        src="/vids/Short%205.webm"
+                        src="/vids/shorts/Cdc%205%20-%20Updated.webm"
                         autoPlay
                         loop
                         muted

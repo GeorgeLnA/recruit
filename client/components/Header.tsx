@@ -837,7 +837,7 @@ export default function Header({
             <a href="/" className="group/logo flex items-center justify-center relative overflow-hidden rounded-lg transition-all duration-300 flex-1" style={{ paddingLeft: 'clamp(8px, 1vw, 12px)', paddingRight: 'clamp(8px, 1vw, 12px)', paddingTop: 'clamp(5px, 0.625vw, 8px)', paddingBottom: 'clamp(5px, 0.625vw, 8px)', textAlign: 'center' }}>
               <div className="absolute opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)', top: '4px', bottom: '4px', left: '4px', right: '4px'}}></div>
               <div className="relative z-10 text-white whitespace-nowrap flex items-center justify-center" style={{ fontSize: 'clamp(18px, 2vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', textAlign: 'center' }}>
-                CDC Global Solutions
+                CDC Global Solutions.
               </div>
             </a>
             
@@ -864,7 +864,7 @@ export default function Header({
                 <a href="/" className="group/logo flex items-center relative overflow-hidden rounded-lg transition-all duration-300" style={{ paddingLeft: 'clamp(8px, 1vw, 16px)', paddingRight: 'clamp(8px, 1vw, 16px)', paddingTop: 'clamp(5px, 0.625vw, 10px)', paddingBottom: 'clamp(5px, 0.625vw, 10px)' }}>
                   <div className="absolute opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300 rounded-lg" style={{backgroundColor: 'var(--theme-accent)', top: '4px', bottom: '4px', left: '4px', right: '4px'}}></div>
                   <div className="relative z-10 text-white whitespace-nowrap flex items-center" style={{ fontSize: 'clamp(14px, 1.5vw, 24px)', lineHeight: '1', fontWeight: 'normal', fontFeatureSettings: 'normal', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', marginLeft: 'clamp(-4px, -0.5vw, -8px)' }}>
-                    CDC Global Solutions
+                    CDC Global Solutions.
                   </div>
                 </a>
               </div>

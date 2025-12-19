@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
               1. Introduction
             </h2>
             <p style={{ opacity: 0.9, marginBottom: 'clamp(12px, 1vw, 16px)', lineHeight: '1.6', fontSize: 'clamp(14px, 1vw, 18px)' }}>
-              CDC Global Solutions ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+              CDC Global Solutions. ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
             </p>
           </section>
 

@@ -19,7 +19,6 @@ import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { FontProvider } from "@/contexts/FontContext";
-import { FontTester } from "@/components/FontTester";
 
 const queryClient = new QueryClient();
 
@@ -63,7 +62,6 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollTracker />
-            <FontTester />
             <Header items={navigationItems} cta={{ label: "Get In Touch", href: "/contact" }} />
           <Routes>
             <Route path="/" element={<Index />} />

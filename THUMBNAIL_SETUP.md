@@ -117,3 +117,5 @@ ffmpeg -i "SHORT 1.webm" -ss 00:00:01 -vframes 1 -q:v 2 "thumbnails/SHORT_1.jpg"
 
 
 
+
+

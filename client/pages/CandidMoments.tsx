@@ -45,65 +45,121 @@ export default function CandidMoments() {
         id: "01", 
         number: "01", 
         title: "BIO International", 
-        imageUrl: "/optimised/IMG_7218.jpg",
-        backImageUrl: "/optimised/Adam and Harriet 3.jpg",
+        imageUrl: "/candid/Photo 1.webp",
+        backImageUrl: "/candid/Photo 1 flip.webp",
         description: "Connecting with partners at BIO International — sharing ideas, making next-level introductions, and keeping the energy high all day."
       },
       { 
         id: "02", 
         number: "02", 
         title: "Taj Mahal Sunrise", 
-        imageUrl: "/optimised/IMG_6722.jpg",
-        backImageUrl: "/optimised/Adam and Harriet 6.jpg",
+        imageUrl: "/candid/Photo 2.webp",
+        backImageUrl: "/candid/Photo 2 flip.webp",
         description: "Global reach in action: sunrise calls from Agra before a full day of meetings across India's thriving CDMO landscape."
       },
       { 
         id: "03", 
         number: "03", 
         title: "Physics of Life", 
-        imageUrl: "/optimised/IMG_4193.jpg",
-        backImageUrl: "/optimised/Adam and Harriet 7.jpg",
+        imageUrl: "/candid/Photo 3.webp",
+        backImageUrl: "/candid/Photo 3 flip.webp",
         description: "Diving deep into frontier science at Physics of Life — learning where discovery meets commercialisation."
       },
       { 
         id: "04", 
         number: "04", 
         title: "Harrogate HQ", 
-        imageUrl: "/optimised/IMG_4722.jpg",
-        backImageUrl: "/optimised/Harriet Headshot 2.jpg",
+        imageUrl: "/candid/Photo 4.webp",
+        backImageUrl: "/candid/Photo 4 flip.webp",
         description: "A caffeine-fuelled strategy sprint back home in Harrogate — planning the next slate of senior hires in the sun."
       },
       { 
         id: "05", 
         number: "05", 
         title: "Curia Catch-ups", 
-        imageUrl: "/optimised/IMG_4855.jpg",
-        backImageUrl: "/optimised/Harriet Headshot 3.jpg",
+        imageUrl: "/candid/Photo 5.webp",
+        backImageUrl: "/candid/Photo 5 flip.webp",
         description: "On the floor at CPHI with Curia's leadership team — translating market intel into real hiring momentum."
       },
       { 
         id: "06", 
         number: "06", 
         title: "CPHI Barcelona", 
-        imageUrl: "/optimised/IMG_1198.jpg",
-        backImageUrl: "/optimised/Harriet Headshot 8.jpg",
+        imageUrl: "/candid/Photo 6.webp",
+        backImageUrl: "/candid/Photo 6 flip.webp",
         description: "Barcelona sunshine, back-to-back meetings, and a diary filled with new collaborations."
       },
       { 
         id: "07", 
         number: "07", 
         title: "Night Sessions", 
-        imageUrl: "/optimised/IMG_0191.jpg",
-        backImageUrl: "/optimised/Adam Headshot 3.jpg",
+        imageUrl: "/candid/Photo 7.webp",
+        backImageUrl: "/candid/Photo 7 flip.webp",
         description: "Late-night debriefs with friends and partners — because the best ideas often arrive after hours."
       },
       { 
         id: "08", 
         number: "08", 
         title: "Conference Crew", 
-        imageUrl: "/optimised/IMG_7191.jpg",
-        backImageUrl: "/optimised/Adam Headshot 4.jpg",
+        imageUrl: "/candid/Photo 8.webp",
+        backImageUrl: "/candid/Photo 8 flip.webp",
         description: "Rounding off a packed conference day — celebrating the wins and plotting the next wave of moves."
+      },
+      { 
+        id: "09", 
+        number: "09", 
+        title: "Industry Connections", 
+        imageUrl: "/candid/Photo 9.webp",
+        backImageUrl: "/candid/Photo 9 flip.webp",
+        description: "Building lasting relationships with industry leaders — where every conversation opens new doors."
+      },
+      { 
+        id: "10", 
+        number: "10", 
+        title: "Global Networking", 
+        imageUrl: "/candid/Photo 10.webp",
+        backImageUrl: "/candid/Photo 10 flip.webp",
+        description: "Expanding our network across continents — connecting talent with opportunities worldwide."
+      },
+      { 
+        id: "11", 
+        number: "11", 
+        title: "Strategic Partnerships", 
+        imageUrl: "/candid/Photo 11.webp",
+        backImageUrl: "/candid/Photo 11 flip.webp",
+        description: "Forging strategic partnerships that drive innovation and growth in the life sciences sector."
+      },
+      { 
+        id: "12", 
+        number: "12", 
+        title: "Innovation Hub", 
+        imageUrl: "/candid/Photo 12.webp",
+        backImageUrl: "/candid/Photo 12 flip.webp",
+        description: "At the heart of innovation — exploring cutting-edge technologies and breakthrough discoveries."
+      },
+      { 
+        id: "13", 
+        number: "13", 
+        title: "Collaborative Spirit", 
+        imageUrl: "/candid/Photo 13.webp",
+        backImageUrl: "/candid/Photo 13 flip.webp",
+        description: "Working together to solve complex challenges — collaboration is key to success."
+      },
+      { 
+        id: "14", 
+        number: "14", 
+        title: "Future Forward", 
+        imageUrl: "/candid/Photo 14.webp",
+        backImageUrl: "/candid/Photo 14 flip.webp",
+        description: "Looking ahead to the future of life sciences — shaping tomorrow's breakthroughs today."
+      },
+      { 
+        id: "15", 
+        number: "15", 
+        title: "Making Impact", 
+        imageUrl: "/candid/Photo 15.webp",
+        backImageUrl: "/candid/Photo 15 flip.webp",
+        description: "Creating meaningful impact in the industry — one connection, one placement, one success at a time."
       },
     ],
     [],
@@ -300,8 +356,8 @@ export default function CandidMoments() {
               left: `${smoothedCursorPosition.x + 10}px`,
               top: `${smoothedCursorPosition.y + 10}px`,
               transform: 'translate(0, 0)',
-              backgroundColor: '#464C53',
-              color: '#FF9752',
+              backgroundColor: 'var(--color-peach)',
+              color: 'var(--color-blue)',
               padding: '6px 12px',
               borderRadius: '6px',
               fontSize: '12px',

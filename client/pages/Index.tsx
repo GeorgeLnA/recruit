@@ -757,7 +757,7 @@ export default function Index() {
   }, [isMobile]);
 
   return (
-    <div className="overflow-x-hidden bg-white relative">
+    <div className="overflow-x-hidden bg-[var(--color-blue)] relative">
       <>
           {/* Loading screen overlay */}
           {isLoading && (
@@ -841,7 +841,7 @@ export default function Index() {
               }}
             >
               <source
-                src="/vids/Hero.webm"
+                src="/vids/longs/Who%20Are%20We%20V4.webm"
                 type="video/webm"
               />
               Your browser does not support the video tag.

@@ -359,7 +359,7 @@ export default function ProofInThePeople() {
                     ref={(el) => { caseStudyCardRefs.current[1] = el; }}
                     className="case-study-card md:sticky top-0 z-30 mx-auto shadow-lg transition-all duration-500 ease-out"
                     style={{ 
-                      backgroundColor: '#aa95de',
+                      backgroundColor: '#ffb077',
                       borderColor: 'rgba(255, 255, 255, 0.2)',
                       borderWidth: '1px',
                       borderStyle: 'solid',

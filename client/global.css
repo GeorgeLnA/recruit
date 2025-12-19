@@ -63,6 +63,7 @@
 
 /** @import must precede all other statements */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -189,10 +190,10 @@
     @apply font-sans;
     scroll-behavior: smooth;
     color: var(--color-white);
-    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
-    font-weight: var(--font-weight, 400) !important;
+    font-family: var(--font-family, "Raleway", "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 600) !important;
     letter-spacing: var(--letter-spacing, 0.00em) !important;
-    line-height: var(--line-height, 1.5) !important;
+    line-height: var(--line-height, 1.50) !important;
     overflow-x: hidden;
     overflow-y: auto;
     background-color: var(--theme-background);
@@ -206,18 +207,18 @@
 
   /* Apply font settings to all text elements (except font-size to preserve relative sizing) */
   * {
-    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
-    font-weight: var(--font-weight, 400) !important;
+    font-family: var(--font-family, "Raleway", "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 600) !important;
     letter-spacing: var(--letter-spacing, 0.00em) !important;
-    line-height: var(--line-height, 1.5) !important;
+    line-height: var(--line-height, 1.50) !important;
   }
 
   /* Ensure headings and other text elements inherit font properties (but keep their size) */
   h1, h2, h3, h4, h5, h6, p, span, div, a, li, td, th, label, small, strong, em, b, i, u, s, code, pre, blockquote, cite {
-    font-family: var(--font-family, "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
-    font-weight: var(--font-weight, 400) !important;
+    font-family: var(--font-family, "Raleway", "TexGyreAdventor", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif) !important;
+    font-weight: var(--font-weight, 600) !important;
     letter-spacing: var(--letter-spacing, 0.00em) !important;
-    line-height: var(--line-height, 1.5) !important;
+    line-height: var(--line-height, 1.50) !important;
   }
 
 }

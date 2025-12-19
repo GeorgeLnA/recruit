@@ -40,8 +40,8 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     'CDMO': 'CDMO',
     'Diagnostics': 'Diagnostics',
     'CRO': 'CRO',
-    'CDC_Global': isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions',
-    'EXIT': isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions'
+    'CDC_Global': isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.',
+    'EXIT': isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.'
   };
 
   // Get next state in sequence
@@ -163,11 +163,11 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
 
       // Continue morphing - use ref for synchronous state
       const currentText = currentState.type === 'CDC_Global' || currentState.type === 'EXIT' 
-        ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
+        ? (isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.')
         : wordText[currentState.type];
       const nextState = getNextState(currentState);
       const nextText = nextState.type === 'CDC_Global' || nextState.type === 'EXIT'
-        ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
+        ? (isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.')
         : wordText[nextState.type];
 
       // CRITICAL: Always ensure text2 is set to next word BEFORE any morph happens
@@ -198,7 +198,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           // Prepare text2 for next morph - calculate from nextState, not currentState
           const nextNextState = getNextState(nextState);
           const nextNextText = nextNextState.type === 'CDC_Global' || nextNextState.type === 'EXIT'
-            ? (isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions')
+            ? (isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.')
             : wordText[nextNextState.type];
           
           // CRITICAL: Set text2 immediately and ensure it's correct
@@ -259,9 +259,9 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     const safetyCheck = () => {
       const currentState = currentStateRef.current;
       
-      if (currentState.type === 'EXIT' || isExitingRef.current) {
+        if (currentState.type === 'EXIT' || isExitingRef.current) {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
+          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.';
           if (text1Ref.current.textContent !== cdcText) {
             text1Ref.current.textContent = cdcText;
           }
@@ -275,7 +275,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       // When at CRO or transitioning to CDC Global Solutions, ensure text2 is NEVER Diagnostics
       if (currentState.type === 'CRO' || currentState.type === 'CDC_Global') {
         if (text2Ref.current) {
-          const expectedText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
+          const expectedText = isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.';
           // If text2 shows Diagnostics when it shouldn't, fix it immediately
           if (text2Ref.current.textContent === wordText['Diagnostics']) {
             text2Ref.current.textContent = expectedText;
@@ -307,7 +307,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     if (wordState.type === 'EXIT' && text1Ref.current && text2Ref.current) {
       const lockText = () => {
         if (text1Ref.current && text2Ref.current) {
-          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions' : 'CDC Global Solutions';
+          const cdcText = isMobile ? 'CDC\nGlobal\nSolutions.' : 'CDC Global Solutions.';
           text1Ref.current.textContent = cdcText;
           text2Ref.current.textContent = cdcText;
           text1Ref.current.style.filter = 'none';
@@ -367,7 +367,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               lineHeight: '0.95',
             }}
           >
-            CDC{'\n'}Global{'\n'}Solutions
+            CDC{'\n'}Global{'\n'}Solutions.
           </h1>
         </div>
       </div>

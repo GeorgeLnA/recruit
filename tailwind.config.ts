@@ -96,7 +96,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        sans: ["TexGyreAdventor", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Raleway", "TexGyreAdventor", "Inter", "system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

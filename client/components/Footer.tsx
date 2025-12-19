@@ -226,7 +226,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 max-w-full mx-auto" style={{ alignItems: 'start', width: '100%', boxSizing: 'border-box' }}>
           {/* Column 1: CDC Global Solutions Address */}
           <div data-footer-col>
-            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: isMobile ? 'clamp(18px, 2.5vw, 22px)' : 'clamp(12px, 1.25vw, 14px)', color: 'white' }}>CDC Global Solutions</h4>
+            <h4 data-footer-heading className="text-white font-bold tracking-wider mb-4" style={{ fontSize: isMobile ? 'clamp(18px, 2.5vw, 22px)' : 'clamp(12px, 1.25vw, 14px)', color: 'white' }}>CDC Global Solutions.</h4>
             <div className="text-white" style={{ fontSize: isMobile ? 'clamp(16px, 2vw, 18px)' : 'clamp(11px, 1vw, 14px)', lineHeight: '1.5', color: 'white' }}>
               <p style={{ color: 'white' }}>Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
             </div>
@@ -379,13 +379,13 @@ export default function Footer() {
               width: 'auto',
               margin: isMobile ? '0' : '0 auto',
               color: 'white'
-            }}>CDC Global Solutions</span>
+            }}>CDC Global Solutions.</span>
           </div>
         </div>
 
         <div className="flex flex-row justify-between items-center gap-1 md:gap-4 max-w-full mx-auto" style={{ width: '100%', boxSizing: 'border-box' }}>
           <div data-footer-bottom className="text-white" style={{ fontSize: isMobile ? 'clamp(10px, 1.2vw, 12px)' : 'clamp(11px, 1vw, 14px)', color: 'white' }}>
-            <p className="font-bold" style={{ color: 'white' }}>©{currentYear} CDC Global Solutions</p>
+            <p className="font-bold" style={{ color: 'white' }}>©{currentYear} CDC Global Solutions.</p>
           </div>
           <div data-footer-bottom className="flex gap-4 text-white" style={{ fontSize: isMobile ? 'clamp(10px, 1.2vw, 12px)' : 'clamp(11px, 1vw, 14px)', color: 'white' }}>
             <a href="/privacy-policy" className="hover:opacity-70 transition-opacity" style={{ color: 'white' }}>

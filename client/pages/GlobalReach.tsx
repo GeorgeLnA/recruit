@@ -21,7 +21,7 @@ const locations: EarthPin[] = [
     lat: 25.2048, 
     lon: 55.2708, 
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
-    video: '/vids/Dubai.webm',
+    video: '/vids/longs/Dubai%20V4.webm',
     description: 'After years in the industry, we\'d grown frustrated with the transactional, impersonal approach so common in recruitment. We wanted to build something different — a business rooted in honesty, personal connection, and genuine partnership. At CDC, we go beyond screens and calls — we travel to meet our clients and candidates in person, taking the time to truly understand their goals, culture, and challenges. It\'s that personal touch that drives every relationship we build.',
     labelPosition: 'top'
   },
@@ -130,7 +130,7 @@ const locations: EarthPin[] = [
     lat: 25.2048, 
     lon: 55.2708, 
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
-    video: '/vids/Dubai.webm',
+    video: '/vids/longs/Dubai%20V4.webm',
     description: 'Middle East\'s leading medical laboratory exhibition and conference. MEDLAB Dubai connects us with laboratory professionals, diagnostic companies, and healthcare innovators across the region.',
     labelPosition: 'top'
   },
@@ -160,7 +160,8 @@ export default function GlobalReach() {
   // Set Dubai video thumbnail to 0.1 seconds and track play/pause state
   useEffect(() => {
     const video = dubaiVideoRef.current;
-    if (!video) return;
+    const card = dubaiCardRef.current;
+    if (!video || !card) return;
     
     const handleLoadedMetadata = () => {
       video.currentTime = 0.1;
@@ -189,18 +190,52 @@ export default function GlobalReach() {
       video.currentTime = 0.1;
       video.muted = false;
       video.volume = 1.0;
-      // Ensure video starts paused
-      video.pause();
     }
     
-    // Check initial playing state (should be paused by default)
-    setIsDubaiPlaying(false);
+    // IntersectionObserver to autoplay video when card comes into view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+            // Card is visible - autoplay video with audio
+            if (video.paused) {
+              video.muted = false;
+              video.volume = 1.0;
+              video.play().then(() => {
+                setIsDubaiPlaying(true);
+              }).catch((error) => {
+                // Autoplay with audio failed (browser policy), try muted autoplay
+                console.log('Autoplay with audio failed, trying muted:', error);
+                video.muted = true;
+                video.play().then(() => {
+                  // Once playing, unmute
+                  video.muted = false;
+                  setIsDubaiPlaying(true);
+                }).catch(() => {
+                  setIsDubaiPlaying(false);
+                });
+              });
+            }
+          }
+        });
+      },
+      {
+        threshold: [0, 0.3, 0.5, 0.7, 1],
+        rootMargin: '50px'
+      }
+    );
+    
+    observer.observe(card);
+    
+    // Check initial playing state
+    setIsDubaiPlaying(!video.paused);
     
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('playing', handlePlay);
       video.removeEventListener('pause', handlePause);
+      observer.disconnect();
     };
   }, []);
 
@@ -296,7 +331,7 @@ export default function GlobalReach() {
                     loop
                     muted={false}
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     loading="lazy"
                     disablePictureInPicture
                     disableRemotePlayback
