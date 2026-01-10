@@ -3,7 +3,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { FlipButton } from "@/components/FlipButton";
 import Footer from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // SVG file names from /public/svgs
@@ -39,10 +39,21 @@ export default function Index() {
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const heroVideoContainerRef = useRef<HTMLDivElement>(null);
   const aboutUsRef = useRef<HTMLDivElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
   const [revealedWordCount, setRevealedWordCount] = useState(0);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHoveringHero, setIsHoveringHero] = useState(false);
+  const smoothCircleSizeRef = useRef(50);
+  const circleAnimationRef = useRef<gsap.core.Tween | null>(null);
+  
+  // Initialize circle size on mount
+  useEffect(() => {
+    if (circleRef.current) {
+      smoothCircleSizeRef.current = 50;
+      gsap.set(circleRef.current, { width: '50px', height: '50px', force3D: true });
+    }
+  }, []);
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -160,6 +171,39 @@ export default function Index() {
 
     return () => cancelAnimationFrame(animationFrame);
   }, [mousePosition, isMobile]);
+
+  // Circle expansion in sync with scroll - immediate, responsive, no delay
+  useEffect(() => {
+    if (!circleRef.current) return;
+
+    // Single continuous linear expansion from start to end
+    const progress = Math.max(0, Math.min(1, scrollProgress));
+    
+    // Continuous linear expansion - directly mapped to scroll position, faster expansion
+    let targetSize: number;
+    if (progress < 0.25) {
+      targetSize = 50;
+    } else {
+      // Linear expansion from 0.25 to 0.85 - expands quicker, finishes earlier
+      const normalizedProgress = Math.min(1, (progress - 0.25) / 0.6);
+      targetSize = 50 + (2000 - 50) * normalizedProgress;
+    }
+
+    // Kill any existing animation to prevent conflicts
+    if (circleAnimationRef.current) {
+      circleAnimationRef.current.kill();
+    }
+
+    // Very fast update - almost immediate response to scroll, minimal easing
+    circleAnimationRef.current = gsap.to(circleRef.current, {
+      width: `${targetSize}px`,
+      height: `${targetSize}px`,
+      duration: 0.02, // Extremely short - responsive to scroll
+      ease: "none", // No easing - direct response to scroll
+      overwrite: true,
+      force3D: true
+    });
+  }, [scrollProgress]);
 
   // Helper functions for video shape morphing (based on videoProgress within grey section)
   const getVideoBorderRadius = (progress: number) => {
@@ -976,45 +1020,25 @@ export default function Index() {
          <div 
            className="w-full relative overflow-hidden z-10"
           style={{
-            height: isMobile 
-              ? '110vh' // Shorter on mobile, no state change
-              : (scrollProgress >= 0.85 ? '100vh' : '200vh'),
-            opacity: scrollProgress > 0.2 ? 1 : 1,
-            transition: isMobile ? 'none' : (scrollProgress >= 0.85 ? 'height 0.3s ease-out' : 'none')
+            height: '140vh',
+            opacity: scrollProgress > 0.2 ? 1 : 1
           }}
         >
           {/* Expanding shape - positioned within section */}
           <div 
+            ref={circleRef}
             className="absolute rounded-full relative"
             style={{
               backgroundColor: 'var(--color-peach)',
               filter: 'none',
-              width: isMobile
-                ? (scrollProgress < 0.75 
-                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px`
-                    : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px`)
-                : (scrollProgress < 0.75 
-                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                    : scrollProgress < 0.85
-                    ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                    : '100%'), // Full rectangle at the very end (desktop only)
-              height: isMobile
-                ? (scrollProgress < 0.75 
-                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px`
-                    : `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px`)
-                : (scrollProgress < 0.75 
-                    ? `${Math.min(Math.max((scrollProgress - 0.3) * 3 * 800, 50), 1400)}px` // Moderate growth
-                    : scrollProgress < 0.85
-                    ? `${Math.min(Math.max(1400 + (scrollProgress - 0.75) * 5 * 800, 1400), 2000)}px` // Final expansion
-                    : '100%'), // Full rectangle at the very end (desktop only)
-              opacity: 1, // Always visible
-              transition: 'border-radius 0.1s linear', // Only transition border-radius, much faster
-              top: '2%', // Position at 2%
+              width: '50px',
+              height: '50px',
+              opacity: 1,
+              top: '2%',
               left: '50%',
               transform: 'translateX(-50%)',
-              borderRadius: isMobile ? '50%' : (scrollProgress < 0.85 ? '50%' : '0%'), // Always circle on mobile
-              zIndex: 10,
-              willChange: 'width, height, border-radius' // Optimize for performance
+              borderRadius: '50%',
+              zIndex: 10
             }}
           >
           </div>
