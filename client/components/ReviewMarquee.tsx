@@ -452,7 +452,7 @@ function MarqueeItem({
       className={cn("shrink-0 rounded-[16px] bg-[var(--color-blue)] border border-[var(--color-blue-light)] shadow-lg will-change-transform review-card flex flex-col", isMobile ? "mx-2" : "mx-5")}
       style={{ 
         width: isMobile ? 'clamp(280px, 75vw, 400px)' : 'clamp(500px, 40vw, 580px)',
-        height: isMobile ? 'clamp(400px, 100vh, 500px)' : '800px',
+        height: isMobile ? 'clamp(420px, 110vh, 520px)' : '850px',
         padding: isMobile ? 'clamp(16px, 4vw, 24px)' : 'clamp(32px, 2.5vw, 32px)',
         transform: `rotate(${tiltDeg}deg)`,
         transition: isDragging ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',

@@ -45,7 +45,7 @@ export default function AsAClient() {
           Work With Us: As a Client
         </h1>
         <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', marginBottom: 'clamp(60px, 5vw, 80px)' }}>
-          CDC Global Solutions. specialises in global recruitment across CDMO, CRO and diagnostics —
+          CDC Global Solutions. specialises in global recruitment across CDMO, CRO and diagnostics,
           covering commercial, technical and operational roles among others.
         </p>
 
@@ -81,7 +81,7 @@ export default function AsAClient() {
           <div>
             <VideoPlayer
               src="/vids/longs/Work%20With%20Us%20-%20Companies%20V4.webm"
-              poster="/vids/thumbnails/COMPANIES.jpg"
+              poster="/vids/thumbnails/CDC Clients Thumbnail.jpg"
               title="What we offer to clients"
               className="w-full"
             />

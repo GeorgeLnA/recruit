@@ -34,10 +34,30 @@ export default function Hero({
               playsInline
               preload="metadata"
               poster={posterSrc}
+              style={{
+                filter: 'none',
+                WebkitFilter: 'none',
+                imageRendering: 'auto',
+                WebkitFontSmoothing: 'auto'
+              }}
             >
               <source src={videoSrcMp4} type="video/mp4" />
               {/* Non-JS fallback image */}
-              <img src={posterSrc} alt={headline} className="absolute inset-0 h-full w-full object-cover" />
+              <img 
+                src={posterSrc} 
+                alt={headline} 
+                className="absolute inset-0 h-full w-full object-cover" 
+                style={{
+                  filter: 'none',
+                  WebkitFilter: 'none',
+                  imageRendering: 'auto',
+                  WebkitFontSmoothing: 'auto',
+                  backfaceVisibility: 'visible',
+                  WebkitBackfaceVisibility: 'visible',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)'
+                }}
+              />
               Your browser does not support the video tag.
             </video>
 

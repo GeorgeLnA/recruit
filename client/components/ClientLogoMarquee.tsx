@@ -114,6 +114,11 @@ const defaultLogos: ClientLogo[] = [
     name: "Predicine",
     imageUrl: "/logos/Predicine-Logo-Blue-300x129.jpg",
   },
+  {
+    id: "mercy-bioanalytics",
+    name: "Mercy BioAnalytics",
+    imageUrl: "/logos/Mercy BioAnalytics.png",
+  },
 ];
 
 export default function ClientLogoMarquee({

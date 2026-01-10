@@ -392,6 +392,12 @@ export default function VideoPlayer({
       <div 
         ref={containerRef}
         className={`relative w-full h-full overflow-hidden ${videoRounded} cursor-pointer touch-manipulation`}
+        style={{
+          filter: 'none',
+          WebkitFilter: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none'
+        }}
         onClick={(e) => {
           handleVideoClick(e);
         }}
@@ -422,7 +428,11 @@ export default function VideoPlayer({
           style={{
             // Hide video frame until play is clicked - show poster instead
             opacity: hasStarted ? 1 : 0,
-            display: 'block'
+            display: 'block',
+            filter: 'none',
+            WebkitFilter: 'none',
+            imageRendering: 'auto',
+            WebkitFontSmoothing: 'auto'
           }}
         >
           {shouldLoad && src && (
@@ -437,7 +447,15 @@ export default function VideoPlayer({
             alt={title || "Video thumbnail"}
             className={`absolute inset-0 h-full w-full object-cover pointer-events-none ${videoRounded}`}
             style={{ 
-              zIndex: 1
+              zIndex: 1,
+              filter: 'none',
+              WebkitFilter: 'none',
+              imageRendering: 'auto',
+              WebkitFontSmoothing: 'auto',
+              backfaceVisibility: 'visible',
+              WebkitBackfaceVisibility: 'visible',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)'
             }}
             loading="eager"
             fetchpriority="high"
@@ -446,7 +464,7 @@ export default function VideoPlayer({
 
         {/* Initial Play Overlay */}
         {!hasStarted && (
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-none" style={{ zIndex: 2 }}>
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none" style={{ zIndex: 2, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}>
             <Button
               ref={playButtonRef}
               onClick={(e) => {

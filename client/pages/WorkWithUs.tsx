@@ -9,7 +9,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Helper function to ensure thumbnails come strictly from the thumbnails folder
 const getHorizontalVideoThumbnail = (videoName: string): string => {
   // Ensure thumbnail path is strictly from /vids/thumbnails/ folder
-  return `/vids/thumbnails/${videoName}.jpg`;
+  // Map video names to new thumbnail filenames
+  const thumbnailMap: Record<string, string> = {
+    'CLIENTS': 'CDC Candidates Thumbnail',
+    'COMPANIES': 'CDC Clients Thumbnail',
+  };
+  const thumbnailName = thumbnailMap[videoName] || videoName;
+  return `/vids/thumbnails/${thumbnailName}.jpg`;
 };
 
 export default function WorkWithUs() {
@@ -503,7 +509,7 @@ export default function WorkWithUs() {
         <div className="mx-auto relative" style={{ zIndex: 10, marginBottom: 'clamp(120px, 12vw, 192px)', maxWidth: '1120px' }}>
           <VideoPlayer
             src={checked ? "/vids/longs/Work%20With%20Us%20-%20Clients%20V4.webm" : "/vids/longs/Work%20With%20Us%20-%20Companies%20V4.webm"}
-            poster={checked ? getHorizontalVideoThumbnail("COMPANIES") : getHorizontalVideoThumbnail("CLIENTS")}
+            poster={checked ? getHorizontalVideoThumbnail("CLIENTS") : getHorizontalVideoThumbnail("COMPANIES")}
             title="Work With Us Introduction"
             className="w-full"
             lazy={false}
@@ -538,7 +544,7 @@ export default function WorkWithUs() {
                     </h2>
                     {isMobile && (
                       <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
-                        We live and breathe the Life Sciences sector — especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
+                        We live and breathe the Life Sciences sector, especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
                       </p>
                     )}
                   </div>
@@ -570,7 +576,7 @@ export default function WorkWithUs() {
                 </div>
                 {!isMobile && (
                   <p className="absolute text-white" style={{ left: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    We live and breathe the Life Sciences sector — especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
+                    We live and breathe the Life Sciences sector, especially the CDMO, Diagnostic and CRO markets. Our market knowledge, network, and insights mean faster, smarter hires with less risk.
                   </p>
                 )}
               </div>
@@ -599,7 +605,7 @@ export default function WorkWithUs() {
                     </h2>
                     {isMobile && (
                       <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%', color: 'white' }}>
-                        With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship driven service.
+                        With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide, while providing a boutique, relationship driven service.
                       </p>
                     )}
                   </div>
@@ -631,7 +637,7 @@ export default function WorkWithUs() {
                 </div>
                 {!isMobile && (
                   <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)', color: 'white' }}>
-                    With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide — while providing a boutique, relationship driven service.
+                    With a 50,000+ LinkedIn network and long-standing industry relationships, we connect you to top talent worldwide, while providing a boutique, relationship driven service.
                   </p>
                 )}
               </div>
@@ -714,7 +720,7 @@ export default function WorkWithUs() {
               >
                 <div className="flex flex-col lg:flex-row-reverse h-full" style={{ gap: 'clamp(48px, 4vw, 160px)' }}>
                   <div className="flex-1 w-full md:max-w-[55%] z-10 h-full flex flex-col items-center md:items-end justify-center md:justify-start text-center md:text-right" style={{ paddingRight: 'clamp(0px, 0vw, 80px)' }}>
-                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)' }}>
+                    <h2 className="font-bold leading-[0.95] text-white" style={{ fontSize: 'clamp(40px, 4vw, 72px)', marginBottom: 'clamp(24px, 2vw, 80px)', whiteSpace: 'nowrap' }}>
                       Speed, Transparency & Trust
                     </h2>
                     {isMobile && (
@@ -750,8 +756,9 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    We move fast without cutting corners. You'll always know where your search stands, with honest communication and consistent delivery you can rely on.
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(800px, 55vw, 950px)' }}>
+                    We move fast without cutting corners. You'll always<br />
+                    know where your search stands, with honest communication and consistent delivery you can rely on.
                   </p>
                 )}
               </div>
@@ -824,7 +831,7 @@ export default function WorkWithUs() {
                   height: 'clamp(520px, 40vw, 720px)', 
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
-                  backgroundColor: '#ff3632',
+                  backgroundColor: '#fdcc69',
                   color: 'white',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[1] || 0) : undefined 
                 }}
@@ -884,7 +891,8 @@ export default function WorkWithUs() {
                   height: 'clamp(520px, 40vw, 720px)', 
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
-                  backgroundColor: '#fdcc69',
+                  backgroundColor: '#ff3632',
+                  color: 'white',
                   transform: enableTransforms ? getCardTransform('left', candidateCardProgress[2] || 0) : undefined 
                 }}
               >
@@ -943,7 +951,7 @@ export default function WorkWithUs() {
                   height: 'clamp(520px, 40vw, 720px)', 
                   width: 'clamp(94%, 90%, 1400px)', 
                   maxWidth: 'clamp(1152px, 90vw, 1400px)',
-                  backgroundColor: '#ff8c42',
+                  backgroundColor: '#ffb366',
                   transform: enableTransforms ? getCardTransform('right', candidateCardProgress[3] || 0) : undefined 
                 }}
               >
@@ -954,7 +962,7 @@ export default function WorkWithUs() {
                     </h2>
                     {isMobile && (
                       <p className="text-white" style={{ fontSize: 'clamp(18px, 1.5vw, 28px)', maxWidth: '90%' }}>
-                        Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
+                        Your trust matters. We keep every conversation discreet and communicate openly, so you always know where you stand.
                       </p>
                     )}
                   </div>
@@ -984,8 +992,8 @@ export default function WorkWithUs() {
                   </div>
                 </div>
                 {!isMobile && (
-                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(672px, 50vw, 800px)' }}>
-                    Your trust matters. We keep every conversation discreet and communicate openly — so you always know where you stand.
+                  <p className="absolute text-white text-right" style={{ right: 'clamp(32px, 2.5vw, 80px)', bottom: 'clamp(60px, 5vw, 100px)', fontSize: 'clamp(22px, 2vw, 36px)', maxWidth: 'clamp(720px, 52vw, 850px)' }}>
+                    Your trust matters. We keep every conversation discreet and communicate openly, so you always know where you stand.
                   </p>
                 )}
               </div>

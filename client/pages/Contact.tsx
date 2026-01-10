@@ -53,7 +53,7 @@ function LinkedInConnectionSection() {
     }
 
     // Enhanced card entrance animations with stagger
-    const cards = [harrietCardRef, companyCardRef, adamCardRef];
+    const cards = [harrietCardRef, adamCardRef, companyCardRef];
     
     cards.forEach((ref, index) => {
       if (ref.current) {
@@ -106,7 +106,7 @@ function LinkedInConnectionSection() {
   useEffect(() => {
     if (isMobile) return; // Disable hover animations on mobile
     
-    const cards = [harrietCardRef, companyCardRef, adamCardRef];
+    const cards = [harrietCardRef, adamCardRef, companyCardRef];
     const animations = new Map<HTMLElement, { float?: gsap.core.Tween; hover?: gsap.core.Timeline }>();
     
     cards.forEach((ref) => {
@@ -347,61 +347,6 @@ function LinkedInConnectionSection() {
           </div>
         </a>
 
-        {/* Company Card */}
-        <a
-          ref={companyCardRef}
-          href="https://www.linkedin.com/company/cdcglobal/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden md:cursor-pointer"
-          style={{
-            backgroundColor: 'var(--color-blue)',
-            padding: 'clamp(24px, 2.5vw, 40px)',
-            minHeight: '560px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 8px 24px rgba(255, 151, 82, 0.3)',
-            transition: 'box-shadow 0.3s ease'
-          }}
-          onMouseEnter={!isMobile ? (e) => {
-            e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 151, 82, 0.5)';
-          } : undefined}
-          onMouseLeave={!isMobile ? (e) => {
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 151, 82, 0.3)';
-          } : undefined}
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-          <div>
-            <div className="flex items-center gap-3 mb-4" style={{ marginBottom: 'clamp(16px, 1.5vw, 24px)' }}>
-              <div className="relative rounded-full overflow-hidden flex-shrink-0" style={{ width: 'clamp(64px, 5vw, 80px)', height: 'clamp(64px, 5vw, 80px)', border: '3px solid rgba(255, 255, 255, 0.3)' }}>
-                <img 
-                  src="/cdcglobal_logo.jpeg" 
-                  alt="CDC Global Solutions"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="font-bold text-white" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(20px, 1.75vw, 28px)' }}>
-                  CDC Global Solutions.
-                </h3>
-                <p className="text-white/80" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(12px, 1vw, 16px)' }}>
-                  Company Page
-                </p>
-              </div>
-            </div>
-            <p className="text-white/90" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.25vw, 18px)', lineHeight: '1.7' }}>
-              Connect with CDC Global Solutions for industry insights, job opportunities, and company updates. Join our 12,000+ network in the Life Sciences sector. We specialize in CDMO, CRO, and Diagnostics recruitment, connecting exceptional talent with leading organizations worldwide.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 text-white group-hover/linkedin-card:gap-3 transition-all" style={{ marginTop: 'auto', paddingTop: 'clamp(16px, 1.5vw, 24px)' }}>
-            <span className="font-semibold" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
-              Contact Us
-            </span>
-            <ArrowRight className="group-hover/linkedin-card:translate-x-2 transition-transform" style={{ width: 'clamp(18px, 1.5vw, 24px)', height: 'clamp(18px, 1.5vw, 24px)' }} />
-          </div>
-        </a>
-
         {/* Adam's Card */}
         <a
           ref={adamCardRef}
@@ -452,6 +397,61 @@ function LinkedInConnectionSection() {
           <div className="flex items-center gap-2 text-white group-hover/linkedin-card:gap-3 transition-all" style={{ marginTop: 'auto', paddingTop: 'clamp(16px, 1.5vw, 24px)' }}>
             <span className="font-semibold" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
               Contact Adam
+            </span>
+            <ArrowRight className="group-hover/linkedin-card:translate-x-2 transition-transform" style={{ width: 'clamp(18px, 1.5vw, 24px)', height: 'clamp(18px, 1.5vw, 24px)' }} />
+          </div>
+        </a>
+
+        {/* Company Card */}
+        <a
+          ref={companyCardRef}
+          href="https://www.linkedin.com/company/cdcglobal/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group/linkedin-card linkedin-card-mobile relative rounded-2xl overflow-hidden md:cursor-pointer"
+          style={{
+            backgroundColor: 'var(--color-blue)',
+            padding: 'clamp(24px, 2.5vw, 40px)',
+            minHeight: '560px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            boxShadow: '0 8px 24px rgba(255, 151, 82, 0.3)',
+            transition: 'box-shadow 0.3s ease'
+          }}
+          onMouseEnter={!isMobile ? (e) => {
+            e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 151, 82, 0.5)';
+          } : undefined}
+          onMouseLeave={!isMobile ? (e) => {
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 151, 82, 0.3)';
+          } : undefined}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+          <div>
+            <div className="flex items-center gap-3 mb-4" style={{ marginBottom: 'clamp(16px, 1.5vw, 24px)' }}>
+              <div className="relative rounded-full overflow-hidden flex-shrink-0" style={{ width: 'clamp(64px, 5vw, 80px)', height: 'clamp(64px, 5vw, 80px)', border: '3px solid rgba(255, 255, 255, 0.3)' }}>
+                <img 
+                  src="/cdcglobal_logo.jpeg" 
+                  alt="CDC Global Solutions"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-white" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(20px, 1.75vw, 28px)' }}>
+                  CDC Global Solutions
+                </h3>
+                <p className="text-white/80" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(12px, 1vw, 16px)' }}>
+                  Company Page
+                </p>
+              </div>
+            </div>
+            <p className="text-white/90" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.25vw, 18px)', lineHeight: '1.7' }}>
+              Connect with CDC Global Solutions for industry insights, job opportunities, and company updates. Join our 50,000+ network in the Life Sciences sector. We specialize in CDMO, CRO, and Diagnostics recruitment, connecting exceptional talent with leading organizations worldwide.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-white group-hover/linkedin-card:gap-3 transition-all" style={{ marginTop: 'auto', paddingTop: 'clamp(16px, 1.5vw, 24px)' }}>
+            <span className="font-semibold" style={{ fontFamily: 'TexGyreAdventor', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
+              Contact Us
             </span>
             <ArrowRight className="group-hover/linkedin-card:translate-x-2 transition-transform" style={{ width: 'clamp(18px, 1.5vw, 24px)', height: 'clamp(18px, 1.5vw, 24px)' }} />
           </div>

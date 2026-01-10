@@ -45,7 +45,7 @@ export default function AsACandidate() {
           Work With Us: As a Candidate
         </h1>
         <p className="text-white" style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', marginBottom: 'clamp(60px, 5vw, 80px)' }}>
-          We position you confidentially into organisations aligned with your niche — across CDMO, CRO and diagnostics —
+          We position you confidentially into organisations aligned with your niche, across CDMO, CRO and diagnostics,
           tailoring introductions to your ambitions and experience.
         </p>
 
@@ -62,7 +62,7 @@ export default function AsACandidate() {
           <div>
             <VideoPlayer
               src="/vids/longs/Work%20With%20Us%20-%20Clients%20V4.webm"
-              poster="/vids/thumbnails/CLIENTS.jpg"
+              poster="/vids/thumbnails/CDC Candidates Thumbnail.jpg"
               title="What we offer to candidates"
               className="w-full"
             />

@@ -333,7 +333,7 @@ export default function ProofInThePeople() {
                           team to drive growth. CDC partnered directly with the investors to identify key hires across C-suite and functional
                           leadership.
                         </p>
-                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1vw, 16px)' }}>
+                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
                           We identified, engaged, and closed senior hires across commercial, operations, and technical leadership, enabling the investor to deliver on its growth plan ahead of schedule.
                         </p>
                       </div>
@@ -391,7 +391,7 @@ export default function ProofInThePeople() {
                           our deep network across Europe and the US to source experienced sales, marketing, and commercial talent who could launch
                           and scale the brand internationally.
                         </p>
-                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1vw, 16px)' }}>
+                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1.125vw, 18px)' }}>
                           The programme delivered a continent-spanning commercial function, dramatically reducing the time-to-hire and seeding new revenue streams in the US and Europe.
                         </p>
                       </div>
@@ -430,7 +430,7 @@ export default function ProofInThePeople() {
                           launch timeline, CDC embedded alongside the company's leadership team to manage all hiring, from employer branding to offer
                           management.
                         </p>
-                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1vw, 16px)', color: 'rgba(255, 255, 255, 0.85)' }}>
+                        <p className="text-white/85 leading-relaxed" style={{ marginTop: 'clamp(24px, 2vw, 32px)', fontSize: 'clamp(14px, 1.125vw, 18px)', color: 'rgba(255, 255, 255, 0.85)' }}>
                           We built a full end-to-end hiring engine, filling 45 positions in under five months and standing up the site ahead of its launch date.
                         </p>
                       </div>

@@ -23,7 +23,7 @@ const locations: EarthPin[] = [
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
     video: '/vids/longs/Dubai%20V4.webm',
     description: 'After years in the industry, we\'d grown frustrated with the transactional, impersonal approach so common in recruitment. We wanted to build something different — a business rooted in honesty, personal connection, and genuine partnership. At CDC, we go beyond screens and calls — we travel to meet our clients and candidates in person, taking the time to truly understand their goals, culture, and challenges. It\'s that personal touch that drives every relationship we build.',
-    labelPosition: 'top'
+    labelPosition: 'bottom'
   },
   { 
     id: 'barcelona', 
@@ -142,13 +142,22 @@ const locations: EarthPin[] = [
     image: '/loc/blog-ratgeber-usa-arizona-sonnenuntergang-felsen-natucate.webp', 
     description: 'Premier biotech and life sciences conference in the Southwest. Meeting on the Mesa brings together industry leaders, researchers, and entrepreneurs to discuss the latest advances in biotechnology and pharmaceutical innovation.',
     labelPosition: 'bottom'
+  },
+  { 
+    id: 'world-health-expo', 
+    name: 'World Health Expo', 
+    lat: 25.2548, 
+    lon: 55.3208, 
+    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop',
+    description: 'The region\'s leading healthcare exhibition and medical laboratory showcase. World Health Expo brings together the global lab community and wider healthcare ecosystem to discover cutting-edge diagnostics, technology and innovation, connecting professionals from across the industry.',
+    labelPosition: 'top'
   }
 ];
 
 export default function GlobalReach() {
   const dubaiLocation = locations.find(loc => loc.id === 'dubai');
   // Filter out locations that should only appear on globe (not as cards)
-  const globeOnlyIds = ['boston', 'newjersey', 'sanfrancisco', 'medlab-dubai', 'arizona', 'berlin'];
+  const globeOnlyIds = ['boston', 'newjersey', 'sanfrancisco', 'medlab-dubai', 'arizona', 'berlin', 'world-health-expo'];
   const otherLocations = locations.filter(loc => loc.id !== 'dubai' && !globeOnlyIds.includes(loc.id));
   
   // Dubai video control
@@ -345,6 +354,7 @@ export default function GlobalReach() {
                   <video
                     ref={dubaiVideoRef}
                     src={dubaiLocation.video}
+                    poster="/vids/thumbnails/CDC Dubai Thumbnail.jpg"
                     autoPlay={false}
                     loop
                     muted={false}
@@ -354,7 +364,13 @@ export default function GlobalReach() {
                     disablePictureInPicture
                     disableRemotePlayback
                     className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                    style={{ display: 'block' }}
+                    style={{ 
+                      display: 'block',
+                      filter: 'none',
+                      WebkitFilter: 'none',
+                      imageRendering: 'auto',
+                      WebkitFontSmoothing: 'auto'
+                    }}
                   />
                   {/* Play/Pause Toggle Button */}
                   <button
